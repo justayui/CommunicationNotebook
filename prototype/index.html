@@ -1,0 +1,681 @@
+<title>連絡ノート 画面プロトタイプ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600&family=BIZ+UDPGothic:wght@400;700&family=JetBrains+Mono:wght@500&display=swap');
+
+  :root{
+    --bg:#EEF2ED;
+    --bg-alt:#E3E9E0;
+    --surface:#FFFFFF;
+    --surface-2:#F6F9F5;
+    --border:#D2DAD0;
+    --border-strong:#B7C2B4;
+    --ink:#1C2620;
+    --ink-soft:#55635B;
+    --ink-faint:#8B968E;
+    --accent:#24586A;
+    --accent-hover:#1B4553;
+    --accent-soft:#DCE9EC;
+    --favorite:#B8791E;
+    --favorite-bg:#FBF1DE;
+    --success:#2F6B4F;
+    --success-bg:#E4F0E8;
+    --danger:#A8452F;
+    --danger-bg:#F6E4DF;
+    --shadow: 0 1px 2px rgba(28,38,32,0.06), 0 6px 16px rgba(28,38,32,0.06);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10151A;
+      --bg-alt:#171D1A;
+      --surface:#1B211D;
+      --surface-2:#212925;
+      --border:#303B34;
+      --border-strong:#3E4B42;
+      --ink:#E7ECE7;
+      --ink-soft:#A6B0A9;
+      --ink-faint:#6C766F;
+      --accent:#63ACC0;
+      --accent-hover:#82C0D2;
+      --accent-soft:#1E3A41;
+      --favorite:#DDA84C;
+      --favorite-bg:#3A2E15;
+      --success:#79C39A;
+      --success-bg:#1C3327;
+      --danger:#E27F63;
+      --danger-bg:#3B211B;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#10151A;
+    --bg-alt:#171D1A;
+    --surface:#1B211D;
+    --surface-2:#212925;
+    --border:#303B34;
+    --border-strong:#3E4B42;
+    --ink:#E7ECE7;
+    --ink-soft:#A6B0A9;
+    --ink-faint:#6C766F;
+    --accent:#63ACC0;
+    --accent-hover:#82C0D2;
+    --accent-soft:#1E3A41;
+    --favorite:#DDA84C;
+    --favorite-bg:#3A2E15;
+    --success:#79C39A;
+    --success-bg:#1C3327;
+    --danger:#E27F63;
+    --danger-bg:#3B211B;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
+    color-scheme: dark;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'BIZ UDPGothic','Hiragino Sans','Yu Gothic',sans-serif;
+    font-size:15px;
+    line-height:1.7;
+  }
+  h1,h2,h3{ font-family:'Shippori Mincho',serif; font-weight:600; text-wrap:balance; margin:0; }
+  .mono{ font-family:'JetBrains Mono',monospace; font-variant-numeric:tabular-nums; }
+  button{ font-family:inherit; font-size:inherit; cursor:pointer; }
+  input,textarea{ font-family:inherit; font-size:inherit; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  }
+
+  /* ---------- Reviewer toolbar (prototype-only chrome) ---------- */
+  .reviewer-bar{
+    position:sticky; top:0; z-index:50;
+    background:var(--bg-alt);
+    border-bottom:1px dashed var(--border-strong);
+    padding:10px 20px;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  .reviewer-label{
+    font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--ink-faint); font-weight:700;
+  }
+  .screen-tabs{ display:flex; gap:6px; }
+  .screen-tab{
+    background:transparent; border:1px solid var(--border-strong); color:var(--ink-soft);
+    border-radius:6px; padding:6px 12px; font-size:13px; font-weight:700;
+  }
+  .screen-tab[aria-current="true"]{
+    background:var(--accent); border-color:var(--accent); color:#fff;
+  }
+  .role-switch{
+    margin-left:auto; display:flex; align-items:center; gap:8px;
+    font-size:13px; color:var(--ink-soft);
+  }
+  .role-switch select{
+    border:1px solid var(--border-strong); border-radius:6px; padding:4px 8px;
+    background:var(--surface); color:var(--ink);
+  }
+  .proto-note{
+    max-width:1040px; margin:16px auto 0; padding:10px 16px;
+    background:var(--favorite-bg); color:var(--favorite);
+    border:1px solid var(--favorite); border-radius:8px;
+    font-size:13px; font-weight:700;
+  }
+
+  .app-shell{
+    max-width:1040px; margin:20px auto 60px; background:var(--surface);
+    border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+
+  /* ---------- Screen 1: Login ---------- */
+  #screen-login .login-wrap{
+    min-height:520px; display:flex; align-items:center; justify-content:center;
+    background:
+      linear-gradient(var(--border) 1px, transparent 1px) 0 0 / 100% 34px,
+      var(--surface-2);
+    padding:40px 20px;
+  }
+  .login-card{
+    width:100%; max-width:340px; background:var(--surface);
+    border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow);
+    padding:32px 28px;
+  }
+  .login-brand{ text-align:center; margin-bottom:26px; }
+  .login-brand h1{ font-size:22px; color:var(--accent); }
+  .login-brand p{ margin:6px 0 0; font-size:12.5px; color:var(--ink-faint); }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
+  .field input{
+    width:100%; border:1px solid var(--border-strong); border-radius:7px;
+    padding:9px 11px; background:var(--surface); color:var(--ink);
+  }
+  .btn{
+    border:none; border-radius:7px; padding:10px 16px; font-weight:700;
+    background:var(--accent); color:#fff; transition:background .15s;
+  }
+  .btn:hover{ background:var(--accent-hover); }
+  .btn-block{ width:100%; }
+  .btn-ghost{
+    background:transparent; color:var(--accent); border:1px solid var(--border-strong);
+  }
+  .btn-ghost:hover{ background:var(--accent-soft); }
+  .login-links{
+    display:flex; justify-content:space-between; margin-top:14px; font-size:12.5px;
+  }
+  .login-links a{ color:var(--ink-soft); text-decoration:none; border-bottom:1px dotted var(--ink-faint); }
+
+  /* ---------- Screen 2: Main ---------- */
+  .app-header{
+    padding:16px 22px 0; border-bottom:1px solid var(--border); background:var(--surface);
+  }
+  .app-header-top{ display:flex; align-items:center; gap:16px; margin-bottom:14px; }
+  .app-header-top h1{ font-size:18px; color:var(--accent); }
+  .search-box{
+    flex:1; max-width:320px; display:flex; align-items:center; gap:6px;
+    border:1px solid var(--border-strong); border-radius:20px; padding:6px 14px;
+    background:var(--surface-2); color:var(--ink-soft); font-size:13px;
+  }
+  .search-box input{ border:none; background:transparent; outline:none; width:100%; color:var(--ink); }
+  .admin-link{
+    margin-left:auto; font-size:12.5px; font-weight:700; color:var(--accent);
+    text-decoration:none; border:1px solid var(--accent-soft); background:var(--accent-soft);
+    border-radius:6px; padding:6px 12px; white-space:nowrap;
+  }
+  .header-tabs{ display:flex; gap:4px; }
+  .header-tab{
+    background:transparent; border:none; border-bottom:2px solid transparent;
+    padding:10px 6px; font-size:13.5px; font-weight:700; color:var(--ink-soft);
+    margin-right:14px;
+  }
+  .header-tab[aria-selected="true"]{ color:var(--accent); border-color:var(--accent); }
+  .category-filter{ padding:0 0 12px; }
+  .category-filter select{
+    border:1px solid var(--border-strong); border-radius:7px; padding:7px 12px;
+    background:var(--surface); color:var(--ink); font-weight:700; font-size:13px;
+  }
+
+  .composer{ margin:18px 22px 0; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); }
+  .composer-toggle{
+    width:100%; display:flex; align-items:center; gap:8px; background:transparent; border:none;
+    padding:12px 16px; font-weight:700; color:var(--accent); text-align:left;
+  }
+  .composer-toggle .chev{ margin-left:auto; transition:transform .15s; }
+  .composer-toggle[aria-expanded="true"] .chev{ transform:rotate(180deg); }
+  .composer-body{ padding:0 16px 16px; display:grid; gap:10px; }
+  .composer-row{ display:grid; grid-template-columns:1fr 160px; gap:10px; }
+  .composer input, .composer select, .composer textarea{
+    width:100%; border:1px solid var(--border-strong); border-radius:7px; padding:8px 10px;
+    background:var(--surface); color:var(--ink);
+  }
+  .composer textarea{ min-height:70px; resize:vertical; }
+  .composer-actions{ display:flex; justify-content:flex-end; gap:8px; }
+
+  .note-list{ padding:16px 22px 24px; display:grid; gap:14px; }
+  .note-card{ border:1px solid var(--border); border-radius:10px; background:var(--surface); overflow:hidden; }
+  .note-card.is-read{ border-color:var(--success); }
+  .note-top{ display:flex; align-items:flex-start; gap:10px; padding:14px 16px 8px; }
+  .tag{
+    font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px;
+    background:var(--accent-soft); color:var(--accent); white-space:nowrap;
+  }
+  .note-title{ font-size:15px; font-weight:700; margin:0 0 2px; }
+  .note-meta{ font-size:12px; color:var(--ink-faint); }
+  .fav-btn{
+    margin-left:auto; background:transparent; border:none; font-size:19px; color:var(--ink-faint); line-height:1;
+    padding:2px 4px;
+  }
+  .fav-btn[aria-pressed="true"]{ color:var(--favorite); }
+  .note-body{ padding:0 16px 12px; color:var(--ink-soft); font-size:13.5px; }
+  .note-actions{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    padding:10px 16px; border-top:1px solid var(--border); background:var(--surface-2);
+  }
+  .read-btn{
+    border:1px solid var(--border-strong); background:var(--surface); color:var(--ink-soft);
+    border-radius:7px; padding:6px 12px; font-size:12.5px; font-weight:700;
+  }
+  .read-btn.is-read{ background:var(--success-bg); border-color:var(--success); color:var(--success); }
+  .reader-count{
+    background:transparent; border:none; color:var(--accent); font-size:12.5px; font-weight:700;
+    text-decoration:underline; text-underline-offset:2px;
+  }
+  .link-btn{
+    background:transparent; border:none; color:var(--ink-soft); font-size:12.5px; font-weight:700;
+    text-decoration:underline; text-underline-offset:2px;
+  }
+  .comment-panel{ border-top:1px solid var(--border); padding:12px 16px; display:none; gap:10px; }
+  .comment-panel.open{ display:grid; }
+  .comment-item{ font-size:13px; color:var(--ink-soft); padding:6px 0; border-bottom:1px dotted var(--border); }
+  .comment-item b{ color:var(--ink); }
+  .comment-form{ display:flex; gap:8px; margin-top:4px; }
+  .comment-form input{
+    flex:1; border:1px solid var(--border-strong); border-radius:7px; padding:7px 10px; background:var(--surface); color:var(--ink);
+  }
+  .comment-form button{
+    border:none; border-radius:7px; padding:7px 14px; background:var(--accent); color:#fff; font-weight:700; font-size:12.5px;
+  }
+
+  /* ---------- Screen 3: Admin ---------- */
+  .admin-wrap{ padding:20px 22px 28px; }
+  .admin-wrap h2{ font-size:18px; color:var(--accent); margin-bottom:4px; }
+  .admin-wrap > p{ font-size:13px; color:var(--ink-faint); margin:0 0 16px; }
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  th{
+    text-align:left; font-size:11.5px; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--ink-faint); border-bottom:1px solid var(--border-strong); padding:8px 10px;
+  }
+  td{ padding:10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  tr.is-removed td{ opacity:.45; text-decoration:line-through; }
+  .role-pill{
+    font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; background:var(--surface-2); border:1px solid var(--border-strong); color:var(--ink-soft);
+  }
+  .role-pill.admin{ background:var(--accent-soft); color:var(--accent); border-color:var(--accent-soft); }
+  .status-dot{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-soft); }
+  .status-dot::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--success); }
+  tr.is-removed .status-dot::before{ background:var(--ink-faint); }
+  .row-actions{ display:flex; gap:6px; flex-wrap:wrap; }
+  .mini-btn{
+    border:1px solid var(--border-strong); background:var(--surface); color:var(--ink-soft);
+    border-radius:6px; padding:5px 10px; font-size:12px; font-weight:700;
+  }
+  .mini-btn.danger{ color:var(--danger); border-color:var(--danger-bg); background:var(--danger-bg); }
+  .mini-btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(16,20,17,0.45); display:none;
+    align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background:var(--surface); border-radius:12px; max-width:360px; width:100%;
+    padding:22px; box-shadow:var(--shadow);
+  }
+  .modal h3{ font-size:16px; margin-bottom:12px; }
+  .modal ul{ list-style:none; padding:0; margin:0 0 16px; display:grid; gap:8px; }
+  .modal li{ font-size:13.5px; display:flex; justify-content:space-between; color:var(--ink-soft); }
+  .modal li span:last-child{ color:var(--ink-faint); font-size:12px; }
+  .modal .btn-ghost{ width:100%; }
+
+  .toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(10px);
+    background:var(--ink); color:var(--bg); padding:11px 18px; border-radius:8px;
+    font-size:13px; font-weight:700; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+    z-index:200; box-shadow:var(--shadow);
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  [hidden]{ display:none !important; }
+</style>
+
+<div class="reviewer-bar">
+  <span class="reviewer-label">画面切替(確認用)</span>
+  <div class="screen-tabs" role="tablist">
+    <button class="screen-tab" data-screen="login" aria-current="true">①ログイン</button>
+    <button class="screen-tab" data-screen="main" aria-current="false">②閲覧・入力</button>
+    <button class="screen-tab" data-screen="admin" aria-current="false">③ユーザー管理</button>
+  </div>
+  <div class="role-switch">
+    <label for="roleSelect">ログイン権限:</label>
+    <select id="roleSelect">
+      <option value="member">一般ユーザー</option>
+      <option value="admin" selected>管理者</option>
+    </select>
+  </div>
+</div>
+<p class="proto-note">これは画面イメージ確認用のプロトタイプです。実際のデータ保存・認証は行われません。</p>
+
+<!-- ============ Screen 1: Login ============ -->
+<section id="screen-login">
+  <div class="app-shell">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="login-brand">
+          <h1>連絡ノート</h1>
+          <p>組織内の連絡・共有をひとつのノートに</p>
+        </div>
+        <div class="field">
+          <label for="loginId">ログインID</label>
+          <input id="loginId" type="text" placeholder="例)yamada_taro" value="yamada_taro">
+        </div>
+        <div class="field">
+          <label for="loginPw">パスワード</label>
+          <input id="loginPw" type="password" placeholder="••••••••" value="password">
+        </div>
+        <button class="btn btn-block" id="loginBtn">ログイン</button>
+        <div class="login-links">
+          <a href="#" id="goSignup">新規登録はこちら</a>
+          <a href="#">パスワードをお忘れの方</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Screen 2: Main ============ -->
+<section id="screen-main" hidden>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-header-top">
+        <h1>連絡ノート</h1>
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" id="searchInput" placeholder="タイトル・本文で検索">
+        </div>
+        <a href="#" class="admin-link" id="adminLink" data-screen="admin">ユーザー管理へ</a>
+      </div>
+      <div class="header-tabs" role="tablist">
+        <button class="header-tab" data-filter="all" aria-selected="true">全体</button>
+        <button class="header-tab" data-filter="category" aria-selected="false">カテゴリ別</button>
+        <button class="header-tab" data-filter="favorite" aria-selected="false">お気に入り</button>
+      </div>
+      <div class="category-filter" id="categoryFilter" hidden>
+        <select id="categorySelect"></select>
+      </div>
+    </header>
+
+    <div class="composer" id="composerWrap">
+      <button class="composer-toggle" id="composerToggle" aria-expanded="false">
+        ＋ 新規投稿を作成する <span class="chev">▾</span>
+      </button>
+      <div class="composer-body" id="composerBody" hidden>
+        <div class="composer-row">
+          <input type="text" id="newNoteTitle" placeholder="タイトル">
+          <select id="newNoteCategory">
+            <option>業務連絡</option>
+            <option>総務</option>
+            <option>イベント</option>
+            <option>雑談</option>
+          </select>
+        </div>
+        <textarea id="newNoteBody" placeholder="本文を入力してください"></textarea>
+        <div class="composer-actions">
+          <button class="btn" type="button" id="postSubmit">投稿する</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-list" id="noteList"><!-- rendered by JS --></div>
+  </div>
+</section>
+
+<!-- ============ Screen 3: Admin ============ -->
+<section id="screen-admin" hidden>
+  <div class="app-shell">
+    <div class="admin-wrap">
+      <h2>ユーザー情報管理</h2>
+      <p>管理者のみアクセス可能な画面です。会員の編集・削除・パスワードリセットができます。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>氏名</th>
+            <th>ログインID</th>
+            <th>権限</th>
+            <th>状態</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="memberRows"><!-- rendered by JS --></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="overlay" id="readerOverlay">
+  <div class="modal">
+    <h3 id="readerModalTitle">既読者一覧</h3>
+    <ul id="readerModalList"></ul>
+    <button class="btn btn-ghost" id="readerModalClose">閉じる</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var notes = [
+    { id:1, category:'業務連絡', title:'来月の勤怠締め日について', author:'総務 小林', date:'2026-08-27',
+      body:'来月の勤怠締め日は8/31(月)17時までとなります。各自ご確認のうえ提出をお願いします。',
+      favorite:true, read:false,
+      readers:['山田太郎','佐藤花子','鈴木一郎'],
+      comments:[{name:'田中', text:'承知しました、期限までに提出します。'}] },
+    { id:2, category:'イベント', title:'秋の懇親会 開催のお知らせ', author:'幹事 高橋', date:'2026-08-25',
+      body:'10/3(土)に懇親会を予定しています。参加可否は9/10までにこのノートへコメントしてください。',
+      favorite:false, read:true,
+      readers:['山田太郎','佐藤花子','鈴木一郎','田中次郎','高橋美咲'],
+      comments:[{name:'佐藤', text:'参加します!'},{name:'鈴木', text:'楽しみです。'}] },
+    { id:3, category:'総務', title:'オフィス什器の入替作業のご案内', author:'総務 小林', date:'2026-08-20',
+      body:'9/5(金)にオフィス什器の入替を行います。当日は一部座席の移動をお願いする場合があります。',
+      favorite:false, read:false, readers:['佐藤花子'], comments:[] },
+    { id:4, category:'雑談', title:'休憩室のコーヒーメーカーが新しくなりました', author:'山田太郎', date:'2026-08-18',
+      body:'豆から挽けるタイプになりました。使い方は取扱説明書を休憩室に置いています。',
+      favorite:true, read:true, readers:['山田太郎','佐藤花子'], comments:[{name:'鈴木', text:'早速使いました、美味しいです。'}] }
+  ];
+  var members = [
+    { name:'山田 太郎', id:'yamada_taro', role:'admin', active:true },
+    { name:'佐藤 花子', id:'sato_hanako', role:'member', active:true },
+    { name:'鈴木 一郎', id:'suzuki_ichiro', role:'member', active:true },
+    { name:'田中 次郎', id:'tanaka_jiro', role:'member', active:false }
+  ];
+
+  var currentFilter = 'all';
+  var searchTerm = '';
+  var selectedCategory = null;
+  var nextNoteId = notes.length + 1;
+
+  function esc(s){ return s.replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function categoryList(){
+    var seen = [];
+    notes.forEach(function(n){ if(seen.indexOf(n.category) === -1) seen.push(n.category); });
+    return seen;
+  }
+
+  function populateCategorySelect(){
+    var select = document.getElementById('categorySelect');
+    var cats = categoryList();
+    if(!selectedCategory || cats.indexOf(selectedCategory) === -1){ selectedCategory = cats[0]; }
+    select.innerHTML = cats.map(function(c){
+      return '<option value="'+esc(c)+'" '+(c===selectedCategory?'selected':'')+'>'+esc(c)+'</option>';
+    }).join('');
+  }
+
+  function renderNotes(){
+    var list = document.getElementById('noteList');
+    var visible = notes.filter(function(n){
+      if(currentFilter === 'favorite' && !n.favorite) return false;
+      if(currentFilter === 'category' && n.category !== selectedCategory) return false;
+      if(searchTerm && (n.title + n.body).toLowerCase().indexOf(searchTerm.toLowerCase()) === -1) return false;
+      return true;
+    });
+    if(visible.length === 0){
+      list.innerHTML = '<p style="color:var(--ink-faint); font-size:13.5px; text-align:center; padding:30px 0;">該当するノートがありません。</p>';
+      return;
+    }
+    list.innerHTML = visible.map(function(n){
+      return '' +
+      '<article class="note-card '+(n.read?'is-read':'')+'" data-id="'+n.id+'">'+
+        '<div class="note-top">'+
+          '<span class="tag">'+esc(n.category)+'</span>'+
+          '<div><div class="note-title">'+esc(n.title)+'</div><div class="note-meta">'+esc(n.author)+' ・ <span class="mono">'+n.date+'</span></div></div>'+
+          '<button class="fav-btn" aria-pressed="'+n.favorite+'" data-action="fav" title="お気に入り">'+(n.favorite?'★':'☆')+'</button>'+
+        '</div>'+
+        '<div class="note-body">'+esc(n.body)+'</div>'+
+        '<div class="note-actions">'+
+          '<button class="read-btn '+(n.read?'is-read':'')+'" data-action="read">'+(n.read?'既読済み':'既読にする')+'</button>'+
+          '<button class="reader-count" data-action="readers">既読 <span class="mono">'+n.readers.length+'</span>人</button>'+
+          '<button class="link-btn" data-action="toggle-comment">コメント('+n.comments.length+')</button>'+
+        '</div>'+
+        '<div class="comment-panel" data-role="comment-panel">'+
+          n.comments.map(function(c){ return '<div class="comment-item"><b>'+esc(c.name)+'</b> '+esc(c.text)+'</div>'; }).join('')+
+          '<form class="comment-form" data-action="comment-form">'+
+            '<input type="text" placeholder="コメントを入力" required>'+
+            '<button type="submit">送信</button>'+
+          '</form>'+
+        '</div>'+
+      '</article>';
+    }).join('');
+  }
+
+  function renderMembers(){
+    var tbody = document.getElementById('memberRows');
+    tbody.innerHTML = members.map(function(m, i){
+      return '' +
+      '<tr data-idx="'+i+'" class="'+(m.active?'':'is-removed')+'">'+
+        '<td>'+esc(m.name)+'</td>'+
+        '<td class="mono">'+esc(m.id)+'</td>'+
+        '<td><span class="role-pill '+(m.role==='admin'?'admin':'')+'">'+(m.role==='admin'?'管理者':'一般')+'</span></td>'+
+        '<td><span class="status-dot">'+(m.active?'有効':'無効')+'</span></td>'+
+        '<td class="row-actions">'+
+          '<button class="mini-btn" data-action="edit" '+(m.active?'':'disabled')+'>編集</button>'+
+          '<button class="mini-btn" data-action="reset" '+(m.active?'':'disabled')+'>PWリセット</button>'+
+          '<button class="mini-btn danger" data-action="remove">'+(m.active?'削除':'元に戻す')+'</button>'+
+        '</td>'+
+      '</tr>';
+    }).join('');
+  }
+
+  function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+
+  function showScreen(name){
+    ['login','main','admin'].forEach(function(s){
+      document.getElementById('screen-'+s).hidden = (s !== name);
+    });
+    document.querySelectorAll('.screen-tab').forEach(function(btn){
+      btn.setAttribute('aria-current', String(btn.dataset.screen === name));
+    });
+  }
+
+  document.querySelectorAll('.screen-tab').forEach(function(btn){
+    btn.addEventListener('click', function(){ showScreen(btn.dataset.screen); });
+  });
+  document.getElementById('adminLink').addEventListener('click', function(e){
+    e.preventDefault(); showScreen('admin');
+  });
+  document.getElementById('loginBtn').addEventListener('click', function(){ showScreen('main'); });
+  document.getElementById('goSignup').addEventListener('click', function(e){
+    e.preventDefault(); showToast('新規登録フォーム(プロトタイプでは省略)');
+  });
+
+  document.getElementById('roleSelect').addEventListener('change', function(){
+    document.getElementById('adminLink').style.display = (this.value === 'admin') ? '' : 'none';
+  });
+
+  document.querySelectorAll('.header-tab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      currentFilter = btn.dataset.filter;
+      document.querySelectorAll('.header-tab').forEach(function(b){ b.setAttribute('aria-selected', String(b === btn)); });
+      document.getElementById('categoryFilter').hidden = (currentFilter !== 'category');
+      document.getElementById('composerWrap').hidden = (currentFilter !== 'all');
+      if(currentFilter === 'category'){ populateCategorySelect(); }
+      renderNotes();
+    });
+  });
+  document.getElementById('categorySelect').addEventListener('change', function(){
+    selectedCategory = this.value; renderNotes();
+  });
+  document.getElementById('searchInput').addEventListener('input', function(){
+    searchTerm = this.value; renderNotes();
+  });
+
+  var composerToggle = document.getElementById('composerToggle');
+  composerToggle.addEventListener('click', function(){
+    var open = composerToggle.getAttribute('aria-expanded') === 'true';
+    composerToggle.setAttribute('aria-expanded', String(!open));
+    document.getElementById('composerBody').hidden = open;
+  });
+  document.getElementById('postSubmit').addEventListener('click', function(){
+    var titleInput = document.getElementById('newNoteTitle');
+    var title = titleInput.value.trim();
+    if(!title){ titleInput.focus(); return; }
+    var category = document.getElementById('newNoteCategory').value;
+    var body = document.getElementById('newNoteBody').value.trim();
+    notes.unshift({
+      id: nextNoteId++, category:category, title:title, author:'あなた',
+      date:new Date().toISOString().slice(0,10),
+      body: body || '(本文なし)', favorite:false, read:false, readers:[], comments:[]
+    });
+    titleInput.value = '';
+    document.getElementById('newNoteBody').value = '';
+    currentFilter = 'all'; searchTerm = ''; document.getElementById('searchInput').value = '';
+    document.querySelectorAll('.header-tab').forEach(function(b){ b.setAttribute('aria-selected', String(b.dataset.filter === 'all')); });
+    document.getElementById('categoryFilter').hidden = true;
+    renderNotes();
+    showToast('投稿しました');
+    composerToggle.click();
+  });
+
+  document.getElementById('noteList').addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    var card = e.target.closest('.note-card');
+    var note = notes.find(function(n){ return n.id === Number(card.dataset.id); });
+    var action = btn.dataset.action;
+    if(action === 'fav'){
+      note.favorite = !note.favorite; renderNotes();
+    } else if(action === 'read'){
+      note.read = true;
+      if(note.readers.indexOf('あなた') === -1){ note.readers.push('あなた'); }
+      renderNotes();
+    } else if(action === 'readers'){
+      openReaderModal(note);
+    } else if(action === 'toggle-comment'){
+      card.querySelector('[data-role="comment-panel"]').classList.toggle('open');
+    }
+  });
+  document.getElementById('noteList').addEventListener('submit', function(e){
+    var form = e.target.closest('[data-action="comment-form"]');
+    if(!form) return;
+    e.preventDefault();
+    var card = e.target.closest('.note-card');
+    var note = notes.find(function(n){ return n.id === Number(card.dataset.id); });
+    var input = form.querySelector('input');
+    if(input.value.trim()){
+      note.comments.push({ name:'あなた', text:input.value.trim() });
+      renderNotes();
+      card.querySelector('[data-role="comment-panel"]').classList.add('open');
+    }
+  });
+
+  function openReaderModal(note){
+    document.getElementById('readerModalTitle').textContent = '既読者一覧('+note.readers.length+'人)';
+    document.getElementById('readerModalList').innerHTML = note.readers.map(function(r){
+      return '<li><span>'+esc(r)+'</span><span class="mono">既読</span></li>';
+    }).join('');
+    document.getElementById('readerOverlay').classList.add('open');
+  }
+  document.getElementById('readerModalClose').addEventListener('click', function(){
+    document.getElementById('readerOverlay').classList.remove('open');
+  });
+  document.getElementById('readerOverlay').addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('open');
+  });
+
+  document.getElementById('memberRows').addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    var tr = e.target.closest('tr');
+    var m = members[Number(tr.dataset.idx)];
+    var action = btn.dataset.action;
+    if(action === 'edit'){
+      showToast(esc(m.name)+' さんの編集フォームを開きます(プロトタイプでは省略)');
+    } else if(action === 'reset'){
+      showToast(esc(m.name)+' さんのパスワードをリセットしました(仮パスワードを発行)');
+    } else if(action === 'remove'){
+      if(m.active && !confirm(m.name+' さんを削除します。よろしいですか?')) return;
+      m.active = !m.active;
+      renderMembers();
+    }
+  });
+
+  renderNotes();
+  renderMembers();
+})();
+</script>
