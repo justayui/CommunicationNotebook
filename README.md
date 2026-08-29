@@ -13,9 +13,18 @@ git clone git@github.com:justayui/CommunicationNotebook.git
 cd CommunicationNotebook
 ```
 
+### DB(PostgreSQL / Docker)
+
+前提: Docker / Docker Compose
+
+```bash
+cp .env.example .env   # 初回のみ
+docker compose up -d
+```
+
 ### バックエンド(Spring Boot)
 
-前提: Java 21
+前提: Java 21、上記PostgreSQLコンテナが起動済みであること
 
 ```bash
 cd backend
@@ -30,7 +39,7 @@ http://localhost:8080/actuator/health
 
 `{"status":"UP"}` が返れば起動成功です。
 
-※ DB接続(PostgreSQL)や認証(Spring Security)は未設定です。今後のタスクで追加予定です。
+※ 認証(Spring Security)は未設定です。今後のタスクで追加予定です。
 
 ## ライセンス
 
