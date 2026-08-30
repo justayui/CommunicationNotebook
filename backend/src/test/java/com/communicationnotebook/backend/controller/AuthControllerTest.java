@@ -1,0 +1,100 @@
+package com.communicationnotebook.backend.controller;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+
+import com.communicationnotebook.backend.config.SecurityConfig;
+import com.communicationnotebook.backend.entity.User;
+import com.communicationnotebook.backend.security.UserPrincipal;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
+
+@WebMvcTest(AuthController.class)
+@Import(SecurityConfig.class)
+class AuthControllerTest {
+
+    @Autowired
+    private MockMvcTester mockMvc;
+
+    @MockitoBean
+    private AuthenticationManager authenticationManager;
+
+    private User newUser(Integer id, String employeeId, String name, boolean admin) {
+        User user = new User();
+        user.setId(id);
+        user.setEmployeeId(employeeId);
+        user.setName(name);
+        user.setPassword("hashed");
+        user.setAdmin(admin);
+        user.setDeleted(false);
+        return user;
+    }
+
+    @Test
+    void login_returnsUser_whenCredentialsAreValid() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+        UserPrincipal principal = new UserPrincipal(user);
+        when(authenticationManager.authenticate(org.mockito.ArgumentMatchers.any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
+
+        mockMvc.post()
+                .uri("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"employeeId\":\"E001\",\"password\":\"password123\"}")
+                .assertThat()
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.employeeId")
+                .isEqualTo("E001");
+    }
+
+    @Test
+    void login_returnsUnauthorized_whenCredentialsAreInvalid() {
+        when(authenticationManager.authenticate(org.mockito.ArgumentMatchers.any(UsernamePasswordAuthenticationToken.class)))
+                .thenThrow(new BadCredentialsException("Bad credentials"));
+
+        mockMvc.post()
+                .uri("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"employeeId\":\"E001\",\"password\":\"wrong\"}")
+                .assertThat()
+                .hasStatus(401);
+    }
+
+    @Test
+    void login_returnsBadRequest_whenPasswordIsBlank() {
+        mockMvc.post()
+                .uri("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"employeeId\":\"E001\",\"password\":\"\"}")
+                .assertThat()
+                .hasStatus(400);
+    }
+
+    @Test
+    void me_returnsUnauthorized_whenNotAuthenticated() {
+        mockMvc.get().uri("/api/auth/me").assertThat().hasStatus(401);
+    }
+
+    @Test
+    void me_returnsUser_whenAuthenticated() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+
+        mockMvc.get()
+                .uri("/api/auth/me")
+                .with(user(new UserPrincipal(user)))
+                .assertThat()
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.name")
+                .isEqualTo("テスト太郎");
+    }
+}
