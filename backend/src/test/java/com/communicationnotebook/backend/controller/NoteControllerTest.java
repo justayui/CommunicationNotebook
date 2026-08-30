@@ -2,6 +2,7 @@ package com.communicationnotebook.backend.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.communicationnotebook.backend.dto.NoteCreateRequest;
@@ -107,5 +108,24 @@ class NoteControllerTest {
                 .content("{\"userId\":1,\"category\":\"雑談\",\"content\":\"\"}")
                 .assertThat()
                 .hasStatus(400);
+    }
+
+    @Test
+    void delete_returnsNoContent_whenSuccessful() {
+        mockMvc.delete().uri("/api/notes/1?userId=1").assertThat().hasStatus(204);
+    }
+
+    @Test
+    void delete_returnsForbidden_whenServiceThrowsForbidden() {
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author or an admin can delete this note"))
+                .when(noteService)
+                .delete(eq(1), eq(2));
+
+        mockMvc.delete().uri("/api/notes/1?userId=2").assertThat().hasStatus(403);
+    }
+
+    @Test
+    void delete_returnsBadRequest_whenUserIdIsMissing() {
+        mockMvc.delete().uri("/api/notes/1").assertThat().hasStatus(400);
     }
 }
