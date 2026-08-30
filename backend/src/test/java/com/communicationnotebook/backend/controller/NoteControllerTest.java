@@ -1,19 +1,23 @@
 package com.communicationnotebook.backend.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.communicationnotebook.backend.dto.NoteCreateRequest;
 import com.communicationnotebook.backend.dto.NoteResponse;
+import com.communicationnotebook.backend.dto.NoteUpdateRequest;
 import com.communicationnotebook.backend.service.NoteService;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.web.server.ResponseStatusException;
 
 @WebMvcTest(NoteController.class)
 class NoteControllerTest {
@@ -59,6 +63,46 @@ class NoteControllerTest {
     void create_returnsBadRequest_whenContentIsBlank() {
         mockMvc.post()
                 .uri("/api/notes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"userId\":1,\"category\":\"雑談\",\"content\":\"\"}")
+                .assertThat()
+                .hasStatus(400);
+    }
+
+    @Test
+    void update_returnsUpdatedNote() {
+        NoteResponse note = new NoteResponse(
+                1, "業務連絡", "更新後の内容", "テスト太郎", LocalDateTime.of(2026, 8, 30, 10, 0));
+        when(noteService.update(eq(1), any(NoteUpdateRequest.class))).thenReturn(note);
+
+        mockMvc.put()
+                .uri("/api/notes/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"userId\":1,\"category\":\"業務連絡\",\"content\":\"更新後の内容\"}")
+                .assertThat()
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.content")
+                .isEqualTo("更新後の内容");
+    }
+
+    @Test
+    void update_returnsForbidden_whenServiceThrowsForbidden() {
+        when(noteService.update(eq(1), any(NoteUpdateRequest.class)))
+                .thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author can update this note"));
+
+        mockMvc.put()
+                .uri("/api/notes/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"userId\":2,\"category\":\"雑談\",\"content\":\"更新後の内容\"}")
+                .assertThat()
+                .hasStatus(403);
+    }
+
+    @Test
+    void update_returnsBadRequest_whenContentIsBlank() {
+        mockMvc.put()
+                .uri("/api/notes/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"userId\":1,\"category\":\"雑談\",\"content\":\"\"}")
                 .assertThat()

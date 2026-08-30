@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.communicationnotebook.backend.dto.NoteCreateRequest;
 import com.communicationnotebook.backend.dto.NoteResponse;
+import com.communicationnotebook.backend.dto.NoteUpdateRequest;
 import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.repository.NoteRepository;
@@ -117,5 +118,77 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.create(request))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("User not found");
+    }
+
+    @Test
+    void update_updatesNoteAndReturnsResponse() {
+        User user = new User();
+        user.setId(1);
+        user.setName("テスト太郎");
+
+        Note note = new Note();
+        note.setId(10);
+        note.setUser(user);
+        note.setCategory("雑談");
+        note.setContent("元の内容");
+        note.setDeleted(false);
+        note.setCreatedAt(LocalDateTime.of(2026, 8, 30, 10, 0));
+
+        NoteUpdateRequest request = new NoteUpdateRequest(1, "業務連絡", "更新後の内容");
+
+        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
+        when(noteRepository.save(any(Note.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        NoteResponse result = noteService.update(10, request);
+
+        assertThat(result.category()).isEqualTo("業務連絡");
+        assertThat(result.content()).isEqualTo("更新後の内容");
+        assertThat(result.author()).isEqualTo("テスト太郎");
+    }
+
+    @Test
+    void update_throwsNotFound_whenNoteDoesNotExist() {
+        NoteUpdateRequest request = new NoteUpdateRequest(1, "雑談", "更新後の内容");
+        when(noteRepository.findByIdWithUser(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> noteService.update(99, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Note not found");
+    }
+
+    @Test
+    void update_throwsNotFound_whenNoteIsDeleted() {
+        User user = new User();
+        user.setId(1);
+
+        Note note = new Note();
+        note.setId(10);
+        note.setUser(user);
+        note.setDeleted(true);
+
+        NoteUpdateRequest request = new NoteUpdateRequest(1, "雑談", "更新後の内容");
+        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
+
+        assertThatThrownBy(() -> noteService.update(10, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Note not found");
+    }
+
+    @Test
+    void update_throwsForbidden_whenRequesterIsNotAuthor() {
+        User user = new User();
+        user.setId(1);
+
+        Note note = new Note();
+        note.setId(10);
+        note.setUser(user);
+        note.setDeleted(false);
+
+        NoteUpdateRequest request = new NoteUpdateRequest(2, "雑談", "更新後の内容");
+        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
+
+        assertThatThrownBy(() -> noteService.update(10, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Only the author");
     }
 }
