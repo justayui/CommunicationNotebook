@@ -110,4 +110,56 @@ class FavoriteServiceTest {
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("already favorited");
     }
+
+    @Test
+    void unregister_deletesFavorite_whenFavoriteExists() {
+        Favorite favorite = new Favorite();
+
+        when(noteRepository.findById(10)).thenReturn(Optional.of(newNote(10, false)));
+        when(userRepository.findById(1)).thenReturn(Optional.of(newUser(1, false)));
+        when(favoriteRepository.findByUser_IdAndNote_Id(1, 10)).thenReturn(Optional.of(favorite));
+
+        favoriteService.unregister(10, 1);
+
+        verify(favoriteRepository).delete(favorite);
+    }
+
+    @Test
+    void unregister_throwsNotFound_whenNoteDoesNotExist() {
+        when(noteRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> favoriteService.unregister(99, 1))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Note not found");
+    }
+
+    @Test
+    void unregister_throwsNotFound_whenNoteIsDeleted() {
+        when(noteRepository.findById(10)).thenReturn(Optional.of(newNote(10, true)));
+
+        assertThatThrownBy(() -> favoriteService.unregister(10, 1))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Note not found");
+    }
+
+    @Test
+    void unregister_throwsNotFound_whenUserDoesNotExist() {
+        when(noteRepository.findById(10)).thenReturn(Optional.of(newNote(10, false)));
+        when(userRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> favoriteService.unregister(10, 99))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("User not found");
+    }
+
+    @Test
+    void unregister_throwsNotFound_whenFavoriteDoesNotExist() {
+        when(noteRepository.findById(10)).thenReturn(Optional.of(newNote(10, false)));
+        when(userRepository.findById(1)).thenReturn(Optional.of(newUser(1, false)));
+        when(favoriteRepository.findByUser_IdAndNote_Id(1, 10)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> favoriteService.unregister(10, 1))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Favorite not found");
+    }
 }

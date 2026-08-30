@@ -51,4 +51,25 @@ class FavoriteControllerTest {
     void register_returnsBadRequest_whenUserIdIsMissing() {
         mockMvc.post().uri("/api/notes/1/favorites").assertThat().hasStatus(400);
     }
+
+    @Test
+    void unregister_returnsNoContent_whenSuccessful() {
+        doNothing().when(favoriteService).unregister(eq(1), eq(1));
+
+        mockMvc.delete().uri("/api/notes/1/favorites?userId=1").assertThat().hasStatus(204);
+    }
+
+    @Test
+    void unregister_returnsNotFound_whenServiceThrowsNotFound() {
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite not found: note 1"))
+                .when(favoriteService)
+                .unregister(eq(1), eq(1));
+
+        mockMvc.delete().uri("/api/notes/1/favorites?userId=1").assertThat().hasStatus(404);
+    }
+
+    @Test
+    void unregister_returnsBadRequest_whenUserIdIsMissing() {
+        mockMvc.delete().uri("/api/notes/1/favorites").assertThat().hasStatus(400);
+    }
 }
