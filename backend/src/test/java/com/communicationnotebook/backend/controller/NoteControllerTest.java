@@ -4,16 +4,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
+import com.communicationnotebook.backend.config.SecurityConfig;
 import com.communicationnotebook.backend.dto.NoteCreateRequest;
 import com.communicationnotebook.backend.dto.NoteResponse;
 import com.communicationnotebook.backend.dto.NoteUpdateRequest;
+import com.communicationnotebook.backend.entity.User;
+import com.communicationnotebook.backend.security.UserPrincipal;
 import com.communicationnotebook.backend.service.NoteService;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -21,6 +26,7 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.web.server.ResponseStatusException;
 
 @WebMvcTest(NoteController.class)
+@Import(SecurityConfig.class)
 class NoteControllerTest {
 
     @Autowired
@@ -29,6 +35,17 @@ class NoteControllerTest {
     @MockitoBean
     private NoteService noteService;
 
+    private UserPrincipal principal(Integer id) {
+        User user = new User();
+        user.setId(id);
+        user.setEmployeeId("E00" + id);
+        user.setName("テスト太郎");
+        user.setPassword("hashed");
+        user.setAdmin(false);
+        user.setDeleted(false);
+        return new UserPrincipal(user);
+    }
+
     @Test
     void findAll_returnsNoteList() {
         NoteResponse note = new NoteResponse(
@@ -36,6 +53,7 @@ class NoteControllerTest {
         when(noteService.findAll()).thenReturn(List.of(note));
 
         mockMvc.get().uri("/api/notes")
+                .with(user(principal(1)))
                 .assertThat()
                 .hasStatusOk()
                 .bodyJson()
@@ -44,15 +62,21 @@ class NoteControllerTest {
     }
 
     @Test
+    void findAll_returnsUnauthorized_whenNotAuthenticated() {
+        mockMvc.get().uri("/api/notes").assertThat().hasStatus(401);
+    }
+
+    @Test
     void create_returnsCreatedNote() {
         NoteResponse note = new NoteResponse(
                 1, "雑談", "これはテスト投稿です。", "テスト太郎", LocalDateTime.of(2026, 8, 30, 10, 0));
-        when(noteService.create(any(NoteCreateRequest.class))).thenReturn(note);
+        when(noteService.create(any(NoteCreateRequest.class), eq(1))).thenReturn(note);
 
         mockMvc.post()
                 .uri("/api/notes")
+                .with(user(principal(1)))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"userId\":1,\"category\":\"雑談\",\"content\":\"これはテスト投稿です。\"}")
+                .content("{\"category\":\"雑談\",\"content\":\"これはテスト投稿です。\"}")
                 .assertThat()
                 .hasStatus(201)
                 .bodyJson()
@@ -64,8 +88,9 @@ class NoteControllerTest {
     void create_returnsBadRequest_whenContentIsBlank() {
         mockMvc.post()
                 .uri("/api/notes")
+                .with(user(principal(1)))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"userId\":1,\"category\":\"雑談\",\"content\":\"\"}")
+                .content("{\"category\":\"雑談\",\"content\":\"\"}")
                 .assertThat()
                 .hasStatus(400);
     }
@@ -74,12 +99,13 @@ class NoteControllerTest {
     void update_returnsUpdatedNote() {
         NoteResponse note = new NoteResponse(
                 1, "業務連絡", "更新後の内容", "テスト太郎", LocalDateTime.of(2026, 8, 30, 10, 0));
-        when(noteService.update(eq(1), any(NoteUpdateRequest.class))).thenReturn(note);
+        when(noteService.update(eq(1), any(NoteUpdateRequest.class), eq(1))).thenReturn(note);
 
         mockMvc.put()
                 .uri("/api/notes/1")
+                .with(user(principal(1)))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"userId\":1,\"category\":\"業務連絡\",\"content\":\"更新後の内容\"}")
+                .content("{\"category\":\"業務連絡\",\"content\":\"更新後の内容\"}")
                 .assertThat()
                 .hasStatusOk()
                 .bodyJson()
@@ -89,13 +115,14 @@ class NoteControllerTest {
 
     @Test
     void update_returnsForbidden_whenServiceThrowsForbidden() {
-        when(noteService.update(eq(1), any(NoteUpdateRequest.class)))
+        when(noteService.update(eq(1), any(NoteUpdateRequest.class), eq(2)))
                 .thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author can update this note"));
 
         mockMvc.put()
                 .uri("/api/notes/1")
+                .with(user(principal(2)))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"userId\":2,\"category\":\"雑談\",\"content\":\"更新後の内容\"}")
+                .content("{\"category\":\"雑談\",\"content\":\"更新後の内容\"}")
                 .assertThat()
                 .hasStatus(403);
     }
@@ -104,15 +131,16 @@ class NoteControllerTest {
     void update_returnsBadRequest_whenContentIsBlank() {
         mockMvc.put()
                 .uri("/api/notes/1")
+                .with(user(principal(1)))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"userId\":1,\"category\":\"雑談\",\"content\":\"\"}")
+                .content("{\"category\":\"雑談\",\"content\":\"\"}")
                 .assertThat()
                 .hasStatus(400);
     }
 
     @Test
     void delete_returnsNoContent_whenSuccessful() {
-        mockMvc.delete().uri("/api/notes/1?userId=1").assertThat().hasStatus(204);
+        mockMvc.delete().uri("/api/notes/1").with(user(principal(1))).assertThat().hasStatus(204);
     }
 
     @Test
@@ -121,11 +149,11 @@ class NoteControllerTest {
                 .when(noteService)
                 .delete(eq(1), eq(2));
 
-        mockMvc.delete().uri("/api/notes/1?userId=2").assertThat().hasStatus(403);
+        mockMvc.delete().uri("/api/notes/1").with(user(principal(2))).assertThat().hasStatus(403);
     }
 
     @Test
-    void delete_returnsBadRequest_whenUserIdIsMissing() {
-        mockMvc.delete().uri("/api/notes/1").assertThat().hasStatus(400);
+    void delete_returnsUnauthorized_whenNotAuthenticated() {
+        mockMvc.delete().uri("/api/notes/1").assertThat().hasStatus(401);
     }
 }
