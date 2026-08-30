@@ -1,12 +1,16 @@
 :root {
   --bg: #eef2ed;
   --surface: #ffffff;
+  --surface-2: #f6f9f5;
   --border: #d2dad0;
+  --border-strong: #b7c2b4;
   --ink: #1c2620;
   --ink-soft: #55635b;
   --ink-faint: #8b968e;
   --accent: #24586a;
   --accent-soft: #dce9ec;
+  --favorite: #b8791e;
+  --favorite-bg: #fbf1de;
   --shadow:
     0 1px 2px rgba(28, 38, 32, 0.06),
     0 6px 16px rgba(28, 38, 32, 0.06);
@@ -17,12 +21,16 @@
   :root {
     --bg: #10151a;
     --surface: #1b211d;
+    --surface-2: #212925;
     --border: #303b34;
+    --border-strong: #3e4b42;
     --ink: #e7ece7;
     --ink-soft: #a6b0a9;
     --ink-faint: #6c766f;
     --accent: #63acc0;
     --accent-soft: #1e3a41;
+    --favorite: #dda84c;
+    --favorite-bg: #3a2e15;
     --shadow:
       0 1px 2px rgba(0, 0, 0, 0.3),
       0 8px 20px rgba(0, 0, 0, 0.35);

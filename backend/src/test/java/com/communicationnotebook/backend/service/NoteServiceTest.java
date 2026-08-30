@@ -3,6 +3,7 @@ package com.communicationnotebook.backend.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.communicationnotebook.backend.dto.NoteCreateRequest;
@@ -10,11 +11,13 @@ import com.communicationnotebook.backend.dto.NoteResponse;
 import com.communicationnotebook.backend.dto.NoteUpdateRequest;
 import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.User;
+import com.communicationnotebook.backend.repository.FavoriteRepository;
 import com.communicationnotebook.backend.repository.NoteRepository;
 import com.communicationnotebook.backend.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +33,9 @@ class NoteServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private FavoriteRepository favoriteRepository;
 
     @InjectMocks
     private NoteService noteService;
@@ -51,23 +57,57 @@ class NoteServiceTest {
     @Test
     void findAll_returnsNotesMappedToResponse() {
         Note note = newNote(1, "雑談", "これはテスト投稿です。", "テスト太郎");
-        when(noteRepository.findByDeletedFalseOrderByCreatedAtDesc()).thenReturn(List.of(note));
+        when(noteRepository.search(null, null, false, 1)).thenReturn(List.of(note));
+        when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
 
-        List<NoteResponse> result = noteService.findAll();
+        List<NoteResponse> result = noteService.findAll(null, null, false, 1);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).category()).isEqualTo("雑談");
         assertThat(result.get(0).content()).isEqualTo("これはテスト投稿です。");
         assertThat(result.get(0).author()).isEqualTo("テスト太郎");
+        assertThat(result.get(0).favorited()).isFalse();
     }
 
     @Test
     void findAll_returnsEmptyList_whenNoNotesExist() {
-        when(noteRepository.findByDeletedFalseOrderByCreatedAtDesc()).thenReturn(List.of());
+        when(noteRepository.search(null, null, false, 1)).thenReturn(List.of());
+        when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
 
-        List<NoteResponse> result = noteService.findAll();
+        List<NoteResponse> result = noteService.findAll(null, null, false, 1);
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void findAll_normalizesBlankKeywordAndCategoryToNull() {
+        when(noteRepository.search(null, null, false, 1)).thenReturn(List.of());
+        when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+
+        noteService.findAll("  ", "", false, 1);
+
+        verify(noteRepository).search(null, null, false, 1);
+    }
+
+    @Test
+    void findAll_passesKeywordCategoryFavoriteOnlyToRepository() {
+        when(noteRepository.search("懇親会", "業務連絡", true, 1)).thenReturn(List.of());
+        when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+
+        noteService.findAll("懇親会", "業務連絡", true, 1);
+
+        verify(noteRepository).search("懇親会", "業務連絡", true, 1);
+    }
+
+    @Test
+    void findAll_marksFavoritedTrue_whenNoteIdInFavoriteSet() {
+        Note note = newNote(1, "雑談", "これはテスト投稿です。", "テスト太郎");
+        when(noteRepository.search(null, null, false, 1)).thenReturn(List.of(note));
+        when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of(1));
+
+        List<NoteResponse> result = noteService.findAll(null, null, false, 1);
+
+        assertThat(result.get(0).favorited()).isTrue();
     }
 
     @Test

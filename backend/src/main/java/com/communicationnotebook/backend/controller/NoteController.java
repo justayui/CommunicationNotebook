@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,8 +31,12 @@ public class NoteController {
     }
 
     @GetMapping
-    public List<NoteResponse> findAll() {
-        return noteService.findAll();
+    public List<NoteResponse> findAll(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false, defaultValue = "false") boolean favoriteOnly,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return noteService.findAll(keyword, category, favoriteOnly, principal.getId());
     }
 
     @PostMapping

@@ -5,10 +5,12 @@ import com.communicationnotebook.backend.dto.NoteResponse;
 import com.communicationnotebook.backend.dto.NoteUpdateRequest;
 import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.User;
+import com.communicationnotebook.backend.repository.FavoriteRepository;
 import com.communicationnotebook.backend.repository.NoteRepository;
 import com.communicationnotebook.backend.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,16 +20,29 @@ public class NoteService {
 
     private final NoteRepository noteRepository;
     private final UserRepository userRepository;
+    private final FavoriteRepository favoriteRepository;
 
-    public NoteService(NoteRepository noteRepository, UserRepository userRepository) {
+    public NoteService(
+            NoteRepository noteRepository, UserRepository userRepository, FavoriteRepository favoriteRepository) {
         this.noteRepository = noteRepository;
         this.userRepository = userRepository;
+        this.favoriteRepository = favoriteRepository;
     }
 
-    public List<NoteResponse> findAll() {
-        return noteRepository.findByDeletedFalseOrderByCreatedAtDesc().stream()
-                .map(NoteResponse::from)
+    public List<NoteResponse> findAll(String keyword, String category, boolean favoriteOnly, Integer userId) {
+        String normalizedKeyword = normalize(keyword);
+        String normalizedCategory = normalize(category);
+
+        List<Note> notes = noteRepository.search(normalizedKeyword, normalizedCategory, favoriteOnly, userId);
+        Set<Integer> favoriteNoteIds = favoriteRepository.findNoteIdsByUserId(userId);
+
+        return notes.stream()
+                .map(note -> NoteResponse.from(note, favoriteNoteIds.contains(note.getId())))
                 .toList();
+    }
+
+    private String normalize(String value) {
+        return (value == null || value.isBlank()) ? null : value;
     }
 
     public NoteResponse create(NoteCreateRequest request, Integer userId) {
