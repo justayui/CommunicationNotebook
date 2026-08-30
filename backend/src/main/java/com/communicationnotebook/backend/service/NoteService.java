@@ -65,4 +65,24 @@ public class NoteService {
         Note saved = noteRepository.save(note);
         return NoteResponse.from(saved);
     }
+
+    public void delete(Integer id, Integer userId) {
+        Note note = noteRepository
+                .findByIdWithUser(id)
+                .filter(n -> !n.isDeleted())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + id));
+
+        User requester = userRepository
+                .findById(userId)
+                .filter(u -> !u.isDeleted())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+
+        boolean isAuthor = note.getUser().getId().equals(requester.getId());
+        if (!isAuthor && !requester.isAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author or an admin can delete this note");
+        }
+
+        note.setDeleted(true);
+        noteRepository.save(note);
+    }
 }

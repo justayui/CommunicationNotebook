@@ -191,4 +191,110 @@ class NoteServiceTest {
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("Only the author");
     }
+
+    @Test
+    void delete_marksNoteAsDeleted_whenRequesterIsAuthor() {
+        User author = new User();
+        author.setId(1);
+
+        Note note = new Note();
+        note.setId(10);
+        note.setUser(author);
+        note.setDeleted(false);
+
+        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
+        when(userRepository.findById(1)).thenReturn(Optional.of(author));
+
+        noteService.delete(10, 1);
+
+        assertThat(note.isDeleted()).isTrue();
+    }
+
+    @Test
+    void delete_marksNoteAsDeleted_whenRequesterIsAdmin() {
+        User author = new User();
+        author.setId(1);
+
+        Note note = new Note();
+        note.setId(10);
+        note.setUser(author);
+        note.setDeleted(false);
+
+        User admin = new User();
+        admin.setId(2);
+        admin.setAdmin(true);
+
+        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
+        when(userRepository.findById(2)).thenReturn(Optional.of(admin));
+
+        noteService.delete(10, 2);
+
+        assertThat(note.isDeleted()).isTrue();
+    }
+
+    @Test
+    void delete_throwsNotFound_whenNoteDoesNotExist() {
+        when(noteRepository.findByIdWithUser(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> noteService.delete(99, 1))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Note not found");
+    }
+
+    @Test
+    void delete_throwsNotFound_whenNoteIsAlreadyDeleted() {
+        User author = new User();
+        author.setId(1);
+
+        Note note = new Note();
+        note.setId(10);
+        note.setUser(author);
+        note.setDeleted(true);
+
+        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
+
+        assertThatThrownBy(() -> noteService.delete(10, 1))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Note not found");
+    }
+
+    @Test
+    void delete_throwsNotFound_whenUserDoesNotExist() {
+        User author = new User();
+        author.setId(1);
+
+        Note note = new Note();
+        note.setId(10);
+        note.setUser(author);
+        note.setDeleted(false);
+
+        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
+        when(userRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> noteService.delete(10, 99))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("User not found");
+    }
+
+    @Test
+    void delete_throwsForbidden_whenRequesterIsNeitherAuthorNorAdmin() {
+        User author = new User();
+        author.setId(1);
+
+        Note note = new Note();
+        note.setId(10);
+        note.setUser(author);
+        note.setDeleted(false);
+
+        User otherUser = new User();
+        otherUser.setId(2);
+        otherUser.setAdmin(false);
+
+        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
+        when(userRepository.findById(2)).thenReturn(Optional.of(otherUser));
+
+        assertThatThrownBy(() -> noteService.delete(10, 2))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Only the author or an admin");
+    }
 }
