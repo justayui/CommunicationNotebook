@@ -19,8 +19,8 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
             """
             SELECT n FROM Note n JOIN FETCH n.user
             WHERE n.deleted = false
-              AND (:keyword IS NULL OR n.content LIKE CONCAT('%', :keyword, '%'))
-              AND (:category IS NULL OR n.category = :category)
+              AND (:keyword IS NULL OR n.content LIKE CONCAT('%', CAST(:keyword AS string), '%'))
+              AND (:category IS NULL OR n.category = CAST(:category AS string))
               AND (:favoriteOnly = false OR n.id IN (
                     SELECT f.note.id FROM Favorite f WHERE f.user.id = :userId))
             ORDER BY n.createdAt DESC
