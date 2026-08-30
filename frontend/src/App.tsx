@@ -1,10 +1,10 @@
-import { UserList } from "./components/UserList";
+import { NoteList } from "./components/NoteList";
 
 function App() {
   return (
     <main>
-      <h1>ユーザー一覧</h1>
-      <UserList />
+      <h1>投稿一覧</h1>
+      <NoteList />
     </main>
   );
 }
