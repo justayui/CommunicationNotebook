@@ -2,12 +2,15 @@ package com.communicationnotebook.backend.controller;
 
 import com.communicationnotebook.backend.dto.NoteCreateRequest;
 import com.communicationnotebook.backend.dto.NoteResponse;
+import com.communicationnotebook.backend.dto.NoteUpdateRequest;
 import com.communicationnotebook.backend.service.NoteService;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,5 +35,10 @@ public class NoteController {
     @ResponseStatus(HttpStatus.CREATED)
     public NoteResponse create(@Valid @RequestBody NoteCreateRequest request) {
         return noteService.create(request);
+    }
+
+    @PutMapping("/{id}")
+    public NoteResponse update(@PathVariable Integer id, @Valid @RequestBody NoteUpdateRequest request) {
+        return noteService.update(id, request);
     }
 }
