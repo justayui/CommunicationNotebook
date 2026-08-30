@@ -41,6 +41,23 @@ http://localhost:8080/actuator/health
 
 ※ 認証(Spring Security)は未設定です。今後のタスクで追加予定です。
 
+### フロントエンド(React / Vite)
+
+前提: Node.js、上記バックエンドが起動済みであること
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local   # 任意、既定値で動作します
+npm run dev
+```
+
+起動後、以下にアクセスしてユーザー一覧が表示されることを確認できます。
+
+```
+http://localhost:5173
+```
+
 ## ライセンス
 
 TBD
