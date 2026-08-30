@@ -2,10 +2,12 @@ package com.communicationnotebook.backend.service;
 
 import com.communicationnotebook.backend.dto.NoteCreateRequest;
 import com.communicationnotebook.backend.dto.NoteResponse;
+import com.communicationnotebook.backend.dto.NoteUpdateRequest;
 import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.repository.NoteRepository;
 import com.communicationnotebook.backend.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -44,5 +46,23 @@ public class NoteService {
         Note saved = noteRepository.save(note);
         Note reloaded = noteRepository.findByIdWithUser(saved.getId()).orElseThrow();
         return NoteResponse.from(reloaded);
+    }
+
+    public NoteResponse update(Integer id, NoteUpdateRequest request) {
+        Note note = noteRepository
+                .findByIdWithUser(id)
+                .filter(n -> !n.isDeleted())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + id));
+
+        if (!note.getUser().getId().equals(request.userId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author can update this note");
+        }
+
+        note.setCategory(request.category());
+        note.setContent(request.content());
+        note.setUpdatedAt(LocalDateTime.now());
+
+        Note saved = noteRepository.save(note);
+        return NoteResponse.from(saved);
     }
 }
