@@ -1,10 +1,13 @@
-import { UserList } from "./components/UserList";
+import "./App.css";
+import { NoteList } from "./components/NoteList";
 
 function App() {
   return (
-    <main>
-      <h1>ユーザー一覧</h1>
-      <UserList />
+    <main className="app-shell">
+      <header className="app-header">
+        <h1>連絡ノート</h1>
+      </header>
+      <NoteList />
     </main>
   );
 }
