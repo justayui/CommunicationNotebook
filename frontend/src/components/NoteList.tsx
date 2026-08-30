@@ -14,37 +14,30 @@ export function NoteList() {
   }, []);
 
   if (error) {
-    return <p>{error}</p>;
+    return <p className="state-message">{error}</p>;
   }
 
   if (notes === null) {
-    return <p>Loading...</p>;
+    return <p className="state-message">Loading...</p>;
   }
 
   if (notes.length === 0) {
-    return <p>投稿が見つかりませんでした。</p>;
+    return <p className="state-message">投稿が見つかりませんでした。</p>;
   }
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>category</th>
-          <th>content</th>
-          <th>author</th>
-          <th>createdAt</th>
-        </tr>
-      </thead>
-      <tbody>
-        {notes.map((note) => (
-          <tr key={note.id}>
-            <td>{note.category}</td>
-            <td>{note.content}</td>
-            <td>{note.author}</td>
-            <td>{new Date(note.createdAt).toLocaleString()}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="note-list">
+      {notes.map((note) => (
+        <article key={note.id} className="note-card">
+          <div className="note-top">
+            <span className="tag">{note.category}</span>
+            <div className="note-meta">
+              {note.author} ・ {new Date(note.createdAt).toLocaleString()}
+            </div>
+          </div>
+          <div className="note-body">{note.content}</div>
+        </article>
+      ))}
+    </div>
   );
 }

@@ -1,9 +1,12 @@
+import "./App.css";
 import { NoteList } from "./components/NoteList";
 
 function App() {
   return (
-    <main>
-      <h1>投稿一覧</h1>
+    <main className="app-shell">
+      <header className="app-header">
+        <h1>連絡ノート</h1>
+      </header>
       <NoteList />
     </main>
   );
