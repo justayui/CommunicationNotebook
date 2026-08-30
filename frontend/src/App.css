@@ -19,6 +19,45 @@
   color: var(--accent);
 }
 
+.user-bar {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.login-form {
+  padding: 24px 22px 32px;
+  display: grid;
+  gap: 14px;
+  max-width: 320px;
+}
+
+.login-form label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.login-form input {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.login-form button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
 .note-list {
   padding: 16px 22px 24px;
   display: grid;
