@@ -77,7 +77,7 @@ class NoteServiceTest {
         user.setName("テスト太郎");
         user.setDeleted(false);
 
-        NoteCreateRequest request = new NoteCreateRequest(1, "雑談", "これはテスト投稿です。");
+        NoteCreateRequest request = new NoteCreateRequest("雑談", "これはテスト投稿です。");
 
         Note saved = new Note();
         saved.setId(10);
@@ -88,7 +88,7 @@ class NoteServiceTest {
         when(noteRepository.save(any(Note.class))).thenReturn(saved);
         when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(reloaded));
 
-        NoteResponse result = noteService.create(request);
+        NoteResponse result = noteService.create(request, 1);
 
         assertThat(result.id()).isEqualTo(10);
         assertThat(result.category()).isEqualTo("雑談");
@@ -98,10 +98,10 @@ class NoteServiceTest {
 
     @Test
     void create_throwsNotFound_whenUserDoesNotExist() {
-        NoteCreateRequest request = new NoteCreateRequest(99, "雑談", "これはテスト投稿です。");
+        NoteCreateRequest request = new NoteCreateRequest("雑談", "これはテスト投稿です。");
         when(userRepository.findById(99)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> noteService.create(request))
+        assertThatThrownBy(() -> noteService.create(request, 99))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("User not found");
     }
@@ -112,10 +112,10 @@ class NoteServiceTest {
         deletedUser.setId(2);
         deletedUser.setDeleted(true);
 
-        NoteCreateRequest request = new NoteCreateRequest(2, "雑談", "これはテスト投稿です。");
+        NoteCreateRequest request = new NoteCreateRequest("雑談", "これはテスト投稿です。");
         when(userRepository.findById(2)).thenReturn(Optional.of(deletedUser));
 
-        assertThatThrownBy(() -> noteService.create(request))
+        assertThatThrownBy(() -> noteService.create(request, 2))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("User not found");
     }
@@ -134,12 +134,12 @@ class NoteServiceTest {
         note.setDeleted(false);
         note.setCreatedAt(LocalDateTime.of(2026, 8, 30, 10, 0));
 
-        NoteUpdateRequest request = new NoteUpdateRequest(1, "業務連絡", "更新後の内容");
+        NoteUpdateRequest request = new NoteUpdateRequest("業務連絡", "更新後の内容");
 
         when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
         when(noteRepository.save(any(Note.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        NoteResponse result = noteService.update(10, request);
+        NoteResponse result = noteService.update(10, request, 1);
 
         assertThat(result.category()).isEqualTo("業務連絡");
         assertThat(result.content()).isEqualTo("更新後の内容");
@@ -148,10 +148,10 @@ class NoteServiceTest {
 
     @Test
     void update_throwsNotFound_whenNoteDoesNotExist() {
-        NoteUpdateRequest request = new NoteUpdateRequest(1, "雑談", "更新後の内容");
+        NoteUpdateRequest request = new NoteUpdateRequest("雑談", "更新後の内容");
         when(noteRepository.findByIdWithUser(99)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> noteService.update(99, request))
+        assertThatThrownBy(() -> noteService.update(99, request, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("Note not found");
     }
@@ -166,10 +166,10 @@ class NoteServiceTest {
         note.setUser(user);
         note.setDeleted(true);
 
-        NoteUpdateRequest request = new NoteUpdateRequest(1, "雑談", "更新後の内容");
+        NoteUpdateRequest request = new NoteUpdateRequest("雑談", "更新後の内容");
         when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
 
-        assertThatThrownBy(() -> noteService.update(10, request))
+        assertThatThrownBy(() -> noteService.update(10, request, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("Note not found");
     }
@@ -184,10 +184,10 @@ class NoteServiceTest {
         note.setUser(user);
         note.setDeleted(false);
 
-        NoteUpdateRequest request = new NoteUpdateRequest(2, "雑談", "更新後の内容");
+        NoteUpdateRequest request = new NoteUpdateRequest("雑談", "更新後の内容");
         when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
 
-        assertThatThrownBy(() -> noteService.update(10, request))
+        assertThatThrownBy(() -> noteService.update(10, request, 2))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("Only the author");
     }
