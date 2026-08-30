@@ -44,4 +44,23 @@ public class FavoriteService {
         favorite.setNote(note);
         favoriteRepository.save(favorite);
     }
+
+    public void unregister(Integer noteId, Integer userId) {
+        noteRepository
+                .findById(noteId)
+                .filter(n -> !n.isDeleted())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + noteId));
+
+        userRepository
+                .findById(userId)
+                .filter(u -> !u.isDeleted())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+
+        Favorite favorite = favoriteRepository
+                .findByUser_IdAndNote_Id(userId, noteId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite not found: note " + noteId));
+
+        favoriteRepository.delete(favorite);
+    }
 }
