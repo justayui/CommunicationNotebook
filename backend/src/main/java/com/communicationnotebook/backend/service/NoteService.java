@@ -30,12 +30,11 @@ public class NoteService {
                 .toList();
     }
 
-    public NoteResponse create(NoteCreateRequest request) {
+    public NoteResponse create(NoteCreateRequest request, Integer userId) {
         User user = userRepository
-                .findById(request.userId())
+                .findById(userId)
                 .filter(u -> !u.isDeleted())
-                .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + request.userId()));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
 
         Note note = new Note();
         note.setUser(user);
@@ -48,13 +47,13 @@ public class NoteService {
         return NoteResponse.from(reloaded);
     }
 
-    public NoteResponse update(Integer id, NoteUpdateRequest request) {
+    public NoteResponse update(Integer id, NoteUpdateRequest request, Integer userId) {
         Note note = noteRepository
                 .findByIdWithUser(id)
                 .filter(n -> !n.isDeleted())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + id));
 
-        if (!note.getUser().getId().equals(request.userId())) {
+        if (!note.getUser().getId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author can update this note");
         }
 
