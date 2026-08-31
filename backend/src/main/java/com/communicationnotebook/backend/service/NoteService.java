@@ -7,6 +7,7 @@ import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.repository.CommentRepository;
 import com.communicationnotebook.backend.repository.FavoriteRepository;
+import com.communicationnotebook.backend.repository.NoteReadRepository;
 import com.communicationnotebook.backend.repository.NoteRepository;
 import com.communicationnotebook.backend.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -25,16 +26,19 @@ public class NoteService {
     private final UserRepository userRepository;
     private final FavoriteRepository favoriteRepository;
     private final CommentRepository commentRepository;
+    private final NoteReadRepository noteReadRepository;
 
     public NoteService(
             NoteRepository noteRepository,
             UserRepository userRepository,
             FavoriteRepository favoriteRepository,
-            CommentRepository commentRepository) {
+            CommentRepository commentRepository,
+            NoteReadRepository noteReadRepository) {
         this.noteRepository = noteRepository;
         this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
         this.commentRepository = commentRepository;
+        this.noteReadRepository = noteReadRepository;
     }
 
     public List<NoteResponse> findAll(String keyword, String category, boolean favoriteOnly, Integer userId) {
@@ -42,18 +46,33 @@ public class NoteService {
         String normalizedCategory = normalize(category);
 
         List<Note> notes = noteRepository.search(normalizedKeyword, normalizedCategory, favoriteOnly, userId);
+        List<Integer> noteIds = notes.stream().map(Note::getId).toList();
         Set<Integer> favoriteNoteIds = favoriteRepository.findNoteIdsByUserId(userId);
-        Map<Integer, Long> commentCounts = countCommentsByNoteId(notes.stream().map(Note::getId).toList());
+        Set<Integer> readNoteIds = noteReadRepository.findNoteIdsByUserId(userId);
+        Map<Integer, Long> commentCounts = countCommentsByNoteId(noteIds);
+        Map<Integer, Long> readCounts = countReadsByNoteId(noteIds);
 
         return notes.stream()
                 .map(note -> NoteResponse.from(
-                        note, favoriteNoteIds.contains(note.getId()), commentCounts.getOrDefault(note.getId(), 0L)))
+                        note,
+                        favoriteNoteIds.contains(note.getId()),
+                        commentCounts.getOrDefault(note.getId(), 0L),
+                        readNoteIds.contains(note.getId()),
+                        readCounts.getOrDefault(note.getId(), 0L)))
                 .toList();
     }
 
     private Map<Integer, Long> countCommentsByNoteId(List<Integer> noteIds) {
         Map<Integer, Long> counts = new HashMap<>();
         for (CommentRepository.NoteCommentCount count : commentRepository.countActiveByNoteIds(noteIds)) {
+            counts.put(count.getNoteId(), count.getCount());
+        }
+        return counts;
+    }
+
+    private Map<Integer, Long> countReadsByNoteId(List<Integer> noteIds) {
+        Map<Integer, Long> counts = new HashMap<>();
+        for (NoteReadRepository.NoteReadCount count : noteReadRepository.countByNoteIds(noteIds)) {
             counts.put(count.getNoteId(), count.getCount());
         }
         return counts;
@@ -95,7 +114,9 @@ public class NoteService {
 
         Note saved = noteRepository.save(note);
         long commentCount = countCommentsByNoteId(List.of(id)).getOrDefault(id, 0L);
-        return NoteResponse.from(saved, false, commentCount);
+        boolean read = noteReadRepository.existsByUser_IdAndNote_Id(userId, id);
+        long readCount = countReadsByNoteId(List.of(id)).getOrDefault(id, 0L);
+        return NoteResponse.from(saved, false, commentCount, read, readCount);
     }
 
     public void delete(Integer id, Integer userId) {
