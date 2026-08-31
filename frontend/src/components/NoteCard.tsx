@@ -4,17 +4,27 @@ import { formatDateTime } from "../utils/datetime";
 import { CommentSection } from "./CommentSection";
 import { FavoriteButton } from "./FavoriteButton";
 import { NoteForm } from "./NoteForm";
+import { ReadButton } from "./ReadButton";
 
 interface NoteCardProps {
   note: Note;
   currentUserId: number;
   isAdmin: boolean;
   onFavoriteToggled: (noteId: number, favorited: boolean) => void;
+  onRead: (noteId: number) => void;
   onUpdated: (note: Note) => void;
   onDeleted: (noteId: number) => void;
 }
 
-export function NoteCard({ note, currentUserId, isAdmin, onFavoriteToggled, onUpdated, onDeleted }: NoteCardProps) {
+export function NoteCard({
+  note,
+  currentUserId,
+  isAdmin,
+  onFavoriteToggled,
+  onRead,
+  onUpdated,
+  onDeleted,
+}: NoteCardProps) {
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -66,6 +76,7 @@ export function NoteCard({ note, currentUserId, isAdmin, onFavoriteToggled, onUp
         <FavoriteButton noteId={note.id} favorited={note.favorited} onToggled={onFavoriteToggled} />
       </div>
       <div className="note-body">{note.content}</div>
+      <ReadButton noteId={note.id} read={note.read} readCount={note.readCount} onRead={onRead} />
       <CommentSection
         noteId={note.id}
         initialCount={note.commentCount}

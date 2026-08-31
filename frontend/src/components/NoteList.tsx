@@ -38,6 +38,16 @@ export function NoteList() {
     setNotes((prev) => prev && prev.map((note) => (note.id === noteId ? { ...note, favorited } : note)));
   }
 
+  function handleRead(noteId: number) {
+    setNotes(
+      (prev) =>
+        prev &&
+        prev.map((note) =>
+          note.id === noteId && !note.read ? { ...note, read: true, readCount: note.readCount + 1 } : note,
+        ),
+    );
+  }
+
   async function handleCreate(input: NoteInput) {
     const created = await createNote(input);
     setNotes((prev) => (prev ? [created, ...prev] : [created]));
@@ -81,6 +91,7 @@ export function NoteList() {
               currentUserId={user.id}
               isAdmin={user.admin}
               onFavoriteToggled={handleFavoriteToggled}
+              onRead={handleRead}
               onUpdated={handleUpdated}
               onDeleted={handleDeleted}
             />
