@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { deleteNote, updateNote, type Note, type NoteInput } from "../api/notes";
+import { formatDateTime } from "../utils/datetime";
 import { CommentSection } from "./CommentSection";
 import { FavoriteButton } from "./FavoriteButton";
 import { NoteForm } from "./NoteForm";
@@ -60,7 +61,7 @@ export function NoteCard({ note, currentUserId, isAdmin, onFavoriteToggled, onUp
       <div className="note-top">
         <span className="tag">{note.category}</span>
         <div className="note-meta">
-          {note.author} ・ {new Date(note.createdAt).toLocaleString()}
+          {note.author} ・ {formatDateTime(note.createdAt)}
         </div>
         <FavoriteButton noteId={note.id} favorited={note.favorited} onToggled={onFavoriteToggled} />
       </div>

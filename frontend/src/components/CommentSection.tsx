@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { createComment, deleteComment, fetchComments, type Comment } from "../api/comments";
+import { formatDateTime } from "../utils/datetime";
 
 interface CommentSectionProps {
   noteId: number;
@@ -73,7 +74,7 @@ export function CommentSection({ noteId, initialCount, currentUserId, isAdmin }:
               {comments.map((comment) => (
                 <li key={comment.id} className="comment-item">
                   <div className="comment-meta">
-                    {comment.author} ・ {new Date(comment.createdAt).toLocaleString()}
+                    {comment.author} ・ {formatDateTime(comment.createdAt)}
                   </div>
                   <div className="comment-content">{comment.content}</div>
                   {(comment.userId === currentUserId || isAdmin) && (
