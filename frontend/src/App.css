@@ -191,20 +191,15 @@
   gap: 14px;
 }
 
-.note-actions {
-  padding: 0 16px 14px;
-  display: flex;
-  gap: 8px;
-}
-
-.note-actions button {
-  padding: 4px 10px;
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--ink-soft);
+.link-action {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
   font-size: 12px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .note-card {
@@ -290,7 +285,6 @@
 }
 
 .comment-toggle {
-  margin-top: 10px;
   background: transparent;
   border: none;
   color: var(--accent);
@@ -319,6 +313,17 @@
   border-radius: 6px;
   padding: 8px 10px;
   background: var(--surface-2);
+}
+
+.comment-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.comment-delete {
+  font-size: 11px;
 }
 
 .comment-meta {

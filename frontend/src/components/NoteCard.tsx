@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { fetchComments, type Comment } from "../api/comments";
 import { deleteNote, updateNote, type Note, type NoteInput } from "../api/notes";
 import { formatDateTime } from "../utils/datetime";
 import { CommentSection } from "./CommentSection";
+import { CommentToggle } from "./CommentToggle";
 import { FavoriteButton } from "./FavoriteButton";
 import { NoteForm } from "./NoteForm";
 import { ReadButton } from "./ReadButton";
@@ -28,9 +30,15 @@ export function NoteCard({
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  const [commentsExpanded, setCommentsExpanded] = useState(false);
+  const [comments, setComments] = useState<Comment[] | null>(null);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentsError, setCommentsError] = useState<string | null>(null);
+
   const isAuthor = note.userId === currentUserId;
   const canEdit = isAuthor;
   const canDelete = isAuthor || isAdmin;
+  const commentCount = comments?.length ?? note.commentCount;
 
   async function handleUpdate(input: NoteInput) {
     const updated = await updateNote(note.id, input);
@@ -53,6 +61,29 @@ export function NoteCard({
     }
   }
 
+  async function handleCommentToggle() {
+    const next = !commentsExpanded;
+    setCommentsExpanded(next);
+    if (next && comments === null) {
+      setCommentsLoading(true);
+      try {
+        setComments(await fetchComments(note.id));
+      } catch (err) {
+        setCommentsError(err instanceof Error ? err.message : "コメントの取得に失敗しました");
+      } finally {
+        setCommentsLoading(false);
+      }
+    }
+  }
+
+  function handleCommentAdded(comment: Comment) {
+    setComments((prev) => (prev ? [...prev, comment] : [comment]));
+  }
+
+  function handleCommentDeleted(commentId: number) {
+    setComments((prev) => prev && prev.filter((c) => c.id !== commentId));
+  }
+
   if (editing) {
     return (
       <article className="note-card">
@@ -73,29 +104,34 @@ export function NoteCard({
         <div className="note-meta">
           {note.author} ・ {formatDateTime(note.createdAt)}
         </div>
+        {canEdit && (
+          <button type="button" className="link-action" onClick={() => setEditing(true)}>
+            編集
+          </button>
+        )}
+        {canDelete && (
+          <button type="button" className="link-action" onClick={handleDelete} disabled={deleting}>
+            削除
+          </button>
+        )}
         <FavoriteButton noteId={note.id} favorited={note.favorited} onToggled={onFavoriteToggled} />
       </div>
       <div className="note-body">{note.content}</div>
-      <ReadButton noteId={note.id} read={note.read} readCount={note.readCount} onRead={onRead} />
-      <CommentSection
-        noteId={note.id}
-        initialCount={note.commentCount}
-        currentUserId={currentUserId}
-        isAdmin={isAdmin}
-      />
-      {(canEdit || canDelete) && (
-        <div className="note-actions">
-          {canEdit && (
-            <button type="button" onClick={() => setEditing(true)}>
-              編集
-            </button>
-          )}
-          {canDelete && (
-            <button type="button" onClick={handleDelete} disabled={deleting}>
-              削除
-            </button>
-          )}
-        </div>
+      <div className="read-status">
+        <ReadButton noteId={note.id} read={note.read} readCount={note.readCount} onRead={onRead} />
+        <CommentToggle count={commentCount} onClick={handleCommentToggle} />
+      </div>
+      {commentsExpanded && (
+        <CommentSection
+          noteId={note.id}
+          comments={comments}
+          loading={commentsLoading}
+          error={commentsError}
+          currentUserId={currentUserId}
+          isAdmin={isAdmin}
+          onCommentAdded={handleCommentAdded}
+          onCommentDeleted={handleCommentDeleted}
+        />
       )}
     </article>
   );

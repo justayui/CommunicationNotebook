@@ -1,49 +1,42 @@
 import { useState, type FormEvent } from "react";
-import { createComment, deleteComment, fetchComments, type Comment } from "../api/comments";
+import { createComment, deleteComment, type Comment } from "../api/comments";
 import { formatDateTime } from "../utils/datetime";
 
 interface CommentSectionProps {
   noteId: number;
-  initialCount: number;
+  comments: Comment[] | null;
+  loading: boolean;
+  error: string | null;
   currentUserId: number;
   isAdmin: boolean;
+  onCommentAdded: (comment: Comment) => void;
+  onCommentDeleted: (commentId: number) => void;
 }
 
-export function CommentSection({ noteId, initialCount, currentUserId, isAdmin }: CommentSectionProps) {
-  const [expanded, setExpanded] = useState(false);
-  const [comments, setComments] = useState<Comment[] | null>(null);
-  const [loading, setLoading] = useState(false);
+export function CommentSection({
+  noteId,
+  comments,
+  loading,
+  error,
+  currentUserId,
+  isAdmin,
+  onCommentAdded,
+  onCommentDeleted,
+}: CommentSectionProps) {
   const [content, setContent] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  const count = comments?.length ?? initialCount;
-
-  async function handleToggle() {
-    const next = !expanded;
-    setExpanded(next);
-    if (next && comments === null) {
-      setLoading(true);
-      try {
-        setComments(await fetchComments(noteId));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "コメントの取得に失敗しました");
-      } finally {
-        setLoading(false);
-      }
-    }
-  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
+    setSubmitError(null);
     setSubmitting(true);
     try {
       const created = await createComment(noteId, { content });
-      setComments((prev) => (prev ? [...prev, created] : [created]));
+      onCommentAdded(created);
       setContent("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "コメントの投稿に失敗しました");
+      setSubmitError(err instanceof Error ? err.message : "コメントの投稿に失敗しました");
     } finally {
       setSubmitting(false);
     }
@@ -55,7 +48,7 @@ export function CommentSection({ noteId, initialCount, currentUserId, isAdmin }:
     }
     try {
       await deleteComment(noteId, commentId);
-      setComments((prev) => prev && prev.filter((c) => c.id !== commentId));
+      onCommentDeleted(commentId);
     } catch (err) {
       window.alert(err instanceof Error ? err.message : "削除に失敗しました");
     }
@@ -63,43 +56,45 @@ export function CommentSection({ noteId, initialCount, currentUserId, isAdmin }:
 
   return (
     <div className="comment-section">
-      <button type="button" className="comment-toggle" onClick={handleToggle}>
-        コメント ({count})
-      </button>
-      {expanded && (
-        <div className="comment-body">
-          {loading && <p className="comment-state">Loading...</p>}
-          {!loading && comments && comments.length > 0 && (
-            <ul className="comment-list">
-              {comments.map((comment) => (
-                <li key={comment.id} className="comment-item">
+      <div className="comment-body">
+        {loading && <p className="comment-state">Loading...</p>}
+        {!loading && error && <p className="comment-state">{error}</p>}
+        {!loading && !error && comments && comments.length > 0 && (
+          <ul className="comment-list">
+            {comments.map((comment) => (
+              <li key={comment.id} className="comment-item">
+                <div className="comment-item-header">
                   <div className="comment-meta">
                     {comment.author} ・ {formatDateTime(comment.createdAt)}
                   </div>
-                  <div className="comment-content">{comment.content}</div>
                   {(comment.userId === currentUserId || isAdmin) && (
-                    <button type="button" onClick={() => handleDelete(comment.id)}>
+                    <button
+                      type="button"
+                      className="link-action comment-delete"
+                      onClick={() => handleDelete(comment.id)}
+                    >
                       削除
                     </button>
                   )}
-                </li>
-              ))}
-            </ul>
-          )}
-          <form className="comment-form" onSubmit={handleSubmit}>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="コメントを入力してください"
-              required
-            />
-            {error && <p className="comment-state">{error}</p>}
-            <button type="submit" disabled={submitting}>
-              {submitting ? "投稿中..." : "投稿する"}
-            </button>
-          </form>
-        </div>
-      )}
+                </div>
+                <div className="comment-content">{comment.content}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <form className="comment-form" onSubmit={handleSubmit}>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="コメントを入力してください"
+            required
+          />
+          {submitError && <p className="comment-state">{submitError}</p>}
+          <button type="submit" disabled={submitting}>
+            {submitting ? "投稿中..." : "投稿する"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
