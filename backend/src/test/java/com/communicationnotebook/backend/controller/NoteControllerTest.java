@@ -49,7 +49,7 @@ class NoteControllerTest {
     @Test
     void findAll_returnsNoteListWithFavoritedField() {
         NoteResponse note = new NoteResponse(
-                1, 1, "雑談", "これはテスト投稿です。", "テスト太郎", LocalDateTime.of(2026, 8, 30, 10, 0), true, 0);
+                1, 1, "雑談", "これはテスト投稿です。", "テスト太郎", LocalDateTime.of(2026, 8, 30, 10, 0), true, 0, false, 0);
         when(noteService.findAll(null, null, false, 1)).thenReturn(List.of(note));
 
         mockMvc.get().uri("/api/notes")
@@ -80,7 +80,7 @@ class NoteControllerTest {
     @Test
     void create_returnsCreatedNote() {
         NoteResponse note = new NoteResponse(
-                1, 1, "雑談", "これはテスト投稿です。", "テスト太郎", LocalDateTime.of(2026, 8, 30, 10, 0), false, 0);
+                1, 1, "雑談", "これはテスト投稿です。", "テスト太郎", LocalDateTime.of(2026, 8, 30, 10, 0), false, 0, false, 0);
         when(noteService.create(any(NoteCreateRequest.class), eq(1))).thenReturn(note);
 
         mockMvc.post()
@@ -109,7 +109,7 @@ class NoteControllerTest {
     @Test
     void update_returnsUpdatedNote() {
         NoteResponse note = new NoteResponse(
-                1, 1, "業務連絡", "更新後の内容", "テスト太郎", LocalDateTime.of(2026, 8, 30, 10, 0), false, 0);
+                1, 1, "業務連絡", "更新後の内容", "テスト太郎", LocalDateTime.of(2026, 8, 30, 10, 0), false, 0, false, 0);
         when(noteService.update(eq(1), any(NoteUpdateRequest.class), eq(1))).thenReturn(note);
 
         mockMvc.put()
