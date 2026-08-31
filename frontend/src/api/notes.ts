@@ -7,6 +7,8 @@ export interface Note {
   createdAt: string;
   favorited: boolean;
   commentCount: number;
+  read: boolean;
+  readCount: number;
 }
 
 export interface FetchNotesParams {

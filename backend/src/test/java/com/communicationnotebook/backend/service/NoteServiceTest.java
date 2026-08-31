@@ -14,6 +14,7 @@ import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.repository.CommentRepository;
 import com.communicationnotebook.backend.repository.FavoriteRepository;
+import com.communicationnotebook.backend.repository.NoteReadRepository;
 import com.communicationnotebook.backend.repository.NoteRepository;
 import com.communicationnotebook.backend.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -42,6 +43,9 @@ class NoteServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
+    @Mock
+    private NoteReadRepository noteReadRepository;
+
     @InjectMocks
     private NoteService noteService;
 
@@ -64,6 +68,8 @@ class NoteServiceTest {
         Note note = newNote(1, "雑談", "これはテスト投稿です。", "テスト太郎");
         when(noteRepository.search(null, null, false, 1)).thenReturn(List.of(note));
         when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.countByNoteIds(any())).thenReturn(List.of());
         when(commentRepository.countActiveByNoteIds(any())).thenReturn(List.of());
 
         List<NoteResponse> result = noteService.findAll(null, null, false, 1);
@@ -80,6 +86,8 @@ class NoteServiceTest {
     void findAll_returnsEmptyList_whenNoNotesExist() {
         when(noteRepository.search(null, null, false, 1)).thenReturn(List.of());
         when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.countByNoteIds(any())).thenReturn(List.of());
         when(commentRepository.countActiveByNoteIds(any())).thenReturn(List.of());
 
         List<NoteResponse> result = noteService.findAll(null, null, false, 1);
@@ -91,6 +99,8 @@ class NoteServiceTest {
     void findAll_normalizesBlankKeywordAndCategoryToNull() {
         when(noteRepository.search(null, null, false, 1)).thenReturn(List.of());
         when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.countByNoteIds(any())).thenReturn(List.of());
         when(commentRepository.countActiveByNoteIds(any())).thenReturn(List.of());
 
         noteService.findAll("  ", "", false, 1);
@@ -102,6 +112,8 @@ class NoteServiceTest {
     void findAll_passesKeywordCategoryFavoriteOnlyToRepository() {
         when(noteRepository.search("懇親会", "業務連絡", true, 1)).thenReturn(List.of());
         when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.countByNoteIds(any())).thenReturn(List.of());
         when(commentRepository.countActiveByNoteIds(any())).thenReturn(List.of());
 
         noteService.findAll("懇親会", "業務連絡", true, 1);
@@ -114,6 +126,8 @@ class NoteServiceTest {
         Note note = newNote(1, "雑談", "これはテスト投稿です。", "テスト太郎");
         when(noteRepository.search(null, null, false, 1)).thenReturn(List.of(note));
         when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of(1));
+        when(noteReadRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.countByNoteIds(any())).thenReturn(List.of());
         when(commentRepository.countActiveByNoteIds(any())).thenReturn(List.of());
 
         List<NoteResponse> result = noteService.findAll(null, null, false, 1);
@@ -126,6 +140,8 @@ class NoteServiceTest {
         Note note = newNote(1, "雑談", "これはテスト投稿です。", "テスト太郎");
         when(noteRepository.search(null, null, false, 1)).thenReturn(List.of(note));
         when(favoriteRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.findNoteIdsByUserId(1)).thenReturn(Set.of());
+        when(noteReadRepository.countByNoteIds(any())).thenReturn(List.of());
         CommentRepository.NoteCommentCount count = new CommentRepository.NoteCommentCount() {
             @Override
             public Integer getNoteId() {
@@ -212,6 +228,8 @@ class NoteServiceTest {
         when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
         when(noteRepository.save(any(Note.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(commentRepository.countActiveByNoteIds(any())).thenReturn(List.of());
+        when(noteReadRepository.existsByUser_IdAndNote_Id(1, 10)).thenReturn(false);
+        when(noteReadRepository.countByNoteIds(any())).thenReturn(List.of());
 
         NoteResponse result = noteService.update(10, request, 1);
 
