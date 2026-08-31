@@ -1,11 +1,13 @@
 package com.communicationnotebook.backend.service;
 
+import com.communicationnotebook.backend.dto.NoteReaderResponse;
 import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.NoteRead;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.repository.NoteReadRepository;
 import com.communicationnotebook.backend.repository.NoteRepository;
 import com.communicationnotebook.backend.repository.UserRepository;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -43,5 +45,16 @@ public class NoteReadService {
         noteRead.setUser(user);
         noteRead.setNote(note);
         noteReadRepository.save(noteRead);
+    }
+
+    public List<NoteReaderResponse> findReaders(Integer noteId) {
+        noteRepository
+                .findById(noteId)
+                .filter(n -> !n.isDeleted())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + noteId));
+
+        return noteReadRepository.findByNote_IdOrderByCreatedAtAsc(noteId).stream()
+                .map(NoteReaderResponse::from)
+                .toList();
     }
 }
