@@ -105,7 +105,6 @@ class CommentServiceTest {
         when(noteRepository.findById(10)).thenReturn(Optional.of(newNote(10, false)));
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         when(commentRepository.save(any(Comment.class))).thenReturn(saved);
-        when(commentRepository.findByIdWithUser(100)).thenReturn(Optional.of(saved));
 
         CommentResponse result = commentService.create(10, new CommentCreateRequest("投稿します"), 1);
 

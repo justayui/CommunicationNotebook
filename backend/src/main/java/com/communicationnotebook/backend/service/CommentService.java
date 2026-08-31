@@ -45,8 +45,7 @@ public class CommentService {
         comment.setDeleted(false);
 
         Comment saved = commentRepository.save(comment);
-        Comment reloaded = commentRepository.findByIdWithUser(saved.getId()).orElseThrow();
-        return CommentResponse.from(reloaded);
+        return CommentResponse.from(saved);
     }
 
     public void delete(Integer noteId, Integer commentId, Integer userId) {
