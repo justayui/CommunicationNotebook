@@ -14,6 +14,9 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     Optional<Comment> findByIdAndNote_Id(Integer id, Integer noteId);
 
+    @Query("SELECT c FROM Comment c JOIN FETCH c.user WHERE c.id = :id")
+    Optional<Comment> findByIdWithUser(@Param("id") Integer id);
+
     @Query(
             "SELECT c.note.id AS noteId, COUNT(c) AS count FROM Comment c "
                     + "WHERE c.deleted = false AND c.note.id IN :noteIds GROUP BY c.note.id")
