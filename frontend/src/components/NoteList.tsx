@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { fetchNotes, type Note } from "../api/notes";
+import { createNote, fetchNotes, type Note, type NoteInput } from "../api/notes";
 import { SearchBar } from "./SearchBar";
 import { FilterTabs, type FilterTab } from "./FilterTabs";
 import { CategoryFilter } from "./CategoryFilter";
-import { FavoriteButton } from "./FavoriteButton";
+import { NoteCard } from "./NoteCard";
+import { NoteForm } from "./NoteForm";
+import { useAuth } from "../context/AuthContext";
 
 export function NoteList() {
+  const { user } = useAuth();
   const [notes, setNotes] = useState<Note[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,8 +38,27 @@ export function NoteList() {
     setNotes((prev) => prev && prev.map((note) => (note.id === noteId ? { ...note, favorited } : note)));
   }
 
+  async function handleCreate(input: NoteInput) {
+    const created = await createNote(input);
+    setNotes((prev) => (prev ? [created, ...prev] : [created]));
+  }
+
+  function handleUpdated(updated: Note) {
+    setNotes((prev) => prev && prev.map((note) => (note.id === updated.id ? updated : note)));
+  }
+
+  function handleDeleted(noteId: number) {
+    setNotes((prev) => prev && prev.filter((note) => note.id !== noteId));
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div>
+      <NoteForm submitLabel="投稿する" onSubmit={handleCreate} />
+
       <div className="note-list-controls">
         <SearchBar value={rawKeyword} onChange={setRawKeyword} />
         <FilterTabs active={activeTab} onChange={setActiveTab} />
@@ -53,20 +75,15 @@ export function NoteList() {
       {!error && notes !== null && notes.length > 0 && (
         <div className="note-list">
           {notes.map((note) => (
-            <article key={note.id} className="note-card">
-              <div className="note-top">
-                <span className="tag">{note.category}</span>
-                <div className="note-meta">
-                  {note.author} ・ {new Date(note.createdAt).toLocaleString()}
-                </div>
-                <FavoriteButton
-                  noteId={note.id}
-                  favorited={note.favorited}
-                  onToggled={handleFavoriteToggled}
-                />
-              </div>
-              <div className="note-body">{note.content}</div>
-            </article>
+            <NoteCard
+              key={note.id}
+              note={note}
+              currentUserId={user.id}
+              isAdmin={user.admin}
+              onFavoriteToggled={handleFavoriteToggled}
+              onUpdated={handleUpdated}
+              onDeleted={handleDeleted}
+            />
           ))}
         </div>
       )}
