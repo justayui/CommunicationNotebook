@@ -10,13 +10,14 @@ public record NoteResponse(
         String content,
         String author,
         LocalDateTime createdAt,
-        boolean favorited) {
+        boolean favorited,
+        long commentCount) {
 
     public static NoteResponse from(Note note) {
-        return from(note, false);
+        return from(note, false, 0L);
     }
 
-    public static NoteResponse from(Note note, boolean favorited) {
+    public static NoteResponse from(Note note, boolean favorited, long commentCount) {
         return new NoteResponse(
                 note.getId(),
                 note.getUser().getId(),
@@ -24,6 +25,7 @@ public record NoteResponse(
                 note.getContent(),
                 note.getUser().getName(),
                 note.getCreatedAt(),
-                favorited);
+                favorited,
+                commentCount);
     }
 }

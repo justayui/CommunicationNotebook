@@ -6,6 +6,7 @@ export interface Note {
   author: string;
   createdAt: string;
   favorited: boolean;
+  commentCount: number;
 }
 
 export interface FetchNotesParams {

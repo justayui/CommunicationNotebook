@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { deleteNote, updateNote, type Note, type NoteInput } from "../api/notes";
+import { CommentSection } from "./CommentSection";
 import { FavoriteButton } from "./FavoriteButton";
 import { NoteForm } from "./NoteForm";
 
@@ -64,6 +65,12 @@ export function NoteCard({ note, currentUserId, isAdmin, onFavoriteToggled, onUp
         <FavoriteButton noteId={note.id} favorited={note.favorited} onToggled={onFavoriteToggled} />
       </div>
       <div className="note-body">{note.content}</div>
+      <CommentSection
+        noteId={note.id}
+        initialCount={note.commentCount}
+        currentUserId={currentUserId}
+        isAdmin={isAdmin}
+      />
       {(canEdit || canDelete) && (
         <div className="note-actions">
           {canEdit && (
