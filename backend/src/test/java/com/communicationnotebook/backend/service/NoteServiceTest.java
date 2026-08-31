@@ -3,6 +3,7 @@ package com.communicationnotebook.backend.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -152,14 +153,12 @@ class NoteServiceTest {
 
         NoteCreateRequest request = new NoteCreateRequest("雑談", "これはテスト投稿です。");
 
-        Note saved = new Note();
-        saved.setId(10);
-
-        Note reloaded = newNote(10, "雑談", "これはテスト投稿です。", "テスト太郎");
-
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        when(noteRepository.save(any(Note.class))).thenReturn(saved);
-        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(reloaded));
+        when(noteRepository.save(any(Note.class))).thenAnswer(invocation -> {
+            Note note = invocation.getArgument(0);
+            note.setId(10);
+            return note;
+        });
 
         NoteResponse result = noteService.create(request, 1);
 
@@ -167,6 +166,7 @@ class NoteServiceTest {
         assertThat(result.category()).isEqualTo("雑談");
         assertThat(result.content()).isEqualTo("これはテスト投稿です。");
         assertThat(result.author()).isEqualTo("テスト太郎");
+        verify(noteRepository, never()).findByIdWithUser(any());
     }
 
     @Test
