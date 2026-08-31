@@ -76,8 +76,7 @@ public class NoteService {
         note.setDeleted(false);
 
         Note saved = noteRepository.save(note);
-        Note reloaded = noteRepository.findByIdWithUser(saved.getId()).orElseThrow();
-        return NoteResponse.from(reloaded);
+        return NoteResponse.from(saved);
     }
 
     public NoteResponse update(Integer id, NoteUpdateRequest request, Integer userId) {
