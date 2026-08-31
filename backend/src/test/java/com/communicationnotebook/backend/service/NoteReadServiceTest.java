@@ -1,17 +1,20 @@
 package com.communicationnotebook.backend.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.communicationnotebook.backend.dto.NoteReaderResponse;
 import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.NoteRead;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.repository.NoteReadRepository;
 import com.communicationnotebook.backend.repository.NoteRepository;
 import com.communicationnotebook.backend.repository.UserRepository;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -110,5 +113,40 @@ class NoteReadServiceTest {
         noteReadService.register(10, 1);
 
         verify(noteReadRepository, never()).save(any(NoteRead.class));
+    }
+
+    @Test
+    void findReaders_returnsReadersForNote() {
+        User user = newUser(1, false);
+        user.setName("テスト太郎");
+        NoteRead noteRead = new NoteRead();
+        noteRead.setUser(user);
+
+        when(noteRepository.findById(10)).thenReturn(Optional.of(newNote(10, false)));
+        when(noteReadRepository.findByNote_IdOrderByCreatedAtAsc(10)).thenReturn(List.of(noteRead));
+
+        List<NoteReaderResponse> result = noteReadService.findReaders(10);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).userId()).isEqualTo(1);
+        assertThat(result.get(0).name()).isEqualTo("テスト太郎");
+    }
+
+    @Test
+    void findReaders_throwsNotFound_whenNoteDoesNotExist() {
+        when(noteRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> noteReadService.findReaders(99))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Note not found");
+    }
+
+    @Test
+    void findReaders_throwsNotFound_whenNoteIsDeleted() {
+        when(noteRepository.findById(10)).thenReturn(Optional.of(newNote(10, true)));
+
+        assertThatThrownBy(() -> noteReadService.findReaders(10))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Note not found");
     }
 }
