@@ -11,6 +11,9 @@ public interface NoteReadRepository extends JpaRepository<NoteRead, Integer> {
 
     boolean existsByUser_IdAndNote_Id(Integer userId, Integer noteId);
 
+    @Query("SELECT r FROM NoteRead r JOIN FETCH r.user WHERE r.note.id = :noteId ORDER BY r.createdAt ASC")
+    List<NoteRead> findByNote_IdOrderByCreatedAtAsc(@Param("noteId") Integer noteId);
+
     @Query("SELECT r.note.id FROM NoteRead r WHERE r.user.id = :userId")
     Set<Integer> findNoteIdsByUserId(@Param("userId") Integer userId);
 
