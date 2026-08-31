@@ -260,7 +260,8 @@
   margin-top: 10px;
   background: transparent;
   border: none;
-  color: var(--ink-soft);
+  color: var(--accent);
+  text-decoration: underline;
   font-size: 12.5px;
   cursor: pointer;
   padding: 0;
