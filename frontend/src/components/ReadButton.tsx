@@ -42,7 +42,7 @@ export function ReadButton({ noteId, read, readCount, onRead }: ReadButtonProps)
   }
 
   return (
-    <div className="read-status">
+    <>
       <button type="button" className="read-btn" disabled={read || submitting} onClick={handleClick}>
         {read ? "確認済み" : "確認"}
       </button>
@@ -67,6 +67,6 @@ export function ReadButton({ noteId, read, readCount, onRead }: ReadButtonProps)
           )}
         </Modal>
       )}
-    </div>
+    </>
   );
 }
