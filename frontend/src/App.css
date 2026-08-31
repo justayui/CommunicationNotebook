@@ -245,6 +245,39 @@
   white-space: pre-wrap;
 }
 
+.read-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px 12px;
+}
+
+.read-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.read-btn:disabled {
+  background: var(--surface-2);
+  color: var(--ink-faint);
+  cursor: default;
+}
+
+.read-toggle {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  text-decoration: underline;
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 0;
+}
+
 .state-message {
   padding: 40px 22px;
   text-align: center;
@@ -318,4 +351,62 @@
 .comment-state {
   font-size: 12px;
   color: var(--ink-faint);
+}
+
+.modal {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0;
+  width: min(360px, 90vw);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+  font-size: 15px;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--ink-faint);
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.modal-body {
+  padding: 14px 16px 16px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.reader-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.reader-item {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: var(--surface-2);
+  font-size: 13px;
 }
