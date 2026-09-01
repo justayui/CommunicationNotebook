@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.communicationnotebook.backend.dto.SignupRequest;
 import com.communicationnotebook.backend.dto.UserResponse;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.repository.UserRepository;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,6 +23,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;
@@ -72,6 +77,32 @@ class UserServiceTest {
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> userService.findById(1))
+                .isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void signup_savesHashedPasswordAndReturnsUser_whenEmployeeIdIsNew() {
+        SignupRequest request = new SignupRequest("E003", "テスト花子", "password123");
+        when(userRepository.existsByEmployeeId("E003")).thenReturn(false);
+        when(passwordEncoder.encode("password123")).thenReturn("hashed");
+        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = userService.signup(request);
+
+        assertThat(result.getEmployeeId()).isEqualTo("E003");
+        assertThat(result.getName()).isEqualTo("テスト花子");
+        assertThat(result.getPassword()).isEqualTo("hashed");
+        assertThat(result.isAdmin()).isFalse();
+        assertThat(result.isDeleted()).isFalse();
+    }
+
+    @Test
+    void signup_throwsConflict_whenEmployeeIdAlreadyExists() {
+        SignupRequest request = new SignupRequest("E001", "テスト太郎", "password123");
+        when(userRepository.existsByEmployeeId("E001")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.signup(request))
                 .isInstanceOf(ResponseStatusException.class);
     }
 }

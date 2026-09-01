@@ -4,18 +4,22 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import com.communicationnotebook.backend.config.SecurityConfig;
+import com.communicationnotebook.backend.dto.SignupRequest;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.security.UserPrincipal;
+import com.communicationnotebook.backend.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.web.server.ResponseStatusException;
 
 @WebMvcTest(AuthController.class)
 @Import(SecurityConfig.class)
@@ -26,6 +30,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthenticationManager authenticationManager;
+
+    @MockitoBean
+    private UserService userService;
 
     private User newUser(Integer id, String employeeId, String name, boolean admin) {
         User user = new User();
@@ -75,6 +82,45 @@ class AuthControllerTest {
                 .uri("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"employeeId\":\"E001\",\"password\":\"\"}")
+                .assertThat()
+                .hasStatus(400);
+    }
+
+    @Test
+    void signup_returnsCreatedUser_whenValid() {
+        User user = newUser(3, "E003", "テスト花子", false);
+        when(userService.signup(org.mockito.ArgumentMatchers.any(SignupRequest.class))).thenReturn(user);
+
+        mockMvc.post()
+                .uri("/api/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"employeeId\":\"E003\",\"name\":\"テスト花子\",\"password\":\"password123\"}")
+                .assertThat()
+                .hasStatus(201)
+                .bodyJson()
+                .extractingPath("$.employeeId")
+                .isEqualTo("E003");
+    }
+
+    @Test
+    void signup_returnsConflict_whenEmployeeIdDuplicate() {
+        when(userService.signup(org.mockito.ArgumentMatchers.any(SignupRequest.class)))
+                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "職員IDは既に使用されています"));
+
+        mockMvc.post()
+                .uri("/api/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"employeeId\":\"E001\",\"name\":\"テスト太郎\",\"password\":\"password123\"}")
+                .assertThat()
+                .hasStatus(409);
+    }
+
+    @Test
+    void signup_returnsBadRequest_whenRequiredFieldIsBlank() {
+        mockMvc.post()
+                .uri("/api/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"employeeId\":\"E003\",\"name\":\"テスト花子\",\"password\":\"\"}")
                 .assertThat()
                 .hasStatus(400);
     }
