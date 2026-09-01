@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .securityContext(sc -> sc.securityContextRepository(securityContextRepository))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/login")
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/login", "/api/auth/signup")
                         .permitAll()
                         .requestMatchers("/actuator/health")
                         .permitAll()
