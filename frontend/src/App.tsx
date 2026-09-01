@@ -34,7 +34,13 @@ function AppContent() {
         <h1>連絡ノート</h1>
         <div className="user-bar">
           <span>{user.name}</span>
-          <button type="button" onClick={() => logout()}>
+          <button
+            type="button"
+            onClick={() => {
+              logout();
+              setMode("login");
+            }}
+          >
             ログアウト
           </button>
         </div>
