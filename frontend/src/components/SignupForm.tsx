@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from "react";
 import { useAuth } from "../context/AuthContext";
 
-export function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
-  const { login } = useAuth();
+export function SignupForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
+  const { signup } = useAuth();
   const [employeeId, setEmployeeId] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -13,9 +14,9 @@ export function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }
     setError(null);
     setSubmitting(true);
     try {
-      await login(employeeId, password);
+      await signup(employeeId, name, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "ログインに失敗しました");
+      setError(err instanceof Error ? err.message : "登録に失敗しました");
     } finally {
       setSubmitting(false);
     }
@@ -23,7 +24,7 @@ export function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }
 
   return (
     <form className="login-form" onSubmit={handleSubmit}>
-      <h2>ログイン</h2>
+      <h2>新規登録</h2>
       <label>
         職員ID
         <input
@@ -32,6 +33,10 @@ export function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }
           onChange={(e) => setEmployeeId(e.target.value)}
           required
         />
+      </label>
+      <label>
+        氏名
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
       </label>
       <label>
         パスワード
@@ -44,10 +49,10 @@ export function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }
       </label>
       {error && <p className="state-message">{error}</p>}
       <button type="submit" disabled={submitting}>
-        {submitting ? "ログイン中..." : "ログイン"}
+        {submitting ? "登録中..." : "登録"}
       </button>
-      <button type="button" onClick={onSwitchToSignup}>
-        新規登録はこちら
+      <button type="button" onClick={onSwitchToLogin}>
+        ログイン画面に戻る
       </button>
     </form>
   );
