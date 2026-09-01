@@ -1,10 +1,13 @@
+import { useState } from "react";
 import "./App.css";
 import { NoteList } from "./components/NoteList";
 import { LoginForm } from "./components/LoginForm";
+import { SignupForm } from "./components/SignupForm";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 function AppContent() {
   const { user, loading, logout } = useAuth();
+  const [mode, setMode] = useState<"login" | "signup">("login");
 
   if (loading) {
     return <p className="state-message">Loading...</p>;
@@ -16,7 +19,11 @@ function AppContent() {
         <header className="app-header">
           <h1>連絡ノート</h1>
         </header>
-        <LoginForm />
+        {mode === "login" ? (
+          <LoginForm onSwitchToSignup={() => setMode("signup")} />
+        ) : (
+          <SignupForm onSwitchToLogin={() => setMode("login")} />
+        )}
       </main>
     );
   }
