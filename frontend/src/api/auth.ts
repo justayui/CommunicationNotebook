@@ -20,6 +20,22 @@ export async function login(employeeId: string, password: string): Promise<User>
   return res.json();
 }
 
+export async function signup(employeeId: string, name: string, password: string): Promise<User> {
+  const res = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ employeeId, name, password }),
+  });
+  if (!res.ok) {
+    if (res.status === 409) {
+      throw new Error("職員IDは既に使用されています");
+    }
+    throw new Error("入力内容を確認してください");
+  }
+  return res.json();
+}
+
 export async function logout(): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/api/auth/logout`, {
     method: "POST",
