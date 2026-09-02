@@ -414,3 +414,26 @@
   background: var(--surface-2);
   font-size: 13px;
 }
+
+.user-management {
+  padding: 16px 22px 24px;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.user-table th,
+.user-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
