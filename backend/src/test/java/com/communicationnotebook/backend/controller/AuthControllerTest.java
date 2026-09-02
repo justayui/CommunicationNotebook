@@ -4,6 +4,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import com.communicationnotebook.backend.config.SecurityConfig;
+import com.communicationnotebook.backend.dto.PasswordChangeRequest;
 import com.communicationnotebook.backend.dto.SignupRequest;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.security.UserPrincipal;
@@ -142,5 +143,57 @@ class AuthControllerTest {
                 .bodyJson()
                 .extractingPath("$.name")
                 .isEqualTo("テスト太郎");
+    }
+
+    @Test
+    void changePassword_returnsNoContent_whenValid() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+
+        mockMvc.put()
+                .uri("/api/auth/password")
+                .with(user(new UserPrincipal(user)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"currentPassword\":\"oldPassword\",\"newPassword\":\"newPassword\"}")
+                .assertThat()
+                .hasStatus(204);
+    }
+
+    @Test
+    void changePassword_returnsUnauthorized_whenCurrentPasswordMismatch() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+        org.mockito.Mockito.doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "現在のパスワードが正しくありません"))
+                .when(userService)
+                .changePassword(org.mockito.ArgumentMatchers.eq(1), org.mockito.ArgumentMatchers.any(PasswordChangeRequest.class));
+
+        mockMvc.put()
+                .uri("/api/auth/password")
+                .with(user(new UserPrincipal(user)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"currentPassword\":\"wrongPassword\",\"newPassword\":\"newPassword\"}")
+                .assertThat()
+                .hasStatus(401);
+    }
+
+    @Test
+    void changePassword_returnsBadRequest_whenRequiredFieldIsBlank() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+
+        mockMvc.put()
+                .uri("/api/auth/password")
+                .with(user(new UserPrincipal(user)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"currentPassword\":\"oldPassword\",\"newPassword\":\"\"}")
+                .assertThat()
+                .hasStatus(400);
+    }
+
+    @Test
+    void changePassword_returnsUnauthorized_whenNotAuthenticated() {
+        mockMvc.put()
+                .uri("/api/auth/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"currentPassword\":\"oldPassword\",\"newPassword\":\"newPassword\"}")
+                .assertThat()
+                .hasStatus(401);
     }
 }

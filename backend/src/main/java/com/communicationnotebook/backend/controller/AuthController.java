@@ -1,6 +1,7 @@
 package com.communicationnotebook.backend.controller;
 
 import com.communicationnotebook.backend.dto.LoginRequest;
+import com.communicationnotebook.backend.dto.PasswordChangeRequest;
 import com.communicationnotebook.backend.dto.SignupRequest;
 import com.communicationnotebook.backend.dto.UserResponse;
 import com.communicationnotebook.backend.entity.User;
@@ -20,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -76,6 +78,13 @@ public class AuthController {
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal UserPrincipal principal) {
         return UserResponse.from(principal.getUser());
+    }
+
+    @PutMapping("/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(
+            @AuthenticationPrincipal UserPrincipal principal, @Valid @RequestBody PasswordChangeRequest request) {
+        userService.changePassword(principal.getId(), request);
     }
 
     private void establishSession(
