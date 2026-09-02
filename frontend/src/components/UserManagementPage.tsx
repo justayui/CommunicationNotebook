@@ -20,6 +20,7 @@ export function UserManagementPage() {
   const [resetResult, setResetResult] = useState<PasswordResetResult | null>(null);
   const [copied, setCopied] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<UserListItem | null>(null);
+  const [deletedUserName, setDeletedUserName] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers()
@@ -66,6 +67,7 @@ export function UserManagementPage() {
       await deleteUser(user.id);
       setUsers((prev) => prev && prev.filter((u) => u.id !== user.id));
       setDeleteTarget(null);
+      setDeletedUserName(user.name);
     } catch (err) {
       setError(err instanceof Error ? err.message : "削除に失敗しました");
     } finally {
@@ -188,6 +190,14 @@ export function UserManagementPage() {
               キャンセル
             </button>
           </div>
+        </Modal>
+      )}
+      {deletedUserName && (
+        <Modal title="削除完了" onClose={() => setDeletedUserName(null)}>
+          <p>{deletedUserName}を削除しました</p>
+          <button type="button" onClick={() => setDeletedUserName(null)}>
+            閉じる
+          </button>
         </Modal>
       )}
     </div>
