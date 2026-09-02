@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.communicationnotebook.backend.dto.PasswordChangeRequest;
 import com.communicationnotebook.backend.dto.SignupRequest;
 import com.communicationnotebook.backend.dto.UserResponse;
 import com.communicationnotebook.backend.entity.User;
@@ -103,6 +104,30 @@ class UserServiceTest {
         when(userRepository.existsByEmployeeId("E001")).thenReturn(true);
 
         assertThatThrownBy(() -> userService.signup(request))
+                .isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void changePassword_updatesHashedPassword_whenCurrentPasswordMatches() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+        PasswordChangeRequest request = new PasswordChangeRequest("oldPassword", "newPassword");
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("oldPassword", "hashed")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("newHashed");
+
+        userService.changePassword(1, request);
+
+        assertThat(user.getPassword()).isEqualTo("newHashed");
+    }
+
+    @Test
+    void changePassword_throwsUnauthorized_whenCurrentPasswordDoesNotMatch() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+        PasswordChangeRequest request = new PasswordChangeRequest("wrongPassword", "newPassword");
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrongPassword", "hashed")).thenReturn(false);
+
+        assertThatThrownBy(() -> userService.changePassword(1, request))
                 .isInstanceOf(ResponseStatusException.class);
     }
 }
