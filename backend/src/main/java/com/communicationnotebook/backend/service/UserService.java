@@ -1,5 +1,6 @@
 package com.communicationnotebook.backend.service;
 
+import com.communicationnotebook.backend.dto.PasswordChangeRequest;
 import com.communicationnotebook.backend.dto.SignupRequest;
 import com.communicationnotebook.backend.dto.UserResponse;
 import com.communicationnotebook.backend.entity.User;
@@ -46,5 +47,18 @@ public class UserService {
         user.setAdmin(false);
         user.setDeleted(false);
         return userRepository.save(user);
+    }
+
+    public void changePassword(Integer userId, PasswordChangeRequest request) {
+        User user = userRepository.findById(userId)
+                .filter(u -> !u.isDeleted())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "現在のパスワードが正しくありません");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
     }
 }
