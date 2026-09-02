@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.communicationnotebook.backend.dto.PasswordChangeRequest;
+import com.communicationnotebook.backend.dto.PasswordResetResponse;
 import com.communicationnotebook.backend.dto.SignupRequest;
 import com.communicationnotebook.backend.dto.UserResponse;
+import com.communicationnotebook.backend.dto.UserUpdateRequest;
 import com.communicationnotebook.backend.entity.User;
 import com.communicationnotebook.backend.repository.UserRepository;
 import java.util.List;
@@ -128,6 +130,114 @@ class UserServiceTest {
         when(passwordEncoder.matches("wrongPassword", "hashed")).thenReturn(false);
 
         assertThatThrownBy(() -> userService.changePassword(1, request))
+                .isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void updateName_updatesName_whenRequesterIsAdmin() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        User target = newUser(2, "E002", "テスト花子", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.findById(2)).thenReturn(Optional.of(target));
+        when(userRepository.save(target)).thenReturn(target);
+
+        UserResponse result = userService.updateName(1, 2, new UserUpdateRequest("テスト新花子"));
+
+        assertThat(result.name()).isEqualTo("テスト新花子");
+        assertThat(target.getName()).isEqualTo("テスト新花子");
+    }
+
+    @Test
+    void updateName_throwsForbidden_whenRequesterIsNotAdmin() {
+        User requester = newUser(1, "E001", "テスト太郎", false);
+        User target = newUser(2, "E002", "テスト花子", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(requester));
+
+        assertThatThrownBy(() -> userService.updateName(1, 2, new UserUpdateRequest("テスト新花子")))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("管理者");
+    }
+
+    @Test
+    void updateName_throwsNotFound_whenTargetUserDoesNotExist() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.findById(999)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.updateName(1, 999, new UserUpdateRequest("テスト新花子")))
+                .isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void delete_marksUserAsDeleted_whenRequesterIsAdmin() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        User target = newUser(2, "E002", "テスト花子", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.findById(2)).thenReturn(Optional.of(target));
+
+        userService.delete(1, 2);
+
+        assertThat(target.isDeleted()).isTrue();
+    }
+
+    @Test
+    void delete_throwsForbidden_whenRequesterIsNotAdmin() {
+        User requester = newUser(1, "E001", "テスト太郎", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(requester));
+
+        assertThatThrownBy(() -> userService.delete(1, 2))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("管理者");
+    }
+
+    @Test
+    void delete_throwsNotFound_whenTargetUserDoesNotExist() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.findById(999)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.delete(1, 999))
+                .isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void resetPassword_updatesHashedPasswordAndReturnsTemporaryPassword_whenRequesterIsAdmin() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        User target = newUser(2, "E002", "テスト花子", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.findById(2)).thenReturn(Optional.of(target));
+        when(passwordEncoder.encode(org.mockito.ArgumentMatchers.anyString())).thenReturn("newHashed");
+
+        PasswordResetResponse result = userService.resetPassword(1, 2);
+
+        assertThat(result.name()).isEqualTo("テスト花子");
+        assertThat(result.temporaryPassword()).hasSize(12);
+        assertThat(target.getPassword()).isEqualTo("newHashed");
+    }
+
+    @Test
+    void resetPassword_throwsForbidden_whenRequesterIsNotAdmin() {
+        User requester = newUser(1, "E001", "テスト太郎", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(requester));
+
+        assertThatThrownBy(() -> userService.resetPassword(1, 2))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("管理者");
+    }
+
+    @Test
+    void resetPassword_throwsNotFound_whenTargetUserDoesNotExist() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.findById(999)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.resetPassword(1, 999))
                 .isInstanceOf(ResponseStatusException.class);
     }
 }
