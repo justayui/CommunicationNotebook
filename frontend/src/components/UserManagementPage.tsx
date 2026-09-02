@@ -19,6 +19,7 @@ export function UserManagementPage() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const [resetResult, setResetResult] = useState<PasswordResetResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<UserListItem | null>(null);
 
   useEffect(() => {
     fetchUsers()
@@ -54,15 +55,17 @@ export function UserManagementPage() {
     }
   }
 
-  async function handleDelete(user: UserListItem) {
-    if (!window.confirm("本当に削除しますか?")) {
+  async function confirmDelete() {
+    if (!deleteTarget) {
       return;
     }
+    const user = deleteTarget;
     setBusyId(user.id);
     setError(null);
     try {
       await deleteUser(user.id);
       setUsers((prev) => prev && prev.filter((u) => u.id !== user.id));
+      setDeleteTarget(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "削除に失敗しました");
     } finally {
@@ -148,7 +151,11 @@ export function UserManagementPage() {
                       >
                         パスワード初期化
                       </button>
-                      <button type="button" onClick={() => handleDelete(user)} disabled={busyId === user.id}>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(user)}
+                        disabled={busyId === user.id}
+                      >
                         削除
                       </button>
                     </>
@@ -166,6 +173,21 @@ export function UserManagementPage() {
           <button type="button" onClick={handleCopy}>
             {copied ? "コピーしました" : "コピー"}
           </button>
+        </Modal>
+      )}
+      {deleteTarget && (
+        <Modal title="ユーザー削除の確認" onClose={() => setDeleteTarget(null)}>
+          <p>
+            {deleteTarget.name}({deleteTarget.employeeId})を本当に削除しますか?
+          </p>
+          <div className="user-table-actions">
+            <button type="button" onClick={confirmDelete} disabled={busyId === deleteTarget.id}>
+              削除する
+            </button>
+            <button type="button" onClick={() => setDeleteTarget(null)} disabled={busyId === deleteTarget.id}>
+              キャンセル
+            </button>
+          </div>
         </Modal>
       )}
     </div>
