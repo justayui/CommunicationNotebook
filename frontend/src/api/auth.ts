@@ -36,6 +36,21 @@ export async function signup(employeeId: string, name: string, password: string)
   return res.json();
 }
 
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/auth/password`, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  if (!res.ok) {
+    if (res.status === 401) {
+      throw new Error("現在のパスワードが正しくありません");
+    }
+    throw new Error("入力内容を確認してください");
+  }
+}
+
 export async function logout(): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/api/auth/logout`, {
     method: "POST",

@@ -3,11 +3,14 @@ import "./App.css";
 import { NoteList } from "./components/NoteList";
 import { LoginForm } from "./components/LoginForm";
 import { SignupForm } from "./components/SignupForm";
+import { PasswordChangeForm } from "./components/PasswordChangeForm";
+import { Modal } from "./components/Modal";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 function AppContent() {
   const { user, loading, logout } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
   if (loading) {
     return <p className="state-message">Loading...</p>;
@@ -34,6 +37,9 @@ function AppContent() {
         <h1>連絡ノート</h1>
         <div className="user-bar">
           <span>{user.name}</span>
+          <button type="button" onClick={() => setPasswordModalOpen(true)}>
+            パスワード変更
+          </button>
           <button
             type="button"
             onClick={() => {
@@ -46,6 +52,11 @@ function AppContent() {
         </div>
       </header>
       <NoteList />
+      {passwordModalOpen && (
+        <Modal title="パスワード変更" onClose={() => setPasswordModalOpen(false)}>
+          <PasswordChangeForm />
+        </Modal>
+      )}
     </main>
   );
 }
