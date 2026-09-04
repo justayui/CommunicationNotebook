@@ -12,4 +12,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmployeeId(String employeeId);
 
     boolean existsByEmployeeId(String employeeId);
+
+    boolean existsByAdminTrueAndDeletedFalse();
 }
