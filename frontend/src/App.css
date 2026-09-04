@@ -284,17 +284,25 @@
 
 .read-btn {
   padding: 4px 10px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--accent);
   border-radius: 6px;
-  background: var(--surface);
-  color: var(--ink-soft);
+  background: var(--accent);
+  color: #fff;
   font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
+}
+
+.read-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .read-btn:disabled {
   background: var(--surface-2);
+  border-color: var(--border-strong);
   color: var(--ink-faint);
+  font-weight: 400;
   cursor: default;
 }
 
