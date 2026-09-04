@@ -167,4 +167,11 @@ class NoteControllerTest {
     void delete_returnsUnauthorized_whenNotAuthenticated() {
         mockMvc.delete().uri("/api/notes/1").assertThat().hasStatus(401);
     }
+
+    @Test
+    void findAll_returnsInternalServerError_whenServiceThrowsUnexpectedException() {
+        when(noteService.findAll(null, null, false, 1)).thenThrow(new RuntimeException("unexpected DB error"));
+
+        mockMvc.get().uri("/api/notes").with(user(principal(1))).assertThat().hasStatus(500);
+    }
 }
