@@ -36,27 +36,38 @@ function AppContent() {
   return (
     <main className="app-shell">
       <header className="app-header">
-        <h1>連絡ノート</h1>
-        <div className="user-bar">
-          <span>{user.name}</span>
-          {user.admin && (
-            <button type="button" onClick={() => setView(view === "users" ? "notes" : "users")}>
-              {view === "users" ? "連絡ノートに戻る" : "ユーザー管理"}
-            </button>
-          )}
-          <button type="button" onClick={() => setPasswordModalOpen(true)}>
-            パスワード変更
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              logout();
-              setMode("login");
-              setView("notes");
-            }}
-          >
-            ログアウト
-          </button>
+        <div className="app-header-top">
+          <h1>連絡ノート</h1>
+          <div className="user-bar">
+            <span>{user.name}</span>
+            {user.admin && (
+              <button
+                type="button"
+                className="mini-btn"
+                onClick={() => setView(view === "users" ? "notes" : "users")}
+              >
+                {view === "users" ? "連絡ノートに戻る" : "ユーザー管理"}
+              </button>
+            )}
+            {view !== "users" && (
+              <>
+                <button type="button" className="mini-btn" onClick={() => setPasswordModalOpen(true)}>
+                  パスワード変更
+                </button>
+                <button
+                  type="button"
+                  className="mini-btn"
+                  onClick={() => {
+                    logout();
+                    setMode("login");
+                    setView("notes");
+                  }}
+                >
+                  ログアウト
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </header>
       {user.admin && view === "users" ? <UserManagementPage /> : <NoteList />}
