@@ -43,10 +43,10 @@ export function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }
         />
       </label>
       {error && <p className="state-message">{error}</p>}
-      <button type="submit" disabled={submitting}>
+      <button type="submit" className="btn btn-block" disabled={submitting}>
         {submitting ? "ログイン中..." : "ログイン"}
       </button>
-      <button type="button" onClick={onSwitchToSignup}>
+      <button type="button" className="btn btn-ghost" onClick={onSwitchToSignup}>
         新規登録はこちら
       </button>
     </form>

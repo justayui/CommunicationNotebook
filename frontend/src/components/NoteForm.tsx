@@ -62,11 +62,11 @@ export function NoteForm({ initial, submitLabel, onSubmit, onCancel }: NoteFormP
       />
       {error && <p className="state-message">{error}</p>}
       <div className="note-form-actions">
-        <button type="submit" disabled={submitting}>
+        <button type="submit" className="btn" disabled={submitting}>
           {submitting ? "保存中..." : submitLabel}
         </button>
         {onCancel && (
-          <button type="button" onClick={onCancel} disabled={submitting}>
+          <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={submitting}>
             キャンセル
           </button>
         )}
