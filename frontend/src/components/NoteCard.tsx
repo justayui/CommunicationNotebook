@@ -2,6 +2,7 @@ import { useState } from "react";
 import { fetchComments, type Comment } from "../api/comments";
 import { deleteNote, updateNote, type Note, type NoteInput } from "../api/notes";
 import { formatDateTime } from "../utils/datetime";
+import { getTagColorClass } from "../utils/tagColor";
 import { CommentSection } from "./CommentSection";
 import { CommentToggle } from "./CommentToggle";
 import { FavoriteButton } from "./FavoriteButton";
@@ -100,7 +101,7 @@ export function NoteCard({
   return (
     <article className="note-card">
       <div className="note-top">
-        <span className="tag">{note.category}</span>
+        <span className={`tag ${getTagColorClass(note.category)}`}>{note.category}</span>
         <div className="note-meta">
           {note.author} ・ {formatDateTime(note.createdAt)}
         </div>
