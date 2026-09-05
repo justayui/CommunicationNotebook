@@ -51,9 +51,11 @@ export function SignupForm({ onSwitchToLogin }: { onSwitchToLogin: () => void })
       <button type="submit" className="btn btn-block" disabled={submitting}>
         {submitting ? "登録中..." : "登録"}
       </button>
-      <button type="button" className="btn btn-ghost" onClick={onSwitchToLogin}>
-        ログイン画面に戻る
-      </button>
+      <div className="login-links">
+        <button type="button" className="link-action" onClick={onSwitchToLogin}>
+          ログイン画面に戻る
+        </button>
+      </div>
     </form>
   );
 }
