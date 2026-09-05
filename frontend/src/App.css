@@ -256,9 +256,39 @@
   font-weight: 700;
   padding: 3px 9px;
   border-radius: 20px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--tag-blue-bg);
+  color: var(--tag-blue-fg);
   white-space: nowrap;
+}
+
+.tag-blue {
+  background: var(--tag-blue-bg);
+  color: var(--tag-blue-fg);
+}
+
+.tag-green {
+  background: var(--tag-green-bg);
+  color: var(--tag-green-fg);
+}
+
+.tag-purple {
+  background: var(--tag-purple-bg);
+  color: var(--tag-purple-fg);
+}
+
+.tag-rose {
+  background: var(--tag-rose-bg);
+  color: var(--tag-rose-fg);
+}
+
+.tag-orange {
+  background: var(--tag-orange-bg);
+  color: var(--tag-orange-fg);
+}
+
+.tag-teal {
+  background: var(--tag-teal-bg);
+  color: var(--tag-teal-fg);
 }
 
 .note-meta {
