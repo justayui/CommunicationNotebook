@@ -103,6 +103,8 @@ export function UserManagementPage() {
 
   return (
     <div className="user-management">
+      <h2>ユーザー情報管理</h2>
+      <p className="user-management-desc">管理者のみアクセス可能な画面です。会員の編集・削除・パスワードリセットができます。</p>
       {error && <p className="state-message">{error}</p>}
       {!error && users === null && <p className="state-message">Loading...</p>}
       {users !== null && (
@@ -130,7 +132,11 @@ export function UserManagementPage() {
                   )}
                 </td>
                 <td>{user.employeeId}</td>
-                <td>{user.admin ? "管理者" : "一般"}</td>
+                <td>
+                  <span className={user.admin ? "role-pill admin" : "role-pill"}>
+                    {user.admin ? "管理者" : "一般"}
+                  </span>
+                </td>
                 <td className="user-table-actions">
                   {editingId === user.id ? (
                     <>

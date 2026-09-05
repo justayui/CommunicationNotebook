@@ -555,6 +555,34 @@
   padding: 16px 22px 24px;
 }
 
+.user-management h2 {
+  font-size: 18px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.user-management-desc {
+  font-size: 13px;
+  color: var(--ink-faint);
+  margin: 0 0 16px;
+}
+
+.role-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  color: var(--ink-soft);
+}
+
+.role-pill.admin {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+
 .user-table {
   width: 100%;
   border-collapse: collapse;
