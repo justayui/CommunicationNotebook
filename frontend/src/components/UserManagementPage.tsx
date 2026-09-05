@@ -134,20 +134,36 @@ export function UserManagementPage() {
                 <td className="user-table-actions">
                   {editingId === user.id ? (
                     <>
-                      <button type="button" onClick={() => saveEdit(user.id)} disabled={busyId === user.id}>
+                      <button
+                        type="button"
+                        className="mini-btn"
+                        onClick={() => saveEdit(user.id)}
+                        disabled={busyId === user.id}
+                      >
                         保存
                       </button>
-                      <button type="button" onClick={cancelEdit} disabled={busyId === user.id}>
+                      <button
+                        type="button"
+                        className="mini-btn"
+                        onClick={cancelEdit}
+                        disabled={busyId === user.id}
+                      >
                         キャンセル
                       </button>
                     </>
                   ) : (
                     <>
-                      <button type="button" onClick={() => startEdit(user)} disabled={busyId === user.id}>
+                      <button
+                        type="button"
+                        className="mini-btn"
+                        onClick={() => startEdit(user)}
+                        disabled={busyId === user.id}
+                      >
                         編集
                       </button>
                       <button
                         type="button"
+                        className="mini-btn"
                         onClick={() => handleResetPassword(user)}
                         disabled={busyId === user.id}
                       >
@@ -155,6 +171,7 @@ export function UserManagementPage() {
                       </button>
                       <button
                         type="button"
+                        className="mini-btn danger"
                         onClick={() => setDeleteTarget(user)}
                         disabled={busyId === user.id}
                       >
@@ -172,7 +189,7 @@ export function UserManagementPage() {
         <Modal title="パスワード初期化" onClose={() => setResetResult(null)}>
           <p>対象ユーザー: {resetResult.name}</p>
           <p>一時パスワード: {resetResult.temporaryPassword}</p>
-          <button type="button" onClick={handleCopy}>
+          <button type="button" className="btn" onClick={handleCopy}>
             {copied ? "コピーしました" : "コピー"}
           </button>
         </Modal>
@@ -183,10 +200,15 @@ export function UserManagementPage() {
             {deleteTarget.name}({deleteTarget.employeeId})を本当に削除しますか?
           </p>
           <div className="user-table-actions">
-            <button type="button" onClick={confirmDelete} disabled={busyId === deleteTarget.id}>
+            <button type="button" className="btn" onClick={confirmDelete} disabled={busyId === deleteTarget.id}>
               削除する
             </button>
-            <button type="button" onClick={() => setDeleteTarget(null)} disabled={busyId === deleteTarget.id}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => setDeleteTarget(null)}
+              disabled={busyId === deleteTarget.id}
+            >
               キャンセル
             </button>
           </div>
@@ -195,7 +217,7 @@ export function UserManagementPage() {
       {deletedUserName && (
         <Modal title="削除完了" onClose={() => setDeletedUserName(null)}>
           <p>{deletedUserName}を削除しました</p>
-          <button type="button" onClick={() => setDeletedUserName(null)}>
+          <button type="button" className="btn btn-ghost" onClick={() => setDeletedUserName(null)}>
             閉じる
           </button>
         </Modal>

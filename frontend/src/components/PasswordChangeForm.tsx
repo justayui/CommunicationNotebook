@@ -63,7 +63,7 @@ export function PasswordChangeForm() {
         />
       </label>
       {error && <p className="state-message">{error}</p>}
-      <button type="submit" disabled={submitting}>
+      <button type="submit" className="btn btn-block" disabled={submitting}>
         {submitting ? "変更中..." : "変更する"}
       </button>
     </form>

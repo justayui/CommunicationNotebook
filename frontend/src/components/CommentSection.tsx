@@ -90,7 +90,7 @@ export function CommentSection({
             required
           />
           {submitError && <p className="comment-state">{submitError}</p>}
-          <button type="submit" disabled={submitting}>
+          <button type="submit" className="btn" disabled={submitting}>
             {submitting ? "投稿中..." : "投稿する"}
           </button>
         </form>

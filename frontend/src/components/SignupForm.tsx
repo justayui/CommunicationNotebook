@@ -48,10 +48,10 @@ export function SignupForm({ onSwitchToLogin }: { onSwitchToLogin: () => void })
         />
       </label>
       {error && <p className="state-message">{error}</p>}
-      <button type="submit" disabled={submitting}>
+      <button type="submit" className="btn btn-block" disabled={submitting}>
         {submitting ? "登録中..." : "登録"}
       </button>
-      <button type="button" onClick={onSwitchToLogin}>
+      <button type="button" className="btn btn-ghost" onClick={onSwitchToLogin}>
         ログイン画面に戻る
       </button>
     </form>
