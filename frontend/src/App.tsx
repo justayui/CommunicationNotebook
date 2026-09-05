@@ -21,14 +21,19 @@ function AppContent() {
   if (!user) {
     return (
       <main className="app-shell">
-        <header className="app-header">
-          <h1>連絡ノート</h1>
-        </header>
-        {mode === "login" ? (
-          <LoginForm onSwitchToSignup={() => setMode("signup")} />
-        ) : (
-          <SignupForm onSwitchToLogin={() => setMode("login")} />
-        )}
+        <div className="login-wrap">
+          <div className="login-card">
+            <div className="login-brand">
+              <h1>連絡ノート</h1>
+              <p>組織内の連絡・共有をひとつのノートに</p>
+            </div>
+            {mode === "login" ? (
+              <LoginForm onSwitchToSignup={() => setMode("signup")} />
+            ) : (
+              <SignupForm onSwitchToLogin={() => setMode("login")} />
+            )}
+          </div>
+        </div>
       </main>
     );
   }
