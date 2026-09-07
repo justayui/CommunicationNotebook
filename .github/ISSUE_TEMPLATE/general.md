@@ -1,3 +1,11 @@
+---
+name: 汎用Issue
+about: 機能追加・改善・調査など、通常の作業用のテンプレート
+title: ""
+labels: ""
+assignees: ""
+---
+
 ## 概要
 
 ## 背景
