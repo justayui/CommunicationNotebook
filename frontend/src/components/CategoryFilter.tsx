@@ -27,7 +27,7 @@ export function CategoryFilter({ value, onChange }: CategoryFilterProps) {
     <div className="category-filter">
       <select value={value ?? ""} onChange={(e) => onChange(e.target.value)}>
         {categories.map((category) => (
-          <option key={category.id} value={category.name}>
+          <option key={category.name} value={category.name}>
             {category.name}
           </option>
         ))}
