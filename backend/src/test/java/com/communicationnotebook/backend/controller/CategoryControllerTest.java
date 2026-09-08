@@ -40,7 +40,7 @@ class CategoryControllerTest {
     @Test
     void findAll_returnsCategoryList() {
         when(categoryService.findAll())
-                .thenReturn(List.of(new CategoryResponse(1, "手順変更"), new CategoryResponse(2, "委員会")));
+                .thenReturn(List.of(new CategoryResponse("手順変更"), new CategoryResponse("委員会")));
 
         mockMvc.get().uri("/api/categories")
                 .with(user(principal()))

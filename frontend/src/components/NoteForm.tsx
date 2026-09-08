@@ -48,7 +48,7 @@ export function NoteForm({ initial, submitLabel, onSubmit, onCancel }: NoteFormP
       <div className="note-form-row">
         <select value={category} onChange={(e) => setCategory(e.target.value)} required>
           {categories.map((c) => (
-            <option key={c.id} value={c.name}>
+            <option key={c.name} value={c.name}>
               {c.name}
             </option>
           ))}
