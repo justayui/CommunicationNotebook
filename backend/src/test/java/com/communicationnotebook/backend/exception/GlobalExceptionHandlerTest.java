@@ -58,6 +58,17 @@ class GlobalExceptionHandlerTest {
                 .isEqualTo("サーバーエラーが発生しました");
     }
 
+    @Test
+    void handleTypeMismatchException_returnsBadRequest() {
+        mockMvc.get()
+                .uri("/test/type-mismatch?value=not-a-number")
+                .assertThat()
+                .hasStatus(400)
+                .bodyJson()
+                .extractingPath("$.message")
+                .isEqualTo("パラメータの型が不正です");
+    }
+
     @RestController
     @RequestMapping("/test")
     public static class TestController {
@@ -74,6 +85,10 @@ class GlobalExceptionHandlerTest {
         public void unexpected() {
             throw new RuntimeException("internal secret detail");
         }
+
+        @org.springframework.web.bind.annotation.GetMapping("/type-mismatch")
+        public void typeMismatch(
+                @org.springframework.web.bind.annotation.RequestParam int value) {}
     }
 
     record ValidationRequest(@NotBlank String value) {}
