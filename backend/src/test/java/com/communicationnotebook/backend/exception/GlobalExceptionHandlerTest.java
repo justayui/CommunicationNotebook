@@ -69,6 +69,19 @@ class GlobalExceptionHandlerTest {
                 .isEqualTo("パラメータの型が不正です");
     }
 
+    @Test
+    void handleMessageNotReadableException_returnsBadRequest() {
+        mockMvc.post()
+                .uri("/test/validate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("not json")
+                .assertThat()
+                .hasStatus(400)
+                .bodyJson()
+                .extractingPath("$.message")
+                .isEqualTo("リクエストの形式が不正です");
+    }
+
     @RestController
     @RequestMapping("/test")
     public static class TestController {
