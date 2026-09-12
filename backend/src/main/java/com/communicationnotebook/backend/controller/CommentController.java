@@ -80,7 +80,7 @@ public class CommentController {
         ),
         @ApiResponse(
             responseCode = "500", 
-            description = "取得失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
+            description = "登録失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
@@ -116,7 +116,7 @@ public class CommentController {
         ),
         @ApiResponse(
             responseCode = "500", 
-            description = "取得失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
+            description = "削除失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
