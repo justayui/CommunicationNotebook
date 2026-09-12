@@ -13,7 +13,7 @@ public record CommentResponse(
         Integer noteId, 
         @Schema(description = "コメントを記載したユーザーのIDです。", example = "1")
         Integer userId, 
-        @Schema(description = "コメントを記載したユーザーの名前です。", example = "田中")
+        @Schema(description = "コメントを記載したユーザーの名前です。", example = "田中花子")
         String author, 
         @Schema(description = "コメントの内容です。", example = "この投稿は非常に参考になりました。")
         String content, 

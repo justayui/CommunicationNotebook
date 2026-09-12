@@ -14,7 +14,7 @@ public record NoteResponse(
         String category,
         @Schema(description = "投稿の内容です。", example = "テスト投稿です。")
         String content,
-        @Schema(description = "投稿者名です。", example = "田中")
+        @Schema(description = "投稿者名です。", example = "田中花子")
         String author,
         @Schema(description = "投稿作成時間です。LocalDateTimeが自動で設定されます。", example = "2026-04-01T16:00:00")
         LocalDateTime createdAt,
