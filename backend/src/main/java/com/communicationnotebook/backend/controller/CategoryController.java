@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "カテゴリ名", description = "カテゴリの取得を行うAPIです。")
+@Tag(name = "カテゴリ管理", description = "カテゴリの取得を行うAPIです。")
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
@@ -29,16 +29,16 @@ public class CategoryController {
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200", 
-            description = "カテゴリ名の一覧を取得しました。"
+            description = "取得成功。カテゴリ名の一覧を返却します。"
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "カテゴリ名の一覧取得に失敗。未認証です。messageは\"No message available\"が返ります。", 
+            description = "取得失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "500", 
-            description = "カテゴリ名の一覧取得に失敗。内部エラーが発生しました。messageは\"サーバーエラーが発生しました\"が返ります。", 
+            description = "取得失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
