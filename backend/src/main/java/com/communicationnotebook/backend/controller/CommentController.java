@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name ="コメント機能管理", description ="コメントを取得・投稿・削除を行うAPIです。")
+@Tag(name ="コメント機能管理", description ="コメントを取得・投稿・削除を行うAPI群です。")
 @RestController
 @RequestMapping("/api/notes/{noteId}/comments")
 public class CommentController {
