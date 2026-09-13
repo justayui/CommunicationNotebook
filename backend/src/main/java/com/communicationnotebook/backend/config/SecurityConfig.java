@@ -1,8 +1,12 @@
 package com.communicationnotebook.backend.config;
 
+import com.communicationnotebook.backend.dto.ErrorResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -37,7 +41,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, SecurityContextRepository securityContextRepository) throws Exception {
+            HttpSecurity http, SecurityContextRepository securityContextRepository, ObjectMapper objectMapper)
+            throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .securityContext(sc -> sc.securityContextRepository(securityContextRepository))
@@ -59,8 +64,14 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .logoutSuccessHandler(
                                 (req, res, auth) -> res.setStatus(HttpServletResponse.SC_NO_CONTENT)))
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(
-                        (req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED)));
+                .exceptionHandling(exception -> exception.authenticationEntryPoint((req, res, ex) -> {
+                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    res.setCharacterEncoding("UTF-8");
+                    ErrorResponse body =
+                            ErrorResponse.of(HttpStatus.UNAUTHORIZED, "認証が必要です", req.getRequestURI());
+                    objectMapper.writeValue(res.getWriter(), body);
+                }));
         return http.build();
     }
 }
