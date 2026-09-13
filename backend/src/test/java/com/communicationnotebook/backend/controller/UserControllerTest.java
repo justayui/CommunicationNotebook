@@ -42,7 +42,7 @@ class UserControllerTest {
 
     @Test
     void findAll_returnsUserList() {
-        when(userService.findAll()).thenReturn(java.util.List.of(new UserResponse(1, "E001", "テスト太郎", false)));
+        when(userService.findAll(1)).thenReturn(java.util.List.of(new UserResponse(1, "E001", "テスト太郎", false)));
 
         mockMvc.get().uri("/api/users")
                 .with(user(principal()))
@@ -54,21 +54,41 @@ class UserControllerTest {
     }
 
     @Test
-    void findById_returnsUser() {
-        when(userService.findById(1)).thenReturn(new UserResponse(1, "E001", "テスト太郎", false));
+    void findAll_returnsForbidden_whenRequesterIsNotAdmin() {
+        when(userService.findAll(1)).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
 
-        mockMvc.get().uri("/api/users/{id}", 1)
+        mockMvc.get().uri("/api/users")
+                .with(user(principal()))
+                .assertThat()
+                .hasStatus(403);
+    }
+
+    @Test
+    void findById_returnsUser() {
+        when(userService.findById(1, 2)).thenReturn(new UserResponse(2, "E002", "テスト花子", false));
+
+        mockMvc.get().uri("/api/users/{id}", 2)
                 .with(user(principal()))
                 .assertThat()
                 .hasStatusOk()
                 .bodyJson()
                 .extractingPath("$.name")
-                .isEqualTo("テスト太郎");
+                .isEqualTo("テスト花子");
+    }
+
+    @Test
+    void findById_returnsForbidden_whenRequesterIsNotAdmin() {
+        when(userService.findById(1, 2)).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
+
+        mockMvc.get().uri("/api/users/{id}", 2)
+                .with(user(principal()))
+                .assertThat()
+                .hasStatus(403);
     }
 
     @Test
     void findById_returnsNotFound_whenUserDoesNotExist() {
-        when(userService.findById(999)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        when(userService.findById(1, 999)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         mockMvc.get().uri("/api/users/{id}", 999)
                 .with(user(principal()))
