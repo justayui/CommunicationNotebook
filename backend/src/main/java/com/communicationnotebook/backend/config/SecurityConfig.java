@@ -1,11 +1,9 @@
 package com.communicationnotebook.backend.config;
 
-import com.communicationnotebook.backend.dto.ErrorResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Instant;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -41,8 +39,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, SecurityContextRepository securityContextRepository, ObjectMapper objectMapper)
-            throws Exception {
+            HttpSecurity http, SecurityContextRepository securityContextRepository) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .securityContext(sc -> sc.securityContextRepository(securityContextRepository))
@@ -68,9 +65,12 @@ public class SecurityConfig {
                     res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     res.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     res.setCharacterEncoding("UTF-8");
-                    ErrorResponse body =
-                            ErrorResponse.of(HttpStatus.UNAUTHORIZED, "認証が必要です", req.getRequestURI());
-                    objectMapper.writeValue(res.getWriter(), body);
+                    String path = req.getRequestURI().replace("\\", "\\\\").replace("\"", "\\\"");
+                    String body =
+                            """
+                            {"timestamp":"%s","status":401,"error":"Unauthorized","message":"認証が必要です","path":"%s"}"""
+                                    .formatted(Instant.now(), path);
+                    res.getWriter().write(body);
                 }));
         return http.build();
     }
