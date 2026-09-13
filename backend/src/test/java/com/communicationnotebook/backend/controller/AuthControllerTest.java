@@ -128,7 +128,13 @@ class AuthControllerTest {
 
     @Test
     void me_returnsUnauthorized_whenNotAuthenticated() {
-        mockMvc.get().uri("/api/auth/me").assertThat().hasStatus(401);
+        mockMvc.get()
+                .uri("/api/auth/me")
+                .assertThat()
+                .hasStatus(401)
+                .bodyJson()
+                .extractingPath("$.message")
+                .isEqualTo("認証が必要です");
     }
 
     @Test
