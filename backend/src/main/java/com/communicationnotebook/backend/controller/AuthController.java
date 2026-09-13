@@ -130,7 +130,7 @@ public class AuthController {
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "取得失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
+            description = "取得失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(

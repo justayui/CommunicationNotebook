@@ -51,7 +51,7 @@ public class NoteController {
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "取得失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
+            description = "取得失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -77,7 +77,7 @@ public class NoteController {
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "登録失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
+            description = "登録失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -101,7 +101,7 @@ public class NoteController {
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "更新失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
+            description = "更新失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -136,7 +136,7 @@ public class NoteController {
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "削除失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
+            description = "削除失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
