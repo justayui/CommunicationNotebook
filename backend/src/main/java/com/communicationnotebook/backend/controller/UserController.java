@@ -60,8 +60,8 @@ public class UserController {
         )
     })
     @GetMapping
-    public List<UserResponse> findAll() {
-        return userService.findAll();
+    public List<UserResponse> findAll(@AuthenticationPrincipal UserPrincipal principal) {
+        return userService.findAll(principal.getId());
     }
 
     @Operation(summary = "ユーザー情報のID検索", description = "IDに紐づくユーザーの情報を取得します。")
@@ -87,8 +87,8 @@ public class UserController {
         )
     })
     @GetMapping("/{id}")
-    public UserResponse findById(@PathVariable Integer id) {
-        return userService.findById(id);
+    public UserResponse findById(@PathVariable Integer id, @AuthenticationPrincipal UserPrincipal principal) {
+        return userService.findById(principal.getId(), id);
     }
 
     @Operation(summary = "ユーザー情報更新", description = "IDに紐づくユーザーの情報を更新します。")
