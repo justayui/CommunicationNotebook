@@ -55,13 +55,11 @@ public class CommentService {
         Comment comment = commentRepository
                 .findByIdAndNote_Id(commentId, noteId)
                 .filter(c -> !c.isDeleted())
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found: " + commentId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "コメントが見つかりません"));
 
         boolean isAuthor = comment.getUser().getId().equals(requester.getId());
         if (!isAuthor && !requester.isAdmin()) {
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN, "Only the author or an admin can delete this comment");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "作成者または管理者のみ削除できます");
         }
 
         comment.setDeleted(true);
@@ -72,13 +70,13 @@ public class CommentService {
         return noteRepository
                 .findById(noteId)
                 .filter(n -> !n.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + noteId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
     }
 
     private User findActiveUser(Integer userId) {
         return userRepository
                 .findById(userId)
                 .filter(u -> !u.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ユーザーが見つかりません"));
     }
 }

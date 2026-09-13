@@ -30,12 +30,12 @@ public class NoteReadService {
         Note note = noteRepository
                 .findById(noteId)
                 .filter(n -> !n.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + noteId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
 
         User user = userRepository
                 .findById(userId)
                 .filter(u -> !u.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ユーザーが見つかりません"));
 
         if (noteReadRepository.existsByUser_IdAndNote_Id(userId, noteId)) {
             return;
@@ -51,7 +51,7 @@ public class NoteReadService {
         noteRepository
                 .findById(noteId)
                 .filter(n -> !n.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + noteId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
 
         return noteReadRepository.findByNote_IdOrderByCreatedAtAsc(noteId).stream()
                 .map(NoteReaderResponse::from)
