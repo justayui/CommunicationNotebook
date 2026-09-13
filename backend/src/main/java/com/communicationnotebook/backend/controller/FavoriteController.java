@@ -42,12 +42,12 @@ public class FavoriteController {
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "登録失敗。投稿またはユーザーが存在しないときに返却されます。messageは\"Note not found: {noteId}\"または\"User not found: {userId}\"が返ります。",
+            description = "登録失敗。投稿またはユーザーが存在しないときに返却されます。messageは\"投稿が見つかりません\"または\"ユーザーが見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "409",
-            description = "登録失敗。既にお気に入り登録済みの時に返却されます。messageは\"Note is already favorited: {noteId}\"が返ります。",
+            description = "登録失敗。既にお気に入り登録済みの時に返却されます。messageは\"すでにお気に入りに登録されています\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -80,7 +80,7 @@ public class FavoriteController {
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "削除失敗。投稿・ユーザー・お気に入りが存在しないときに返却されます。messageは\"Note not found: {noteId}\"または\"User not found: {userId}\"または\"Favorite not found: {noteId}\"が返ります。",
+            description = "削除失敗。投稿・ユーザー・お気に入りが存在しないときに返却されます。messageは\"投稿が見つかりません\"または\"ユーザーが見つかりません\"または\"お気に入りが見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(

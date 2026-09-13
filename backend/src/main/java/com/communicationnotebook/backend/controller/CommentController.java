@@ -48,7 +48,7 @@ public class CommentController {
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "取得失敗。投稿が存在しないときに返却されます。messageは\"Note not found: {noteId}\"が返ります。",
+            description = "取得失敗。投稿が存在しないときに返却されます。messageは\"投稿が見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -75,7 +75,7 @@ public class CommentController {
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "登録失敗。投稿が存在しないときに返却されます。messageは\"Note not found: {noteId}\"が返ります。",
+            description = "登録失敗。投稿が存在しないときに返却されます。messageは\"投稿が見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -106,12 +106,12 @@ public class CommentController {
         ),
         @ApiResponse(
             responseCode = "403",
-            description = "削除失敗。投稿者・管理者以外が削除しようとしたときに返却されます。messageは\"Only the author or an admin can delete this comment\"が返ります。",
+            description = "削除失敗。投稿者・管理者以外が削除しようとしたときに返却されます。messageは\"作成者または管理者のみ削除できます\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "削除失敗。投稿・コメント・ユーザーが存在しないときに返却されます。messageは\"Note not found: {noteId}\"または\"Comment not found: {commentId}\"または\"User not found: {userId}\"が返ります。",
+            description = "削除失敗。投稿・コメント・ユーザーが存在しないときに返却されます。messageは\"投稿が見つかりません\"または\"コメントが見つかりません\"または\"ユーザーが見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(

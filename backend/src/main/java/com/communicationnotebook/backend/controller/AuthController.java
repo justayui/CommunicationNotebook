@@ -66,7 +66,7 @@ public class AuthController {
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "ログイン失敗。ユーザーが存在しないときに返却されます。messageは\"User not found: {userId}\"が返ります。",
+            description = "ログイン失敗。ユーザーが存在しないときに返却されます。messageは\"ユーザーが見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -135,7 +135,7 @@ public class AuthController {
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "取得失敗。ユーザーが存在しないときに返却されます。messageは\"User not found: {userId}\"が返ります。",
+            description = "取得失敗。ユーザーが存在しないときに返却されます。messageは\"ユーザーが見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -162,7 +162,7 @@ public class AuthController {
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "更新失敗。ユーザーが存在しないときに返却されます。messageは\"User not found: {userId}\"が返ります。",
+            description = "更新失敗。ユーザーが存在しないときに返却されます。messageは\"ユーザーが見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
