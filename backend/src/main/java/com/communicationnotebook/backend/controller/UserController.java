@@ -8,6 +8,7 @@ import com.communicationnotebook.backend.security.UserPrincipal;
 import com.communicationnotebook.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -44,19 +45,31 @@ public class UserController {
             description = "取得成功。ユーザー情報一覧を返却します。"
         ),
         @ApiResponse(
-            responseCode = "401", 
-            description = "取得失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "401",
+            description = "取得失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":401,"error":"Unauthorized","message":"認証が必要です","path":"/api/users"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "403",
             description = "取得失敗。管理者以外が実行しようとしたときに返却されます。messageは\"管理者のみ実行できます。\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":403,"error":"Forbidden","message":"管理者のみ実行できます。","path":"/api/users"}""")
+            )
         ),
         @ApiResponse(
-            responseCode = "500", 
-            description = "取得失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "500",
+            description = "取得失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":500,"error":"Internal Server Error","message":"サーバーエラーが発生しました","path":"/api/users"}""")
+            )
         )
     })
     @GetMapping
@@ -71,19 +84,31 @@ public class UserController {
             description = "取得成功。IDに紐づくユーザー情報を返却します。"
         ),
         @ApiResponse(
-            responseCode = "401", 
-            description = "取得失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "401",
+            description = "取得失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":401,"error":"Unauthorized","message":"認証が必要です","path":"/api/users/1"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "403",
             description = "取得失敗。管理者以外が実行しようとしたときに返却されます。messageは\"管理者のみ実行できます。\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":403,"error":"Forbidden","message":"管理者のみ実行できます。","path":"/api/users/1"}""")
+            )
         ),
         @ApiResponse(
-            responseCode = "500", 
-            description = "取得失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "500",
+            description = "取得失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":500,"error":"Internal Server Error","message":"サーバーエラーが発生しました","path":"/api/users/1"}""")
+            )
         )
     })
     @GetMapping("/{id}")
@@ -98,24 +123,40 @@ public class UserController {
             description = "更新成功。"
         ),
         @ApiResponse(
-            responseCode = "401", 
-            description = "更新失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "401",
+            description = "更新失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":401,"error":"Unauthorized","message":"認証が必要です","path":"/api/users/1"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "403",
             description = "更新失敗。管理者以外が更新しようとしたときに返却されます。messageは\"管理者のみ実行できます。\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":403,"error":"Forbidden","message":"管理者のみ実行できます。","path":"/api/users/1"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "更新失敗。ユーザーが存在しないときに返却されます。messageは\"ユーザーが見つかりません\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":404,"error":"Not Found","message":"ユーザーが見つかりません","path":"/api/users/1"}""")
+            )
         ),
         @ApiResponse(
-            responseCode = "500", 
-            description = "更新失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "500",
+            description = "更新失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":500,"error":"Internal Server Error","message":"サーバーエラーが発生しました","path":"/api/users/1"}""")
+            )
         )
     })
     @PutMapping("/{id}")
@@ -133,24 +174,40 @@ public class UserController {
             description = "削除成功。"
         ),
         @ApiResponse(
-            responseCode = "401", 
-            description = "削除失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "401",
+            description = "削除失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":401,"error":"Unauthorized","message":"認証が必要です","path":"/api/users/1"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "403",
             description = "削除失敗。管理者以外が削除しようとしたときに返却されます。messageは\"管理者のみ実行できます。\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":403,"error":"Forbidden","message":"管理者のみ実行できます。","path":"/api/users/1"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "削除失敗。ユーザーが存在しないときに返却されます。messageは\"ユーザーが見つかりません\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":404,"error":"Not Found","message":"ユーザーが見つかりません","path":"/api/users/1"}""")
+            )
         ),
         @ApiResponse(
-            responseCode = "500", 
-            description = "削除失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "500",
+            description = "削除失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":500,"error":"Internal Server Error","message":"サーバーエラーが発生しました","path":"/api/users/1"}""")
+            )
         )
     })
     @DeleteMapping("/{id}")
@@ -166,24 +223,40 @@ public class UserController {
             description = "リセット成功。"
         ),
         @ApiResponse(
-            responseCode = "401", 
-            description = "リセット失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "401",
+            description = "リセット失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":401,"error":"Unauthorized","message":"認証が必要です","path":"/api/users/1/password-reset"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "403",
             description = "リセット失敗。管理者以外がパスワードをリセットしようとしたときに返却されます。messageは\"管理者のみ実行できます。\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":403,"error":"Forbidden","message":"管理者のみ実行できます。","path":"/api/users/1/password-reset"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "リセット失敗。ユーザーが存在しないときに返却されます。messageは\"ユーザーが見つかりません\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":404,"error":"Not Found","message":"ユーザーが見つかりません","path":"/api/users/1/password-reset"}""")
+            )
         ),
         @ApiResponse(
-            responseCode = "500", 
-            description = "リセット失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "500",
+            description = "リセット失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":500,"error":"Internal Server Error","message":"サーバーエラーが発生しました","path":"/api/users/1/password-reset"}""")
+            )
         )
     })
     @PostMapping("/{id}/password-reset")

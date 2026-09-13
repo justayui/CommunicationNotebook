@@ -5,6 +5,7 @@ import com.communicationnotebook.backend.security.UserPrincipal;
 import com.communicationnotebook.backend.service.FavoriteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -36,24 +37,44 @@ public class FavoriteController {
             description = "登録成功。"
         ),
         @ApiResponse(
-            responseCode = "401", 
-            description = "登録失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "401",
+            description = "登録失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":401,"error":"Unauthorized","message":"認証が必要です","path":"/api/notes/1/favorites"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "登録失敗。投稿またはユーザーが存在しないときに返却されます。messageは\"投稿が見つかりません\"または\"ユーザーが見つかりません\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = {
+                    @ExampleObject(name = "投稿が見つからない場合", value = """
+                            {"timestamp":"2026-09-10T06:00:00Z","status":404,"error":"Not Found","message":"投稿が見つかりません","path":"/api/notes/1/favorites"}"""),
+                    @ExampleObject(name = "ユーザーが見つからない場合", value = """
+                            {"timestamp":"2026-09-10T06:00:00Z","status":404,"error":"Not Found","message":"ユーザーが見つかりません","path":"/api/notes/1/favorites"}""")
+                }
+            )
         ),
         @ApiResponse(
             responseCode = "409",
             description = "登録失敗。既にお気に入り登録済みの時に返却されます。messageは\"すでにお気に入りに登録されています\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":409,"error":"Conflict","message":"すでにお気に入りに登録されています","path":"/api/notes/1/favorites"}""")
+            )
         ),
         @ApiResponse(
-            responseCode = "500", 
-            description = "登録失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "500",
+            description = "登録失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":500,"error":"Internal Server Error","message":"サーバーエラーが発生しました","path":"/api/notes/1/favorites"}""")
+            )
         )
     })
     @PostMapping
@@ -69,19 +90,37 @@ public class FavoriteController {
             description = "削除成功。"
         ),
         @ApiResponse(
-            responseCode = "401", 
-            description = "削除失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "401",
+            description = "削除失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":401,"error":"Unauthorized","message":"認証が必要です","path":"/api/notes/1/favorites"}""")
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "削除失敗。投稿・ユーザー・お気に入りが存在しないときに返却されます。messageは\"投稿が見つかりません\"または\"ユーザーが見つかりません\"または\"お気に入りが見つかりません\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = {
+                    @ExampleObject(name = "投稿が見つからない場合", value = """
+                            {"timestamp":"2026-09-10T06:00:00Z","status":404,"error":"Not Found","message":"投稿が見つかりません","path":"/api/notes/1/favorites"}"""),
+                    @ExampleObject(name = "ユーザーが見つからない場合", value = """
+                            {"timestamp":"2026-09-10T06:00:00Z","status":404,"error":"Not Found","message":"ユーザーが見つかりません","path":"/api/notes/1/favorites"}"""),
+                    @ExampleObject(name = "お気に入りが見つからない場合", value = """
+                            {"timestamp":"2026-09-10T06:00:00Z","status":404,"error":"Not Found","message":"お気に入りが見つかりません","path":"/api/notes/1/favorites"}""")
+                }
+            )
         ),
         @ApiResponse(
-            responseCode = "500", 
-            description = "削除失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。", 
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            responseCode = "500",
+            description = "削除失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":500,"error":"Internal Server Error","message":"サーバーエラーが発生しました","path":"/api/notes/1/favorites"}""")
+            )
         )
     })
     @DeleteMapping
