@@ -101,7 +101,7 @@ public class UserService {
         return userRepository
                 .findById(userId)
                 .filter(u -> !u.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ユーザーが見つかりません"));
     }
 
     private String generateTemporaryPassword() {

@@ -86,7 +86,7 @@ public class NoteService {
         User user = userRepository
                 .findById(userId)
                 .filter(u -> !u.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ユーザーが見つかりません"));
 
         Note note = new Note();
         note.setUser(user);
@@ -102,10 +102,10 @@ public class NoteService {
         Note note = noteRepository
                 .findByIdWithUser(id)
                 .filter(n -> !n.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
 
         if (!note.getUser().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author can update this note");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "作成者のみ更新できます");
         }
 
         note.setCategory(request.category());
@@ -123,16 +123,16 @@ public class NoteService {
         Note note = noteRepository
                 .findByIdWithUser(id)
                 .filter(n -> !n.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
 
         User requester = userRepository
                 .findById(userId)
                 .filter(u -> !u.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ユーザーが見つかりません"));
 
         boolean isAuthor = note.getUser().getId().equals(requester.getId());
         if (!isAuthor && !requester.isAdmin()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author or an admin can delete this note");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "作成者または管理者のみ削除できます");
         }
 
         note.setDeleted(true);

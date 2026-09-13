@@ -68,7 +68,7 @@ class FavoriteServiceTest {
 
         assertThatThrownBy(() -> favoriteService.register(99, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -77,7 +77,7 @@ class FavoriteServiceTest {
 
         assertThatThrownBy(() -> favoriteService.register(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -87,7 +87,7 @@ class FavoriteServiceTest {
 
         assertThatThrownBy(() -> favoriteService.register(10, 99))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("ユーザーが見つかりません");
     }
 
     @Test
@@ -97,7 +97,7 @@ class FavoriteServiceTest {
 
         assertThatThrownBy(() -> favoriteService.register(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("ユーザーが見つかりません");
     }
 
     @Test
@@ -108,7 +108,7 @@ class FavoriteServiceTest {
 
         assertThatThrownBy(() -> favoriteService.register(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("already favorited");
+                .hasMessageContaining("すでにお気に入りに登録されています");
     }
 
     @Test
@@ -130,7 +130,7 @@ class FavoriteServiceTest {
 
         assertThatThrownBy(() -> favoriteService.unregister(99, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -139,7 +139,7 @@ class FavoriteServiceTest {
 
         assertThatThrownBy(() -> favoriteService.unregister(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -149,7 +149,7 @@ class FavoriteServiceTest {
 
         assertThatThrownBy(() -> favoriteService.unregister(10, 99))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("ユーザーが見つかりません");
     }
 
     @Test
@@ -160,6 +160,6 @@ class FavoriteServiceTest {
 
         assertThatThrownBy(() -> favoriteService.unregister(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Favorite not found");
+                .hasMessageContaining("お気に入りが見つかりません");
     }
 }

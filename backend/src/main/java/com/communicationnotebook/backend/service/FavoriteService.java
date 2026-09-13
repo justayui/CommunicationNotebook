@@ -28,15 +28,15 @@ public class FavoriteService {
         Note note = noteRepository
                 .findById(noteId)
                 .filter(n -> !n.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + noteId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
 
         User user = userRepository
                 .findById(userId)
                 .filter(u -> !u.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ユーザーが見つかりません"));
 
         if (favoriteRepository.existsByUser_IdAndNote_Id(userId, noteId)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Note is already favorited: " + noteId);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "すでにお気に入りに登録されています");
         }
 
         Favorite favorite = new Favorite();
@@ -49,17 +49,16 @@ public class FavoriteService {
         noteRepository
                 .findById(noteId)
                 .filter(n -> !n.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: " + noteId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
 
         userRepository
                 .findById(userId)
                 .filter(u -> !u.isDeleted())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ユーザーが見つかりません"));
 
         Favorite favorite = favoriteRepository
                 .findByUser_IdAndNote_Id(userId, noteId)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite not found: note " + noteId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "お気に入りが見つかりません"));
 
         favoriteRepository.delete(favorite);
     }

@@ -1,8 +1,10 @@
 package com.communicationnotebook.backend.config;
 
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Instant;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -59,8 +61,17 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .logoutSuccessHandler(
                                 (req, res, auth) -> res.setStatus(HttpServletResponse.SC_NO_CONTENT)))
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(
-                        (req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED)));
+                .exceptionHandling(exception -> exception.authenticationEntryPoint((req, res, ex) -> {
+                    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    res.setCharacterEncoding("UTF-8");
+                    String path = req.getRequestURI().replace("\\", "\\\\").replace("\"", "\\\"");
+                    String body =
+                            """
+                            {"timestamp":"%s","status":401,"error":"Unauthorized","message":"認証が必要です","path":"%s"}"""
+                                    .formatted(Instant.now(), path);
+                    res.getWriter().write(body);
+                }));
         return http.build();
     }
 }

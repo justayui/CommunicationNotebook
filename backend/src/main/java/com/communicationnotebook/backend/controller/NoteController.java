@@ -51,7 +51,7 @@ public class NoteController {
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "取得失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
+            description = "取得失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -77,7 +77,7 @@ public class NoteController {
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "登録失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
+            description = "登録失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -101,17 +101,17 @@ public class NoteController {
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "更新失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
+            description = "更新失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "403",
-            description = "更新失敗。投稿者以外が更新しようとしたときに返却されます。messageは\"Only the author can update this note\"が返ります。",
+            description = "更新失敗。投稿者以外が更新しようとしたときに返却されます。messageは\"作成者のみ更新できます\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "更新失敗。投稿が存在しないときに返却されます。messageは\"Note not found: {noteId}\"が返ります。",
+            description = "更新失敗。投稿が存在しないときに返却されます。messageは\"投稿が見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -136,17 +136,17 @@ public class NoteController {
         ),
         @ApiResponse(
             responseCode = "401", 
-            description = "削除失敗。未認証の時に返却されます。messageは\"No message available\"が返ります。", 
+            description = "削除失敗。未認証の時に返却されます。messageは\"認証が必要です\"が返ります。", 
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "403",
-            description = "削除失敗。投稿者・管理者以外が削除しようとしたときに返却されます。messageは\"Only the author or an admin can delete this note\"が返ります。",
+            description = "削除失敗。投稿者・管理者以外が削除しようとしたときに返却されます。messageは\"作成者または管理者のみ削除できます\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "削除失敗。投稿が存在しないときに返却されます。messageは\"Note not found: {noteId}\"が返ります。",
+            description = "削除失敗。投稿が存在しないときに返却されます。messageは\"投稿が見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(

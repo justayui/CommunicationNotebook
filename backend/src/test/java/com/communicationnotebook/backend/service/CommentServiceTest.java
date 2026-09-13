@@ -85,7 +85,7 @@ class CommentServiceTest {
 
         assertThatThrownBy(() -> commentService.findAll(99))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -94,7 +94,7 @@ class CommentServiceTest {
 
         assertThatThrownBy(() -> commentService.findAll(10))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -118,7 +118,7 @@ class CommentServiceTest {
 
         assertThatThrownBy(() -> commentService.create(99, new CommentCreateRequest("投稿します"), 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -128,7 +128,7 @@ class CommentServiceTest {
 
         assertThatThrownBy(() -> commentService.create(10, new CommentCreateRequest("投稿します"), 99))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("ユーザーが見つかりません");
     }
 
     @Test
@@ -173,7 +173,7 @@ class CommentServiceTest {
 
         assertThatThrownBy(() -> commentService.delete(10, 100, 2))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Only the author or an admin");
+                .hasMessageContaining("作成者または管理者のみ削除できます");
     }
 
     @Test
@@ -184,7 +184,7 @@ class CommentServiceTest {
 
         assertThatThrownBy(() -> commentService.delete(10, 999, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Comment not found");
+                .hasMessageContaining("コメントが見つかりません");
     }
 
     @Test
@@ -199,6 +199,6 @@ class CommentServiceTest {
 
         assertThatThrownBy(() -> commentService.delete(10, 100, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Comment not found");
+                .hasMessageContaining("コメントが見つかりません");
     }
 }

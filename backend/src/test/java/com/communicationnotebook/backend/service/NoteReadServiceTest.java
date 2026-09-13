@@ -72,7 +72,7 @@ class NoteReadServiceTest {
 
         assertThatThrownBy(() -> noteReadService.register(99, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -81,7 +81,7 @@ class NoteReadServiceTest {
 
         assertThatThrownBy(() -> noteReadService.register(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -91,7 +91,7 @@ class NoteReadServiceTest {
 
         assertThatThrownBy(() -> noteReadService.register(10, 99))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("ユーザーが見つかりません");
     }
 
     @Test
@@ -101,7 +101,7 @@ class NoteReadServiceTest {
 
         assertThatThrownBy(() -> noteReadService.register(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("ユーザーが見つかりません");
     }
 
     @Test
@@ -138,7 +138,7 @@ class NoteReadServiceTest {
 
         assertThatThrownBy(() -> noteReadService.findReaders(99))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -147,6 +147,6 @@ class NoteReadServiceTest {
 
         assertThatThrownBy(() -> noteReadService.findReaders(10))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 }
