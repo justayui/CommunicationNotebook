@@ -29,13 +29,15 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<UserResponse> findAll() {
+    public List<UserResponse> findAll(Integer requesterId) {
+        requireAdmin(requesterId);
         return userRepository.findByDeletedFalse().stream()
                 .map(UserResponse::from)
                 .toList();
     }
 
-    public UserResponse findById(Integer id) {
+    public UserResponse findById(Integer requesterId, Integer id) {
+        requireAdmin(requesterId);
         return UserResponse.from(findActiveUserOrThrow(id));
     }
 
