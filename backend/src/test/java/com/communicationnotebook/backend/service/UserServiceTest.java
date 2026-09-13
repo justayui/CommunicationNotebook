@@ -45,41 +45,73 @@ class UserServiceTest {
     }
 
     @Test
-    void findAll_returnsOnlyNonDeletedUsers() {
-        User user = newUser(1, "E001", "テスト太郎", false);
+    void findAll_returnsOnlyNonDeletedUsers_whenRequesterIsAdmin() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        User user = newUser(2, "E002", "テスト花子", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
         when(userRepository.findByDeletedFalse()).thenReturn(List.of(user));
 
-        List<UserResponse> result = userService.findAll();
+        List<UserResponse> result = userService.findAll(1);
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).employeeId()).isEqualTo("E001");
+        assertThat(result.get(0).employeeId()).isEqualTo("E002");
     }
 
     @Test
-    void findById_returnsUser_whenExistsAndNotDeleted() {
-        User user = newUser(1, "E001", "テスト太郎", false);
-        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+    void findAll_throwsForbidden_whenRequesterIsNotAdmin() {
+        User requester = newUser(1, "E001", "テスト太郎", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(requester));
 
-        UserResponse result = userService.findById(1);
+        assertThatThrownBy(() -> userService.findAll(1))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("管理者");
+    }
 
-        assertThat(result.id()).isEqualTo(1);
-        assertThat(result.name()).isEqualTo("テスト太郎");
+    @Test
+    void findById_returnsUser_whenExistsAndNotDeletedAndRequesterIsAdmin() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        User target = newUser(2, "E002", "テスト花子", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.findById(2)).thenReturn(Optional.of(target));
+
+        UserResponse result = userService.findById(1, 2);
+
+        assertThat(result.id()).isEqualTo(2);
+        assertThat(result.name()).isEqualTo("テスト花子");
+    }
+
+    @Test
+    void findById_throwsForbidden_whenRequesterIsNotAdmin() {
+        User requester = newUser(1, "E001", "テスト太郎", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(requester));
+
+        assertThatThrownBy(() -> userService.findById(1, 2))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("管理者");
     }
 
     @Test
     void findById_throwsNotFound_whenUserDoesNotExist() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
         when(userRepository.findById(999)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.findById(999))
+        assertThatThrownBy(() -> userService.findById(1, 999))
                 .isInstanceOf(ResponseStatusException.class);
     }
 
     @Test
     void findById_throwsNotFound_whenUserIsDeleted() {
-        User user = newUser(1, "E001", "テスト太郎", true);
-        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        User target = newUser(2, "E002", "テスト花子", true);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.findById(2)).thenReturn(Optional.of(target));
 
-        assertThatThrownBy(() -> userService.findById(1))
+        assertThatThrownBy(() -> userService.findById(1, 2))
                 .isInstanceOf(ResponseStatusException.class);
     }
 
