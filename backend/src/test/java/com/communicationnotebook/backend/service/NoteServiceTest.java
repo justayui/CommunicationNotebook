@@ -192,7 +192,7 @@ class NoteServiceTest {
 
         assertThatThrownBy(() -> noteService.create(request, 99))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("ユーザーが見つかりません");
     }
 
     @Test
@@ -206,7 +206,7 @@ class NoteServiceTest {
 
         assertThatThrownBy(() -> noteService.create(request, 2))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("ユーザーが見つかりません");
     }
 
     @Test
@@ -245,7 +245,7 @@ class NoteServiceTest {
 
         assertThatThrownBy(() -> noteService.update(99, request, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -263,7 +263,7 @@ class NoteServiceTest {
 
         assertThatThrownBy(() -> noteService.update(10, request, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -281,7 +281,7 @@ class NoteServiceTest {
 
         assertThatThrownBy(() -> noteService.update(10, request, 2))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Only the author");
+                .hasMessageContaining("作成者のみ更新できます");
     }
 
     @Test
@@ -330,7 +330,7 @@ class NoteServiceTest {
 
         assertThatThrownBy(() -> noteService.delete(99, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -347,7 +347,7 @@ class NoteServiceTest {
 
         assertThatThrownBy(() -> noteService.delete(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Note not found");
+                .hasMessageContaining("投稿が見つかりません");
     }
 
     @Test
@@ -365,7 +365,7 @@ class NoteServiceTest {
 
         assertThatThrownBy(() -> noteService.delete(10, 99))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("User not found");
+                .hasMessageContaining("ユーザーが見つかりません");
     }
 
     @Test
@@ -387,6 +387,6 @@ class NoteServiceTest {
 
         assertThatThrownBy(() -> noteService.delete(10, 2))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Only the author or an admin");
+                .hasMessageContaining("作成者または管理者のみ削除できます");
     }
 }

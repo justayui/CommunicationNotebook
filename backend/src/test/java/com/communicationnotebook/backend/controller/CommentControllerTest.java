@@ -63,7 +63,7 @@ class CommentControllerTest {
 
     @Test
     void findAll_returnsNotFound_whenServiceThrowsNotFound() {
-        when(commentService.findAll(99)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: 99"));
+        when(commentService.findAll(99)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
 
         mockMvc.get().uri("/api/notes/99/comments").with(user(principal(1))).assertThat().hasStatus(404);
     }
@@ -105,7 +105,7 @@ class CommentControllerTest {
     @Test
     void create_returnsNotFound_whenServiceThrowsNotFound() {
         when(commentService.create(eq(99), any(CommentCreateRequest.class), eq(1)))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: 99"));
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
 
         mockMvc.post()
                 .uri("/api/notes/99/comments")
@@ -135,7 +135,7 @@ class CommentControllerTest {
 
     @Test
     void delete_returnsForbidden_whenServiceThrowsForbidden() {
-        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author or an admin can delete this comment"))
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "作成者または管理者のみ削除できます"))
                 .when(commentService)
                 .delete(eq(1), eq(100), eq(2));
 
@@ -144,7 +144,7 @@ class CommentControllerTest {
 
     @Test
     void delete_returnsNotFound_whenServiceThrowsNotFound() {
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found: 999"))
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "コメントが見つかりません"))
                 .when(commentService)
                 .delete(eq(1), eq(999), eq(1));
 

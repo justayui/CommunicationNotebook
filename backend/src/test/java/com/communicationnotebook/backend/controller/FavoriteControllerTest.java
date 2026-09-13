@@ -48,7 +48,7 @@ class FavoriteControllerTest {
 
     @Test
     void register_returnsNotFound_whenServiceThrowsNotFound() {
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: 1"))
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"))
                 .when(favoriteService)
                 .register(eq(1), eq(1));
 
@@ -57,7 +57,7 @@ class FavoriteControllerTest {
 
     @Test
     void register_returnsConflict_whenServiceThrowsConflict() {
-        doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Note is already favorited: 1"))
+        doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "すでにお気に入りに登録されています"))
                 .when(favoriteService)
                 .register(eq(1), eq(1));
 
@@ -78,7 +78,7 @@ class FavoriteControllerTest {
 
     @Test
     void unregister_returnsNotFound_whenServiceThrowsNotFound() {
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Favorite not found: note 1"))
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "お気に入りが見つかりません"))
                 .when(favoriteService)
                 .unregister(eq(1), eq(1));
 

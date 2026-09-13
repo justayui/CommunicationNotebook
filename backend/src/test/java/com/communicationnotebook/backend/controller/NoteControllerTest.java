@@ -127,7 +127,7 @@ class NoteControllerTest {
     @Test
     void update_returnsForbidden_whenServiceThrowsForbidden() {
         when(noteService.update(eq(1), any(NoteUpdateRequest.class), eq(2)))
-                .thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author can update this note"));
+                .thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "作成者のみ更新できます"));
 
         mockMvc.put()
                 .uri("/api/notes/1")
@@ -156,7 +156,7 @@ class NoteControllerTest {
 
     @Test
     void delete_returnsForbidden_whenServiceThrowsForbidden() {
-        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the author or an admin can delete this note"))
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "作成者または管理者のみ削除できます"))
                 .when(noteService)
                 .delete(eq(1), eq(2));
 

@@ -58,7 +58,7 @@ class NoteReadControllerTest {
     @Test
     void findReaders_returnsNotFound_whenServiceThrowsNotFound() {
         when(noteReadService.findReaders(99))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: 99"));
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"));
 
         mockMvc.get().uri("/api/notes/99/reads").with(user(principal(1))).assertThat().hasStatus(404);
     }
@@ -77,7 +77,7 @@ class NoteReadControllerTest {
 
     @Test
     void register_returnsNotFound_whenServiceThrowsNotFound() {
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found: 1"))
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません"))
                 .when(noteReadService)
                 .register(eq(1), eq(1));
 
