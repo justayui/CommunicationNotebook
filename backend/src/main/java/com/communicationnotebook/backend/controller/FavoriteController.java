@@ -74,11 +74,6 @@ public class FavoriteController {
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
-            responseCode = "403",
-            description = "削除失敗。投稿者以外が削除しようとしたときに返却されます。messageは\"Only the author can delete this favorite\"が返ります。",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        ),
-        @ApiResponse(
             responseCode = "404",
             description = "削除失敗。投稿・ユーザー・お気に入りが存在しないときに返却されます。messageは\"投稿が見つかりません\"または\"ユーザーが見つかりません\"または\"お気に入りが見つかりません\"が返ります。",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
