@@ -20,13 +20,16 @@ public record ErrorResponse(
     ) {
 
     public static ErrorResponse of(HttpStatusCode status, String message, String path) {
+        //HttpStatusへの変換を試みる
         HttpStatus resolved = HttpStatus.resolve(status.value());
+        //変換が成功（標準ステータスコード）したらHttpStatusをエラー名に、失敗（標準外ステータスコード）したらステータスをそのまま文字列化する
         String error;
         if (resolved != null) {
             error = resolved.getReasonPhrase();
         } else {
             error = status.toString();
         }
+        //インスタンス化してエラーレスポンスを返す
         return new ErrorResponse(Instant.now(), status.value(), error, message, path);
     }
 }
