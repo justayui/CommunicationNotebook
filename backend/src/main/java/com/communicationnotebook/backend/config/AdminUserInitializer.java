@@ -10,8 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
- * V5マイグレーションはE001/E002が既に存在する前提のUPDATE文のみでINSERTを行わないため、
- * まっさらなDBでは管理者が作成されない。その代わりにアプリ起動時に初期管理者を用意する。
+ * アプリ起動時に初期管理者を用意するためのクラスです。
  */
 @Slf4j
 @Component
@@ -36,6 +35,10 @@ public class AdminUserInitializer implements ApplicationRunner {
         this.adminPassword = adminPassword;
     }
 
+    /**
+     * アプリ起動時に初期管理者の作成処理を実行します。
+     * 処理が失敗した場合、例外をキャッチしてエラーログを出力します。
+     */
     @Override
     public void run(ApplicationArguments args) {
         try {
@@ -45,6 +48,10 @@ public class AdminUserInitializer implements ApplicationRunner {
         }
     }
 
+    /**
+     * 初期管理者を生成します。
+     * 管理者が既に存在する場合と指定したIDのユーザーが管理者権限を持たない一般ユーザーとして存在している場合は、管理者は自動作成されません。
+     */
     private void initializeAdminUser() {
         if (userRepository.existsByAdminTrueAndDeletedFalse()) {
             log.info("管理者ユーザーが既に存在するため、初期管理者の自動作成をスキップしました");
