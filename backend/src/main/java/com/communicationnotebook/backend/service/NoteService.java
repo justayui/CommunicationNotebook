@@ -76,46 +76,6 @@ public class NoteService {
     }
 
     /**
-     * 投稿ごとのコメント数をカウントします。
-     * 
-     * @param noteIds 投稿ID一覧
-     * @return 投稿ごとのコメント数
-     */
-    private Map<Integer, Long> countCommentsByNoteId(List<Integer> noteIds) {
-        Map<Integer, Long> counts = new HashMap<>();
-        for (CommentRepository.NoteCommentCount count : commentRepository.countActiveByNoteIds(noteIds)) {
-            counts.put(count.getNoteId(), count.getCount());
-        }
-        return counts;
-    }
-
-    /**
-     * 投稿ごとの既読者数をカウントします。
-     * 
-     * @param noteIds 投稿ID一覧
-     * @return 投稿ごとの既読者数
-     */
-    private Map<Integer, Long> countReadsByNoteId(List<Integer> noteIds) {
-        Map<Integer, Long> counts = new HashMap<>();
-        for (NoteReadRepository.NoteReadCount count : noteReadRepository.countByNoteIds(noteIds)) {
-            counts.put(count.getNoteId(), count.getCount());
-        }
-        return counts;
-    }
-
-    /**
-     * 入力された値の正規化をします。
-     * category・keywordともに、未送信時はnullが渡される想定ですが、
-     * 空文字が渡された場合も絞込無効として扱えるよう防御的に正規化します。
-     * 
-     * @param value 入力された値
-     * @return valueが空文字やスペースの場合null、それ以外の場合value
-     */
-    private String normalize(String value) {
-        return (value == null || value.isBlank()) ? null : value;
-    }
-
-    /**
      * 投稿情報の登録をします。
      * 
      * @param request 投稿の内容
@@ -197,5 +157,45 @@ public class NoteService {
 
         note.setDeleted(true);
         noteRepository.save(note);
+    }
+
+    /**
+     * 投稿ごとのコメント数をカウントします。
+     * 
+     * @param noteIds 投稿ID一覧
+     * @return 投稿ごとのコメント数
+     */
+    private Map<Integer, Long> countCommentsByNoteId(List<Integer> noteIds) {
+        Map<Integer, Long> counts = new HashMap<>();
+        for (CommentRepository.NoteCommentCount count : commentRepository.countActiveByNoteIds(noteIds)) {
+            counts.put(count.getNoteId(), count.getCount());
+        }
+        return counts;
+    }
+
+    /**
+     * 投稿ごとの既読者数をカウントします。
+     * 
+     * @param noteIds 投稿ID一覧
+     * @return 投稿ごとの既読者数
+     */
+    private Map<Integer, Long> countReadsByNoteId(List<Integer> noteIds) {
+        Map<Integer, Long> counts = new HashMap<>();
+        for (NoteReadRepository.NoteReadCount count : noteReadRepository.countByNoteIds(noteIds)) {
+            counts.put(count.getNoteId(), count.getCount());
+        }
+        return counts;
+    }
+
+    /**
+     * 入力された値の正規化をします。
+     * category・keywordともに、未送信時はnullが渡される想定ですが、
+     * 空文字が渡された場合も絞込無効として扱えるよう防御的に正規化します。
+     * 
+     * @param value 入力された値
+     * @return valueが空文字やスペースの場合null、それ以外の場合value
+     */
+    private String normalize(String value) {
+        return (value == null || value.isBlank()) ? null : value;
     }
 }
