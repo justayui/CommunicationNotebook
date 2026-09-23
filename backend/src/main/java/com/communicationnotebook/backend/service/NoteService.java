@@ -47,7 +47,7 @@ public class NoteService {
 
     /**
      * 投稿情報の取得を行います。
-     * 
+     *
      * @param keyword 検索キーワード
      * @param category カテゴリ
      * @param favoriteOnly お気に入り登録済みのみ
@@ -77,7 +77,7 @@ public class NoteService {
 
     /**
      * 投稿情報の登録をします。
-     * 
+     *
      * @param request 投稿の内容
      * @param userId ユーザーID
      * @return 登録済みの投稿情報
@@ -101,7 +101,7 @@ public class NoteService {
 
     /**
      * 投稿情報の更新をします。
-     * 
+     *
      * @param id 投稿ID
      * @param request 投稿内容
      * @param userId ユーザーID
@@ -132,7 +132,7 @@ public class NoteService {
 
     /**
      * 投稿情報を削除します。
-     * 
+     *
      * @param id 投稿ID
      * @param userId ユーザーID
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
@@ -161,7 +161,7 @@ public class NoteService {
 
     /**
      * 投稿ごとのコメント数をカウントします。
-     * 
+     *
      * @param noteIds 投稿ID一覧
      * @return 投稿ごとのコメント数
      */
@@ -175,7 +175,7 @@ public class NoteService {
 
     /**
      * 投稿ごとの既読者数をカウントします。
-     * 
+     *
      * @param noteIds 投稿ID一覧
      * @return 投稿ごとの既読者数
      */
@@ -191,7 +191,7 @@ public class NoteService {
      * 入力された値の正規化をします。
      * category・keywordともに、未送信時はnullが渡される想定ですが、
      * 空文字が渡された場合も絞込無効として扱えるよう防御的に正規化します。
-     * 
+     *
      * @param value 入力された値
      * @return valueが空文字やスペースの場合null、それ以外の場合value
      */

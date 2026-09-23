@@ -8,13 +8,13 @@ import org.springframework.http.HttpStatusCode;
 @Schema(description = "エラーが発生したときに返却するエラーレスポンスの内容を表すDTO。")
 public record ErrorResponse(
     @Schema(description = "エラー発生日時です。timestampが自動で設定されます。", example = "2026-09-10T06:00:00Z")
-    Instant timestamp, 
+    Instant timestamp,
     @Schema(description = "HTTPステータスコードです。", example = "404")
-    int status, 
+    int status,
     @Schema(description = "エラーの種類です。", example = "Not Found")
-    String error, 
+    String error,
     @Schema(description = "クライアントに通知するメッセージです。", example = "お探しのページは見つかりませんでした。")
-    String message, 
+    String message,
     @Schema(description = "エラーが発生したAPIのエンドポイントです。", example = "/api/users/99")
     String path
     ) {

@@ -14,7 +14,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     /**
      * 投稿ごとに紐づく削除されていないコメントを古い順に、投稿者の情報も含めて一括で取得します。
-     * 
+     *
      * @param noteId 投稿ID
      * @return コメント情報一覧
      */
@@ -23,7 +23,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     /**
      * 投稿IDに紐づく特定のコメント情報を取得します。該当するコメントが存在しない場合は空のOptionalを返します。
-     * 
+     *
      * @param id コメントID
      * @param noteId 投稿ID
      * @return 投稿IDに紐づく特定のコメント
@@ -32,7 +32,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     /**
      * 投稿に紐づく有効なコメント数をカウントし、一覧で返却します。
-     * 
+     *
      * @param noteIds 投稿IDのリスト
      * @return 投稿ごとのコメント数一覧
      */

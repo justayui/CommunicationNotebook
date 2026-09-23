@@ -33,7 +33,7 @@ public class CommentService {
 
     /**
      * 投稿IDに紐づく削除されていないコメント情報を古い順に全件取得します。
-     * 
+     *
      * @param noteId 投稿ID
      * @return 未削除のコメント情報一覧（作成日時の古い順）
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
@@ -47,7 +47,7 @@ public class CommentService {
 
     /**
      * 投稿に紐づくコメント情報を作成します。コメント投稿者の情報もあわせて登録します。
-     * 
+     *
      * @param noteId 投稿ID
      * @param request コメントの内容
      * @param userId コメント投稿者のユーザーID
@@ -71,7 +71,7 @@ public class CommentService {
 
     /**
      * 投稿に紐づくコメント情報を削除します。
-     * 
+     *
      * @param noteId 投稿ID
      * @param commentId コメントID
      * @param userId 削除を実行するユーザーのID（コメント投稿者または管理者）

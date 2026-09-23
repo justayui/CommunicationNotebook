@@ -7,9 +7,9 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "ログインに使用するリクエストボディです。")
 public record LoginRequest(
     @Schema(description = "ログインに使用するユーザーIDです。空文字・未入力不可です。", example = "E001", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank 
-    String employeeId, 
+    @NotBlank
+    String employeeId,
 
     @Schema(description = "ログインパスワードです。空文字・未入力不可です。", example = "password", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank 
+    @NotBlank
     String password) {}

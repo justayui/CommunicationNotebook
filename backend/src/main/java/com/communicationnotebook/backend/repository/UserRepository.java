@@ -12,30 +12,30 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     /**
      * 有効なユーザーの情報を全件取得します。
-     * 
+     *
      * @return ユーザー情報一覧（全件）
      */
     List<User> findByDeletedFalse();
 
     /**
-     * 従業員IDに紐づくユーザー情報を取得します。該当ユーザーが存在しない場合は空のOptionalを返します。
-     * 
-     * @param employeeId 従業員ID
-     * @return 従業員IDに紐づくユーザー情報
+     * 職員IDに紐づくユーザー情報を取得します。該当ユーザーが存在しない場合は空のOptionalを返します。
+     *
+     * @param employeeId 職員ID
+     * @return 職員IDに紐づくユーザー情報
      */
     Optional<User> findByEmployeeId(String employeeId);
 
     /**
-     * 従業員IDに紐づくユーザーの存在の有無を確認します。
-     * 
-     * @param employeeId 従業員ID
+     * 職員IDに紐づくユーザーの存在の有無を確認します。
+     *
+     * @param employeeId 職員ID
      * @return 存在する場合はtrue、存在しない場合はfalse
      */
     boolean existsByEmployeeId(String employeeId);
 
     /**
      * 管理者権限を持ち、かつ削除されていないユーザーが存在しているか確認します。
-     * 
+     *
      * @return 存在する場合はtrue、存在しない場合はfalse
      */
     boolean existsByAdminTrueAndDeletedFalse();

@@ -25,7 +25,7 @@ public class User {
     private Integer id;
 
     /**
-     * 従業員IDです。未入力不可です。一意である必要があります。
+     * 職員IDです。未入力不可です。一意である必要があります。
      * ログイン時のIDはこちらを使用します。
      */
     @Column(name = "employee_id", unique = true, nullable = false)

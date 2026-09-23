@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     /**
      * CORSの許可設定（対象パス・オリジン・メソッド等）を登録します。
-     * 
+     *
      * @param registry CORS設定を追加・管理するための登録情報
      */
     @Override
