@@ -98,26 +98,6 @@ public class UserService {
     }
 
     /**
-     * パスワードリセット
-     * IDに紐づくユーザーのパスワードをリセットします。
-     * 一時パスワードを生成し、暗号化してDBに保存します。
-     * 
-     * @param requesterId 実行者のID
-     * @param targetUserId パスワードリセット対象ユーザーのID
-     * @return パスワードリセット後のユーザー名と仮パスワード
-     * @throws ResponseStatusException 実行者が管理者権限を持たない場合（403 Forbidden）
-     * @throws ResponseStatusException ユーザーが存在しない場合（404 Not Found）
-     */
-    public PasswordResetResponse resetPassword(Integer requesterId, Integer targetUserId) {
-        requireAdmin(requesterId);
-        User target = findActiveUserOrThrow(targetUserId);
-        String temporaryPassword = generateTemporaryPassword();
-        target.setPassword(passwordEncoder.encode(temporaryPassword));
-        userRepository.save(target);
-        return new PasswordResetResponse(target.getName(), temporaryPassword);
-    }
-
-    /**
      * セルフサインアップ
      * 従業員ID・ユーザー名・パスワードを渡し、ユーザー情報を登録。
      * 
@@ -158,6 +138,26 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
+    }
+
+    /**
+     * パスワードリセット
+     * IDに紐づくユーザーのパスワードをリセットします。
+     * 一時パスワードを生成し、暗号化してDBに保存します。
+     * 
+     * @param requesterId 実行者のID
+     * @param targetUserId パスワードリセット対象ユーザーのID
+     * @return パスワードリセット後のユーザー名と仮パスワード
+     * @throws ResponseStatusException 実行者が管理者権限を持たない場合（403 Forbidden）
+     * @throws ResponseStatusException ユーザーが存在しない場合（404 Not Found）
+     */
+    public PasswordResetResponse resetPassword(Integer requesterId, Integer targetUserId) {
+        requireAdmin(requesterId);
+        User target = findActiveUserOrThrow(targetUserId);
+        String temporaryPassword = generateTemporaryPassword();
+        target.setPassword(passwordEncoder.encode(temporaryPassword));
+        userRepository.save(target);
+        return new PasswordResetResponse(target.getName(), temporaryPassword);
     }
 
     //管理者権限有無のチェック
