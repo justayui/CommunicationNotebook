@@ -99,11 +99,11 @@ public class UserService {
 
     /**
      * セルフサインアップ
-     * 従業員ID・ユーザー名・パスワードを渡し、ユーザー情報を登録。
+     * 職員ID・ユーザー名・パスワードを渡し、ユーザー情報を登録。
      * 
-     * @param request 従業員ID・ユーザー名・パスワード
+     * @param request 職員ID・ユーザー名・パスワード
      * @return 登録されたユーザー情報
-     * @throws ResponseStatusException 従業員IDが既に使用されている場合（409 Conflict）
+     * @throws ResponseStatusException 職員IDが既に使用されている場合（409 Conflict）
      */
     public User signup(SignupRequest request) {
         if (userRepository.existsByEmployeeId(request.employeeId())) {

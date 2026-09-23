@@ -21,11 +21,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     /**
-     * ユーザー名（従業員ID）に紐づくユーザー情報を検索し、UserPrincipalを生成します。
+     * ユーザー名（職員ID）に紐づくユーザー情報を検索し、UserPrincipalを生成します。
      * 
-     * @param employeeId 従業員ID
+     * @param employeeId 職員ID
      * @return 認証ユーザー情報
-     * @throws UsernameNotFoundException 該当する従業員IDのユーザーが存在しない場合
+     * @throws UsernameNotFoundException 該当する職員IDのユーザーが存在しない場合
      */
     @Override
     public UserDetails loadUserByUsername(String employeeId) {

@@ -18,17 +18,17 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findByDeletedFalse();
 
     /**
-     * 従業員IDに紐づくユーザー情報を取得します。該当ユーザーが存在しない場合は空のOptionalを返します。
+     * 職員IDに紐づくユーザー情報を取得します。該当ユーザーが存在しない場合は空のOptionalを返します。
      * 
-     * @param employeeId 従業員ID
-     * @return 従業員IDに紐づくユーザー情報
+     * @param employeeId 職員ID
+     * @return 職員IDに紐づくユーザー情報
      */
     Optional<User> findByEmployeeId(String employeeId);
 
     /**
-     * 従業員IDに紐づくユーザーの存在の有無を確認します。
+     * 職員IDに紐づくユーザーの存在の有無を確認します。
      * 
-     * @param employeeId 従業員ID
+     * @param employeeId 職員ID
      * @return 存在する場合はtrue、存在しない場合はfalse
      */
     boolean existsByEmployeeId(String employeeId);

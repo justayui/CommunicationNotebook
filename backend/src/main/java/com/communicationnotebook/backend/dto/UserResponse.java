@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record UserResponse(
     @Schema(description = "ユーザーのIDです。", example = "1")
     Integer id,
-    @Schema(description = "ユーザーの従業員IDです。", example = "E001")
+    @Schema(description = "ユーザーの職員IDです。", example = "E001")
     String employeeId, 
     @Schema(description = "ユーザー名です。", example = "田中花子")
     String name, 

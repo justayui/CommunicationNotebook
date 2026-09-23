@@ -39,9 +39,9 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * ユーザー名を取得します。
-     * このアプリケーションでは従業員IDをログインIDとして扱うため従業員IDを返します。
+     * このアプリケーションでは職員IDをログインIDとして扱うため職員IDを返します。
      * 
-     * @return 従業員ID
+     * @return 職員ID
      */
     @Override
     public String getUsername() {
