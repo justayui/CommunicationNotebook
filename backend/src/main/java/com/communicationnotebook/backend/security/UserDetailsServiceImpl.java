@@ -7,6 +7,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * SpringSecurityの認証処理において、ユーザーの詳細情報（UserDetails）を取得するサービスです。
+ * SpringSecurityのUserDetailsServiceを実装しています。
+ */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -16,6 +20,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * ユーザー名（従業員ID）に紐づくユーザー情報を検索し、UserPrincipalを生成します。
+     * 
+     * @param employeeId 従業員ID
+     * @return 認証ユーザー情報
+     * @throws UsernameNotFoundException 該当する従業員IDのユーザーが存在しない場合
+     */
     @Override
     public UserDetails loadUserByUsername(String employeeId) {
         User user = userRepository

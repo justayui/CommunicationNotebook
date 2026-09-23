@@ -23,6 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    //アプリケーションが意図的にthrowする例外処理
+    //ResponseStatusExceptionをキャッチし、共通のErrorResponse形式に変換するハンドラーです。
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatusException(
             ResponseStatusException ex, HttpServletRequest request) {
@@ -36,6 +38,7 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(ex.getStatusCode(), ex.getReason(), request.getRequestURI()));
     }
 
+    //入力チェックに関する例外処理
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
@@ -45,6 +48,7 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, "入力内容に誤りがあります", request.getRequestURI()));
     }
 
+    //リクエストの型変換エラーに関する例外処理
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatchException(
             MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
@@ -54,6 +58,7 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, "パラメータの型が不正です", request.getRequestURI()));
     }
 
+    //JSONエラーによる例外処理
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleMessageNotReadableException(
             HttpMessageNotReadableException ex, HttpServletRequest request) {
@@ -63,6 +68,7 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, "リクエストの形式が不正です", request.getRequestURI()));
     }
 
+    //その他の予期しない例外に関する処理
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception ex, HttpServletRequest request) {
         String context = requestContext(request);
@@ -71,10 +77,12 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR, "サーバーエラーが発生しました", request.getRequestURI()));
     }
 
+    //リクエスト情報の文字列化
     private String requestContext(HttpServletRequest request) {
         return "method=%s path=%s user=%s".formatted(request.getMethod(), request.getRequestURI(), currentUserDescription());
     }
 
+    //ログイン中ユーザー情報の取得
     private String currentUserDescription() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof UserPrincipal principal) {

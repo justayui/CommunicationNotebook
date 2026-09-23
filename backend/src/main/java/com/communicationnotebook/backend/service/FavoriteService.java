@@ -10,6 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * お気に入り情報を取り扱うサービスです。
+ * お気に入り登録・解除を行います。
+ */
 @Service
 public class FavoriteService {
 
@@ -24,6 +28,15 @@ public class FavoriteService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * 投稿IDに紐づく投稿のお気に入り登録をします。
+     * 
+     * @param noteId 投稿ID
+     * @param userId ユーザーID
+     * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
+     * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
+     * @throws ResponseStatusException すでにお気に入り登録済みの場合（409 Conflict）
+     */
     public void register(Integer noteId, Integer userId) {
         Note note = noteRepository
                 .findById(noteId)
@@ -45,6 +58,15 @@ public class FavoriteService {
         favoriteRepository.save(favorite);
     }
 
+    /**
+     * 投稿IDに紐づく投稿のお気に入り登録を解除します。
+     * 
+     * @param noteId 投稿ID
+     * @param userId ユーザーID
+     * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
+     * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
+     * @throws ResponseStatusException お気に入りが見つからない場合（404 Not Found）
+     */
     public void unregister(Integer noteId, Integer userId) {
         noteRepository
                 .findById(noteId)

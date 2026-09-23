@@ -12,6 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * 既読情報を取り扱うサービスです。
+ * 既読の登録・既読者一覧の取得を行います。
+ */
 @Service
 public class NoteReadService {
 
@@ -26,6 +30,14 @@ public class NoteReadService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * 投稿の既読登録をします。既読済みの場合、その時点で処理を終了します。
+     * 
+     * @param noteId 投稿ID
+     * @param userId ユーザーID
+     * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
+     * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
+     */
     public void register(Integer noteId, Integer userId) {
         Note note = noteRepository
                 .findById(noteId)
@@ -47,6 +59,13 @@ public class NoteReadService {
         noteReadRepository.save(noteRead);
     }
 
+    /**
+     * 投稿IDに紐づく既読者一覧を取得します。
+     * 
+     * @param noteId 投稿ID
+     * @return 投稿IDに紐づく既読者一覧（既読時間が古い順）
+     * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
+     */
     public List<NoteReaderResponse> findReaders(Integer noteId) {
         noteRepository
                 .findById(noteId)

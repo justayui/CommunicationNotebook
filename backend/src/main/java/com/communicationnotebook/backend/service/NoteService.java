@@ -19,6 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * 投稿情報を取り扱うサービスです。
+ * 投稿の検索・登録・更新・削除、投稿ごとのコメント数・既読者数取得を行います。
+ */
 @Service
 public class NoteService {
 
@@ -41,6 +45,15 @@ public class NoteService {
         this.noteReadRepository = noteReadRepository;
     }
 
+    /**
+     * 投稿情報の取得を行います。
+     * 
+     * @param keyword 検索キーワード
+     * @param category カテゴリ
+     * @param favoriteOnly お気に入り登録済みのみ
+     * @param userId ユーザーID
+     * @return 検索条件に合致する投稿情報一覧。
+     */
     public List<NoteResponse> findAll(String keyword, String category, boolean favoriteOnly, Integer userId) {
         String normalizedKeyword = normalize(keyword);
         String normalizedCategory = normalize(category);
@@ -62,6 +75,12 @@ public class NoteService {
                 .toList();
     }
 
+    /**
+     * 投稿ごとのコメント数をカウントします。
+     * 
+     * @param noteIds 投稿ID一覧
+     * @return 投稿ごとのコメント数
+     */
     private Map<Integer, Long> countCommentsByNoteId(List<Integer> noteIds) {
         Map<Integer, Long> counts = new HashMap<>();
         for (CommentRepository.NoteCommentCount count : commentRepository.countActiveByNoteIds(noteIds)) {
@@ -70,6 +89,12 @@ public class NoteService {
         return counts;
     }
 
+    /**
+     * 投稿ごとの既読者数をカウントします。
+     * 
+     * @param noteIds 投稿ID一覧
+     * @return 投稿ごとの既読者数
+     */
     private Map<Integer, Long> countReadsByNoteId(List<Integer> noteIds) {
         Map<Integer, Long> counts = new HashMap<>();
         for (NoteReadRepository.NoteReadCount count : noteReadRepository.countByNoteIds(noteIds)) {
@@ -78,10 +103,26 @@ public class NoteService {
         return counts;
     }
 
+    /**
+     * 入力された値の正規化をします。
+     * category・keywordともに、未送信時はnullが渡される想定ですが、
+     * 空文字が渡された場合も絞込無効として扱えるよう防御的に正規化します。
+     * 
+     * @param value 入力された値
+     * @return valueが空文字やスペースの場合null、それ以外の場合value
+     */
     private String normalize(String value) {
         return (value == null || value.isBlank()) ? null : value;
     }
 
+    /**
+     * 投稿情報の登録をします。
+     * 
+     * @param request 投稿の内容
+     * @param userId ユーザーID
+     * @return 登録済みの投稿情報
+     * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
+     */
     public NoteResponse create(NoteCreateRequest request, Integer userId) {
         User user = userRepository
                 .findById(userId)
@@ -98,6 +139,16 @@ public class NoteService {
         return NoteResponse.from(saved);
     }
 
+    /**
+     * 投稿情報の更新をします。
+     * 
+     * @param id 投稿ID
+     * @param request 投稿内容
+     * @param userId ユーザーID
+     * @return 更新後の投稿情報
+     * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
+     * @throws ResponseStatusException 実行者がユーザーIDと異なる場合（403 Forbidden）
+     */
     public NoteResponse update(Integer id, NoteUpdateRequest request, Integer userId) {
         Note note = noteRepository
                 .findByIdWithUser(id)
@@ -119,6 +170,15 @@ public class NoteService {
         return NoteResponse.from(saved, false, commentCount, read, readCount);
     }
 
+    /**
+     * 投稿情報を削除します。
+     * 
+     * @param id 投稿ID
+     * @param userId ユーザーID
+     * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
+     * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
+     * @throws ResponseStatusException 実行者が投稿者または管理者以外の場合（403 Forbidden）
+     */
     public void delete(Integer id, Integer userId) {
         Note note = noteRepository
                 .findByIdWithUser(id)
