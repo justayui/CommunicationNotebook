@@ -2,6 +2,7 @@ package com.communicationnotebook.backend.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.communicationnotebook.backend.entity.Favorite;
 import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.User;
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ class NoteRepositoryTest {
     private NoteRepository noteRepository;
 
     private User user;
+    private User otherUser;
     private Note upperCaseNote;
     private Note lowerCaseNote;
     private Note unrelatedNote;
@@ -42,9 +44,21 @@ class NoteRepositoryTest {
         user.setDeleted(false);
         entityManager.persist(user);
 
+        otherUser = new User();
+        otherUser.setEmployeeId("TEST-NOTE-REPO-OTHER");
+        otherUser.setName("テスト花子");
+        otherUser.setPassword("dummy");
+        otherUser.setAdmin(false);
+        otherUser.setDeleted(false);
+        entityManager.persist(otherUser);
+
         upperCaseNote = persistNote("定例MTGの議事録です");
         lowerCaseNote = persistNote("meeting資料を共有します");
-        unrelatedNote = persistNote("本日の連絡事項です");
+        unrelatedNote = persistNote("本日の連絡事項です", "申し送り", false);
+
+        // お気に入り絞込の検証用: userはlowerCaseNote、otherUserはupperCaseNoteをお気に入り登録する
+        persistFavorite(user, lowerCaseNote);
+        persistFavorite(otherUser, upperCaseNote);
         entityManager.flush();
         entityManager.clear();
     }
@@ -54,12 +68,23 @@ class NoteRepositoryTest {
     }
 
     private Note persistNote(String content, boolean deleted) {
+        return persistNote(content, "業務連絡", deleted);
+    }
+
+    private Note persistNote(String content, String category, boolean deleted) {
         Note note = new Note();
         note.setUser(user);
-        note.setCategory("業務連絡");
+        note.setCategory(category);
         note.setContent(content);
         note.setDeleted(deleted);
         return entityManager.persist(note);
+    }
+
+    private void persistFavorite(User favoriteUser, Note note) {
+        Favorite favorite = new Favorite();
+        favorite.setUser(favoriteUser);
+        favorite.setNote(note);
+        entityManager.persist(favorite);
     }
 
     // created_atは登録時に自動で設定されるため、並び順を検証できるよう明示的な値に更新する
@@ -74,8 +99,12 @@ class NoteRepositoryTest {
 
     // 開発用DBの既存データを除外し、このテストで登録した投稿のIDだけを返す
     private List<Integer> searchTestNoteIds(String keyword) {
+        return searchTestNoteIds(keyword, null, false);
+    }
+
+    private List<Integer> searchTestNoteIds(String keyword, String category, boolean favoriteOnly) {
         Set<Integer> testNoteIds = Set.of(upperCaseNote.getId(), lowerCaseNote.getId(), unrelatedNote.getId());
-        return noteRepository.search(keyword, null, false, user.getId()).stream()
+        return noteRepository.search(keyword, category, favoriteOnly, user.getId()).stream()
                 .map(Note::getId)
                 .filter(testNoteIds::contains)
                 .toList();
@@ -151,5 +180,27 @@ class NoteRepositoryTest {
     void search_returnsAllTestNotes_whenKeywordIsNull() {
         assertThat(searchTestNoteIds(null))
                 .containsExactlyInAnyOrder(upperCaseNote.getId(), lowerCaseNote.getId(), unrelatedNote.getId());
+    }
+
+    @Test
+    void search_returnsOnlyNotesOfCategory_whenCategoryIsSpecified() {
+        assertThat(searchTestNoteIds(null, "申し送り", false)).containsExactly(unrelatedNote.getId());
+    }
+
+    @Test
+    void search_returnsEmpty_whenNoNoteMatchesCategory() {
+        assertThat(searchTestNoteIds(null, "該当なしカテゴリ", false)).isEmpty();
+    }
+
+    @Test
+    void search_returnsOnlyNotesFavoritedByUser_whenFavoriteOnlyIsTrue() {
+        // otherUserのお気に入り(upperCaseNote)は含まれない
+        assertThat(searchTestNoteIds(null, null, true)).containsExactly(lowerCaseNote.getId());
+    }
+
+    @Test
+    void search_appliesAllConditions_whenCategoryAndFavoriteOnlyAreSpecified() {
+        // upperCaseNoteはカテゴリが一致するがお気に入り未登録、unrelatedNoteはカテゴリが不一致
+        assertThat(searchTestNoteIds(null, "業務連絡", true)).containsExactly(lowerCaseNote.getId());
     }
 }
