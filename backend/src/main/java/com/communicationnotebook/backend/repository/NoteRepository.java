@@ -32,7 +32,7 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
     /**
      * 削除されていない投稿を、キーワード・カテゴリ・お気に入りで絞込検索します（投稿者の情報も含む）。
      *
-     * @param keyword キーワード。部分一致で可。nullの場合は絞込を行わない。
+     * @param keyword キーワード。部分一致で可。大文字小文字は区別しない。nullの場合は絞込を行わない。
      * @param category カテゴリ。完全一致。nullの場合は絞込を行わない。
      * @param favoriteOnly trueの場合、userIdのユーザーがお気に入り登録済みの投稿のみに絞り込む。
      * @param userId お気に入り絞込対象のユーザーID(favoriteOnlyがtrueの場合のみ使用)
@@ -42,7 +42,7 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
             """
             SELECT n FROM Note n JOIN FETCH n.user
             WHERE n.deleted = false
-              AND (:keyword IS NULL OR n.content LIKE CONCAT('%', CAST(:keyword AS string), '%'))
+              AND (:keyword IS NULL OR LOWER(n.content) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')))
               AND (:category IS NULL OR n.category = CAST(:category AS string))
               AND (:favoriteOnly = false OR n.id IN (
                     SELECT f.note.id FROM Favorite f WHERE f.user.id = :userId))
