@@ -194,6 +194,9 @@ public class NoteService {
      * @return valueが空文字やスペースの場合null、それ以外の場合value
      */
     private String normalize(String value) {
-        return (value == null || value.isBlank()) ? null : value;
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value;
     }
 }
