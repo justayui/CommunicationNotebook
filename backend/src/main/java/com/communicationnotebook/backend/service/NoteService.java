@@ -10,7 +10,6 @@ import com.communicationnotebook.backend.repository.FavoriteRepository;
 import com.communicationnotebook.backend.repository.NoteReadRepository;
 import com.communicationnotebook.backend.repository.NoteRepository;
 import com.communicationnotebook.backend.repository.UserRepository;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,7 +120,6 @@ public class NoteService {
 
         note.setCategory(request.category());
         note.setContent(request.content());
-        note.setUpdatedAt(LocalDateTime.now());
 
         Note saved = noteRepository.save(note);
         long commentCount = countCommentsByNoteId(List.of(id)).getOrDefault(id, 0L);

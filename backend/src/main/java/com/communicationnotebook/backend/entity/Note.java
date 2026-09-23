@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 /**
  * 投稿の情報を表すエンティティです。notesテーブルと対応します。
@@ -64,6 +65,7 @@ public class Note {
     /**
      * 投稿更新時間です。LocalDateTimeが自動で設定されます。
      */
-    @Column(name = "updated_at", nullable = false, insertable = false)
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 }
