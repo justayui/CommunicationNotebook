@@ -36,7 +36,7 @@ public class UserService {
     /**
      * ユーザー情報の全件取得
      * リポジトリから取得した未削除のユーザー情報を、UserResponse型のリストにして返却します。
-     * 
+     *
      * @param requesterId 実行者のID
      * @return ユーザー情報一覧（全件）
      * @throws ResponseStatusException 実行者が管理者権限を持たない場合（403 Forbidden）
@@ -51,7 +51,7 @@ public class UserService {
     /**
      * ユーザー情報のID検索
      * IDに紐づくユーザー情報を取得します。
-     * 
+     *
      * @param requesterId 実行者のID
      * @param id ユーザーID
      * @return IDに紐づくユーザー情報
@@ -66,7 +66,7 @@ public class UserService {
     /**
      * ユーザー名の更新
      * IDに紐づくユーザー名を更新します。
-     * 
+     *
      * @param requesterId 実行者のID
      * @param targetUserId 更新対象ユーザーのID
      * @param request 新しいユーザー名
@@ -84,7 +84,7 @@ public class UserService {
     /**
      * ユーザー情報の削除
      * IDに紐づくユーザー情報を論理削除（無効化）します。
-     * 
+     *
      * @param requesterId 実行者のID
      * @param targetUserId 削除対象ユーザーのID
      * @throws ResponseStatusException 実行者が管理者権限を持たない場合（403 Forbidden）
@@ -100,7 +100,7 @@ public class UserService {
     /**
      * セルフサインアップ
      * 職員ID・ユーザー名・パスワードを渡し、ユーザー情報を登録。
-     * 
+     *
      * @param request 職員ID・ユーザー名・パスワード
      * @return 登録されたユーザー情報
      * @throws ResponseStatusException 職員IDが既に使用されている場合（409 Conflict）
@@ -123,7 +123,7 @@ public class UserService {
      * パスワード変更
      * IDに紐づくユーザーのパスワードを変更します。
      * 新しいパスワードを暗号化してDBに保存します。
-     * 
+     *
      * @param userId ユーザーID
      * @param request 入力されたパスワード
      * @throws ResponseStatusException ユーザーが存在しない場合（404 Not Found）
@@ -144,7 +144,7 @@ public class UserService {
      * パスワードリセット
      * IDに紐づくユーザーのパスワードをリセットします。
      * 一時パスワードを生成し、暗号化してDBに保存します。
-     * 
+     *
      * @param requesterId 実行者のID
      * @param targetUserId パスワードリセット対象ユーザーのID
      * @return パスワードリセット後のユーザー名と仮パスワード

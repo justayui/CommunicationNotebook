@@ -30,7 +30,7 @@ public class FavoriteService {
 
     /**
      * 投稿IDに紐づく投稿のお気に入り登録をします。
-     * 
+     *
      * @param noteId 投稿ID
      * @param userId ユーザーID
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
@@ -60,7 +60,7 @@ public class FavoriteService {
 
     /**
      * 投稿IDに紐づく投稿のお気に入り登録を解除します。
-     * 
+     *
      * @param noteId 投稿ID
      * @param userId ユーザーID
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）

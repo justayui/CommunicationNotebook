@@ -27,7 +27,7 @@ public class SecurityConfig {
 
     /**
      * パスワードをハッシュ化するためのエンコーダーをBeanとして登録します。
-     * 
+     *
      * @return パスワードをハッシュ化するエンコーダー
      */
     @Bean
@@ -37,7 +37,7 @@ public class SecurityConfig {
 
     /**
      * 認証用のコンポーネント（AuthenticationManager）をBeanとして登録します。
-     * 
+     *
      * @param config 認証に使用する設定情報
      * @return 認証を実行するコンポーネント（AuthenticationManager）
      * @throws Exception 処理に失敗した場合
@@ -49,7 +49,7 @@ public class SecurityConfig {
 
     /**
      * 認証情報をHttpSessionに保存・管理するためのリポジトリをBeanとして登録します。
-     * 
+     *
      * @return 認証情報を保存・管理するリポジトリ
      */
     @Bean
@@ -59,7 +59,7 @@ public class SecurityConfig {
 
     /**
      * Webセキュリティのアクセス制御ルールを装備したオブジェクトをBeanとして登録します。
-     * 
+     *
      * @param http HTTPセキュリティ設定用のオブジェクト
      * @param securityContextRepository 認証情報保存・管理用のリポジトリ
      * @return セキュリティ設定をすべて装備したオブジェクト

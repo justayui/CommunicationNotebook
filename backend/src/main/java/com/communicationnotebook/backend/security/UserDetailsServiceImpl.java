@@ -22,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * ユーザー名（職員ID）に紐づくユーザー情報を検索し、UserPrincipalを生成します。
-     * 
+     *
      * @param employeeId 職員ID
      * @return 認証ユーザー情報
      * @throws UsernameNotFoundException 該当する職員IDのユーザーが存在しない場合

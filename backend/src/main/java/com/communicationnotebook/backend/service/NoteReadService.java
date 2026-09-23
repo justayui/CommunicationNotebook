@@ -32,7 +32,7 @@ public class NoteReadService {
 
     /**
      * 投稿の既読登録をします。既読済みの場合、その時点で処理を終了します。
-     * 
+     *
      * @param noteId 投稿ID
      * @param userId ユーザーID
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
@@ -61,7 +61,7 @@ public class NoteReadService {
 
     /**
      * 投稿IDに紐づく既読者一覧を取得します。
-     * 
+     *
      * @param noteId 投稿ID
      * @return 投稿IDに紐づく既読者一覧（既読時間が古い順）
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）

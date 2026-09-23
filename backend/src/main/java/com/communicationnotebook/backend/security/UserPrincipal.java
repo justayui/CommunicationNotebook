@@ -21,7 +21,7 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * 認証対象のユーザー情報です。
-     * 
+     *
      * @return ユーザー情報
      */
     public User getUser() {
@@ -30,7 +30,7 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * 主キーとなるIDを取得します。
-     * 
+     *
      * @return ユーザーID（主キー）
      */
     public Integer getId() {
@@ -40,7 +40,7 @@ public class UserPrincipal implements UserDetails {
     /**
      * ユーザー名を取得します。
      * このアプリケーションでは職員IDをログインIDとして扱うため職員IDを返します。
-     * 
+     *
      * @return 職員ID
      */
     @Override
@@ -50,7 +50,7 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * パスワードを取得します。
-     * 
+     *
      * @return ハッシュ化されたパスワード
      */
     @Override
@@ -60,7 +60,7 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * 権限を取得します。
-     * 
+     *
      * @return 管理者ならば管理者権限、管理者でなければ一般ユーザー権限
      */
     @Override
@@ -72,7 +72,7 @@ public class UserPrincipal implements UserDetails {
 
     /**
      * ユーザーの有効性をチェックします。
-     * 
+     *
      * @return 有効な場合はtrue、無効な場合はfalse
      */
     @Override

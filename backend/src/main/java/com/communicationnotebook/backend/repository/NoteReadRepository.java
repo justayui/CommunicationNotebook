@@ -14,7 +14,7 @@ public interface NoteReadRepository extends JpaRepository<NoteRead, Integer> {
 
     /**
      * ユーザーID及び投稿IDに紐づく既読情報の有無を確認します。
-     * 
+     *
      * @param userId ユーザーID
      * @param noteId 投稿ID
      * @return 既読済みの場合true、既読未の場合false
@@ -23,7 +23,7 @@ public interface NoteReadRepository extends JpaRepository<NoteRead, Integer> {
 
     /**
      * 投稿IDに紐づく既読者を取得します。
-     * 
+     *
      * @param noteId 投稿ID
      * @return 投稿IDに紐づく既読者一覧（既読時間が古い順）
      */
@@ -33,7 +33,7 @@ public interface NoteReadRepository extends JpaRepository<NoteRead, Integer> {
     /**
      * ユーザーIDに紐づく既読済みの投稿ID一覧を取得します。
      * 各投稿に対して、既読済みかどうかを判定する際に使用します。
-     * 
+     *
      * @param userId ユーザーID
      * @return ユーザーIDに紐づく既読済み投稿IDの集合
      */
@@ -42,7 +42,7 @@ public interface NoteReadRepository extends JpaRepository<NoteRead, Integer> {
 
     /**
      * 投稿ごとの既読者数をカウントし、一覧で返却します。
-     * 
+     *
      * @param noteIds 投稿IDのリスト
      * @return 投稿ごとの既読者数一覧
      */
