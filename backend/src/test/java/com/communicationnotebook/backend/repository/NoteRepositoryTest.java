@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.communicationnotebook.backend.entity.Note;
 import com.communicationnotebook.backend.entity.User;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,12 +50,26 @@ class NoteRepositoryTest {
     }
 
     private Note persistNote(String content) {
+        return persistNote(content, false);
+    }
+
+    private Note persistNote(String content, boolean deleted) {
         Note note = new Note();
         note.setUser(user);
         note.setCategory("業務連絡");
         note.setContent(content);
-        note.setDeleted(false);
+        note.setDeleted(deleted);
         return entityManager.persist(note);
+    }
+
+    // created_atは登録時に自動で設定されるため、並び順を検証できるよう明示的な値に更新する
+    private void updateCreatedAt(Note note, LocalDateTime createdAt) {
+        entityManager.flush();
+        entityManager.getEntityManager()
+                .createNativeQuery("UPDATE notes SET created_at = :createdAt WHERE id = :id")
+                .setParameter("createdAt", createdAt)
+                .setParameter("id", note.getId())
+                .executeUpdate();
     }
 
     // 開発用DBの既存データを除外し、このテストで登録した投稿のIDだけを返す
@@ -62,6 +79,52 @@ class NoteRepositoryTest {
                 .map(Note::getId)
                 .filter(testNoteIds::contains)
                 .toList();
+    }
+
+    @Test
+    void findByDeletedFalseOrderByCreatedAtDesc_excludesDeletedNotes_andSortsByCreatedAtDesc() {
+        Note oldNote = persistNote("古い投稿です");
+        Note newNote = persistNote("新しい投稿です");
+        Note deletedNote = persistNote("削除済みの投稿です", true);
+        updateCreatedAt(oldNote, LocalDateTime.of(2000, 1, 1, 9, 0));
+        updateCreatedAt(newNote, LocalDateTime.of(2000, 1, 2, 9, 0));
+        updateCreatedAt(deletedNote, LocalDateTime.of(2000, 1, 3, 9, 0));
+        entityManager.clear();
+
+        Set<Integer> testNoteIds = Set.of(oldNote.getId(), newNote.getId(), deletedNote.getId());
+        List<Integer> actual = noteRepository.findByDeletedFalseOrderByCreatedAtDesc().stream()
+                .map(Note::getId)
+                .filter(testNoteIds::contains)
+                .toList();
+
+        assertThat(actual).containsExactly(newNote.getId(), oldNote.getId());
+    }
+
+    @Test
+    void findByDeletedFalseOrderByCreatedAtDesc_fetchesUser() {
+        Note actual = noteRepository.findByDeletedFalseOrderByCreatedAtDesc().stream()
+                .filter(note -> note.getId().equals(upperCaseNote.getId()))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(Hibernate.isInitialized(actual.getUser())).isTrue();
+        assertThat(actual.getUser().getName()).isEqualTo("テスト太郎");
+    }
+
+    @Test
+    void findByIdWithUser_returnsNoteWithUser_whenNoteExists() {
+        Optional<Note> actual = noteRepository.findByIdWithUser(upperCaseNote.getId());
+
+        assertThat(actual).isPresent();
+        assertThat(actual.get().getContent()).isEqualTo("定例MTGの議事録です");
+        assertThat(Hibernate.isInitialized(actual.get().getUser())).isTrue();
+        assertThat(actual.get().getUser().getName()).isEqualTo("テスト太郎");
+    }
+
+    @Test
+    void findByIdWithUser_returnsEmpty_whenNoteDoesNotExist() {
+        // IDは1から自動採番されるため、負の値は存在しない
+        assertThat(noteRepository.findByIdWithUser(-1)).isEmpty();
     }
 
     @Test
