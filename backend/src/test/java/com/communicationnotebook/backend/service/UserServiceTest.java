@@ -116,56 +116,6 @@ class UserServiceTest {
     }
 
     @Test
-    void signup_savesHashedPasswordAndReturnsUser_whenEmployeeIdIsNew() {
-        SignupRequest request = new SignupRequest("E003", "テスト花子", "password123");
-        when(userRepository.existsByEmployeeId("E003")).thenReturn(false);
-        when(passwordEncoder.encode("password123")).thenReturn("hashed");
-        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-
-        User result = userService.signup(request);
-
-        assertThat(result.getEmployeeId()).isEqualTo("E003");
-        assertThat(result.getName()).isEqualTo("テスト花子");
-        assertThat(result.getPassword()).isEqualTo("hashed");
-        assertThat(result.isAdmin()).isFalse();
-        assertThat(result.isDeleted()).isFalse();
-    }
-
-    @Test
-    void signup_throwsConflict_whenEmployeeIdAlreadyExists() {
-        SignupRequest request = new SignupRequest("E001", "テスト太郎", "password123");
-        when(userRepository.existsByEmployeeId("E001")).thenReturn(true);
-
-        assertThatThrownBy(() -> userService.signup(request))
-                .isInstanceOf(ResponseStatusException.class);
-    }
-
-    @Test
-    void changePassword_updatesHashedPassword_whenCurrentPasswordMatches() {
-        User user = newUser(1, "E001", "テスト太郎", false);
-        PasswordChangeRequest request = new PasswordChangeRequest("oldPassword", "newPassword");
-        when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("oldPassword", "hashed")).thenReturn(true);
-        when(passwordEncoder.encode("newPassword")).thenReturn("newHashed");
-
-        userService.changePassword(1, request);
-
-        assertThat(user.getPassword()).isEqualTo("newHashed");
-    }
-
-    @Test
-    void changePassword_throwsUnauthorized_whenCurrentPasswordDoesNotMatch() {
-        User user = newUser(1, "E001", "テスト太郎", false);
-        PasswordChangeRequest request = new PasswordChangeRequest("wrongPassword", "newPassword");
-        when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("wrongPassword", "hashed")).thenReturn(false);
-
-        assertThatThrownBy(() -> userService.changePassword(1, request))
-                .isInstanceOf(ResponseStatusException.class);
-    }
-
-    @Test
     void updateName_updatesName_whenRequesterIsAdmin() {
         User admin = newUser(1, "E001", "管理太郎", false);
         admin.setAdmin(true);
@@ -233,6 +183,56 @@ class UserServiceTest {
         when(userRepository.findById(999)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.delete(1, 999))
+                .isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void signup_savesHashedPasswordAndReturnsUser_whenEmployeeIdIsNew() {
+        SignupRequest request = new SignupRequest("E003", "テスト花子", "password123");
+        when(userRepository.existsByEmployeeId("E003")).thenReturn(false);
+        when(passwordEncoder.encode("password123")).thenReturn("hashed");
+        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = userService.signup(request);
+
+        assertThat(result.getEmployeeId()).isEqualTo("E003");
+        assertThat(result.getName()).isEqualTo("テスト花子");
+        assertThat(result.getPassword()).isEqualTo("hashed");
+        assertThat(result.isAdmin()).isFalse();
+        assertThat(result.isDeleted()).isFalse();
+    }
+
+    @Test
+    void signup_throwsConflict_whenEmployeeIdAlreadyExists() {
+        SignupRequest request = new SignupRequest("E001", "テスト太郎", "password123");
+        when(userRepository.existsByEmployeeId("E001")).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.signup(request))
+                .isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void changePassword_updatesHashedPassword_whenCurrentPasswordMatches() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+        PasswordChangeRequest request = new PasswordChangeRequest("oldPassword", "newPassword");
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("oldPassword", "hashed")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("newHashed");
+
+        userService.changePassword(1, request);
+
+        assertThat(user.getPassword()).isEqualTo("newHashed");
+    }
+
+    @Test
+    void changePassword_throwsUnauthorized_whenCurrentPasswordDoesNotMatch() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+        PasswordChangeRequest request = new PasswordChangeRequest("wrongPassword", "newPassword");
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrongPassword", "hashed")).thenReturn(false);
+
+        assertThatThrownBy(() -> userService.changePassword(1, request))
                 .isInstanceOf(ResponseStatusException.class);
     }
 
