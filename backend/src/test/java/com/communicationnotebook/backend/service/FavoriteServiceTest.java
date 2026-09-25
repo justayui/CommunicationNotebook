@@ -2,6 +2,7 @@ package com.communicationnotebook.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -69,6 +70,7 @@ class FavoriteServiceTest {
         assertThatThrownBy(() -> favoriteService.register(99, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("投稿が見つかりません");
+        verify(favoriteRepository, never()).save(any(Favorite.class));
     }
 
     @Test
@@ -78,6 +80,7 @@ class FavoriteServiceTest {
         assertThatThrownBy(() -> favoriteService.register(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("投稿が見つかりません");
+        verify(favoriteRepository, never()).save(any(Favorite.class));
     }
 
     @Test
@@ -88,6 +91,7 @@ class FavoriteServiceTest {
         assertThatThrownBy(() -> favoriteService.register(10, 99))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("ユーザーが見つかりません");
+        verify(favoriteRepository, never()).save(any(Favorite.class));
     }
 
     @Test
@@ -98,6 +102,7 @@ class FavoriteServiceTest {
         assertThatThrownBy(() -> favoriteService.register(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("ユーザーが見つかりません");
+        verify(favoriteRepository, never()).save(any(Favorite.class));
     }
 
     @Test
@@ -109,6 +114,7 @@ class FavoriteServiceTest {
         assertThatThrownBy(() -> favoriteService.register(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("すでにお気に入りに登録されています");
+        verify(favoriteRepository, never()).save(any(Favorite.class));
     }
 
     @Test
@@ -131,6 +137,7 @@ class FavoriteServiceTest {
         assertThatThrownBy(() -> favoriteService.unregister(99, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("投稿が見つかりません");
+        verify(favoriteRepository, never()).delete(any(Favorite.class));
     }
 
     @Test
@@ -140,6 +147,7 @@ class FavoriteServiceTest {
         assertThatThrownBy(() -> favoriteService.unregister(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("投稿が見つかりません");
+        verify(favoriteRepository, never()).delete(any(Favorite.class));
     }
 
     @Test
@@ -150,6 +158,7 @@ class FavoriteServiceTest {
         assertThatThrownBy(() -> favoriteService.unregister(10, 99))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("ユーザーが見つかりません");
+        verify(favoriteRepository, never()).delete(any(Favorite.class));
     }
 
     @Test
@@ -161,5 +170,6 @@ class FavoriteServiceTest {
         assertThatThrownBy(() -> favoriteService.unregister(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("お気に入りが見つかりません");
+        verify(favoriteRepository, never()).delete(any(Favorite.class));
     }
 }

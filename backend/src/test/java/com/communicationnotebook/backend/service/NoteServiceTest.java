@@ -193,6 +193,7 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.create(request, 99))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("ユーザーが見つかりません");
+        verify(noteRepository, never()).save(any(Note.class));
     }
 
     @Test
@@ -207,6 +208,7 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.create(request, 2))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("ユーザーが見つかりません");
+        verify(noteRepository, never()).save(any(Note.class));
     }
 
     @Test
@@ -246,6 +248,7 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.update(99, request, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("投稿が見つかりません");
+        verify(noteRepository, never()).save(any(Note.class));
     }
 
     @Test
@@ -264,6 +267,7 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.update(10, request, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("投稿が見つかりません");
+        verify(noteRepository, never()).save(any(Note.class));
     }
 
     @Test
@@ -282,6 +286,7 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.update(10, request, 2))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("作成者のみ更新できます");
+        verify(noteRepository, never()).save(any(Note.class));
     }
 
     @Test
@@ -331,6 +336,7 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.delete(99, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("投稿が見つかりません");
+        verify(noteRepository, never()).save(any(Note.class));
     }
 
     @Test
@@ -348,6 +354,7 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.delete(10, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("投稿が見つかりません");
+        verify(noteRepository, never()).save(any(Note.class));
     }
 
     @Test
@@ -366,6 +373,7 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.delete(10, 99))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("ユーザーが見つかりません");
+        verify(noteRepository, never()).save(any(Note.class));
     }
 
     @Test
@@ -388,5 +396,6 @@ class NoteServiceTest {
         assertThatThrownBy(() -> noteService.delete(10, 2))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("作成者または管理者のみ削除できます");
+        verify(noteRepository, never()).save(any(Note.class));
     }
 }
