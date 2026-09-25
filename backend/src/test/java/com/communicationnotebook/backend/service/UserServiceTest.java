@@ -133,7 +133,6 @@ class UserServiceTest {
     @Test
     void updateName_throwsForbidden_whenRequesterIsNotAdmin() {
         User requester = newUser(1, "E001", "テスト太郎", false);
-        User target = newUser(2, "E002", "テスト花子", false);
         when(userRepository.findById(1)).thenReturn(Optional.of(requester));
 
         assertThatThrownBy(() -> userService.updateName(1, 2, new UserUpdateRequest("テスト新花子")))
