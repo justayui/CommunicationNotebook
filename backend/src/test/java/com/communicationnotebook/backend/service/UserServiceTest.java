@@ -2,6 +2,9 @@ package com.communicationnotebook.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.communicationnotebook.backend.dto.PasswordChangeRequest;
@@ -138,6 +141,7 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.updateName(1, 2, new UserUpdateRequest("テスト新花子")))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("管理者");
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -149,6 +153,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.updateName(1, 999, new UserUpdateRequest("テスト新花子")))
                 .isInstanceOf(ResponseStatusException.class);
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -172,6 +177,7 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.delete(1, 2))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("管理者");
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -183,6 +189,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.delete(1, 999))
                 .isInstanceOf(ResponseStatusException.class);
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -209,6 +216,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.signup(request))
                 .isInstanceOf(ResponseStatusException.class);
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -233,6 +241,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.changePassword(1, request))
                 .isInstanceOf(ResponseStatusException.class);
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -259,6 +268,7 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.resetPassword(1, 2))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("管理者");
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -270,5 +280,6 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.resetPassword(1, 999))
                 .isInstanceOf(ResponseStatusException.class);
+        verify(userRepository, never()).save(any(User.class));
     }
 }
