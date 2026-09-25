@@ -3,6 +3,7 @@ package com.communicationnotebook.backend.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -119,6 +120,7 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.create(99, new CommentCreateRequest("投稿します"), 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("投稿が見つかりません");
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 
     @Test
@@ -129,6 +131,7 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.create(10, new CommentCreateRequest("投稿します"), 99))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("ユーザーが見つかりません");
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 
     @Test
@@ -174,6 +177,7 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.delete(10, 100, 2))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("作成者または管理者のみ削除できます");
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 
     @Test
@@ -185,6 +189,7 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.delete(10, 999, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("コメントが見つかりません");
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 
     @Test
@@ -200,5 +205,6 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.delete(10, 100, 1))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("コメントが見つかりません");
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 }
