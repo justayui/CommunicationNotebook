@@ -52,6 +52,7 @@ class NoteReadServiceTest {
         return user;
     }
 
+    //既読登録に関するテスト
     @Test
     void register_savesNoteRead_whenNoteAndUserExistAndNotAlreadyRead() {
         Note note = newNote(10, false);
@@ -119,6 +120,7 @@ class NoteReadServiceTest {
         verify(noteReadRepository, never()).save(any(NoteRead.class));
     }
 
+    //既読者一覧取得に関するテスト
     @Test
     void findReaders_returnsReadersForNote() {
         User user = newUser(1, false);

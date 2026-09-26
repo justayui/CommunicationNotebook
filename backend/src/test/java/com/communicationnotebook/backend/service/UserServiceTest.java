@@ -47,6 +47,7 @@ class UserServiceTest {
         return user;
     }
 
+    //ユーザー情報の全件取得に関するテスト
     @Test
     void findAll_returnsOnlyNonDeletedUsers_whenRequesterIsAdmin() {
         User admin = newUser(1, "E001", "管理太郎", false);
@@ -71,6 +72,7 @@ class UserServiceTest {
                 .hasMessageContaining("管理者");
     }
 
+    //ユーザー情報のID検索に関するテスト
     @Test
     void findById_returnsUser_whenExistsAndNotDeletedAndRequesterIsAdmin() {
         User admin = newUser(1, "E001", "管理太郎", false);
@@ -118,6 +120,7 @@ class UserServiceTest {
                 .isInstanceOf(ResponseStatusException.class);
     }
 
+    //ユーザー名の更新に関するテスト
     @Test
     void updateName_updatesName_whenRequesterIsAdmin() {
         User admin = newUser(1, "E001", "管理太郎", false);
@@ -156,6 +159,7 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    //ユーザー情報の削除に関するテスト
     @Test
     void delete_marksUserAsDeleted_whenRequesterIsAdmin() {
         User admin = newUser(1, "E001", "管理太郎", false);
@@ -192,6 +196,7 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    //セルフサインアップに関するテスト
     @Test
     void signup_savesHashedPasswordAndReturnsUser_whenEmployeeIdIsNew() {
         SignupRequest request = new SignupRequest("E003", "テスト花子", "password123");
@@ -219,6 +224,7 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    //パスワード変更に関するテスト
     @Test
     void changePassword_updatesHashedPassword_whenCurrentPasswordMatches() {
         User user = newUser(1, "E001", "テスト太郎", false);
@@ -244,6 +250,7 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    //パスワードリセットに関するテスト
     @Test
     void resetPassword_updatesHashedPasswordAndReturnsTemporaryPassword_whenRequesterIsAdmin() {
         User admin = newUser(1, "E001", "管理太郎", false);

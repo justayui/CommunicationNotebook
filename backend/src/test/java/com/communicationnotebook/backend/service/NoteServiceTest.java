@@ -63,6 +63,7 @@ class NoteServiceTest {
         return note;
     }
 
+    //投稿情報の検索に関するテスト
     @Test
     void findAll_returnsNotesMappedToResponse() {
         Note note = newNote(1, "雑談", "これはテスト投稿です。", "テスト太郎");
@@ -160,6 +161,7 @@ class NoteServiceTest {
         assertThat(result.get(0).commentCount()).isEqualTo(3L);
     }
 
+    //投稿情報登録に関するテスト
     @Test
     void create_savesNoteAndReturnsResponse() {
         User user = new User();
@@ -211,6 +213,7 @@ class NoteServiceTest {
         verify(noteRepository, never()).save(any(Note.class));
     }
 
+    //投稿情報更新に関するテスト
     @Test
     void update_updatesNoteAndReturnsResponse() {
         User user = new User();
@@ -289,6 +292,7 @@ class NoteServiceTest {
         verify(noteRepository, never()).save(any(Note.class));
     }
 
+    //投稿情報削除に関するテスト
     @Test
     void delete_marksNoteAsDeleted_whenRequesterIsAuthor() {
         User author = new User();

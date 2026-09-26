@@ -29,6 +29,7 @@ class CategoryServiceTest {
         return category;
     }
 
+    //カテゴリの全件取得に関するテスト
     @Test
     void findAll_returnsCategoriesMappedToResponse() {
         when(categoryRepository.findAllByOrderByIdAsc())
