@@ -42,6 +42,7 @@ class NoteReadControllerTest {
         return new UserPrincipal(user);
     }
 
+    //既読者一覧取得に関するテスト
     @Test
     void findReaders_returnsReaderList() {
         when(noteReadService.findReaders(1)).thenReturn(List.of(new NoteReaderResponse(1, "テスト太郎")));
@@ -68,6 +69,7 @@ class NoteReadControllerTest {
         mockMvc.get().uri("/api/notes/1/reads").assertThat().hasStatus(401);
     }
 
+    //既読登録に関するテスト
     @Test
     void register_returnsCreated_whenSuccessful() {
         doNothing().when(noteReadService).register(eq(1), eq(1));

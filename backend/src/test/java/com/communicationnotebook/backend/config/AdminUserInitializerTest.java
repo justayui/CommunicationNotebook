@@ -40,6 +40,7 @@ class AdminUserInitializerTest {
         return user;
     }
 
+    //初期管理者の自動作成処理に関するテスト
     @Test
     void run_createsAdmin_whenNoAdminExistsAndEmployeeIdIsFree() {
         when(userRepository.existsByAdminTrueAndDeletedFalse()).thenReturn(false);

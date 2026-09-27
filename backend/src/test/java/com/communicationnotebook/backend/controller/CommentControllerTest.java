@@ -46,6 +46,7 @@ class CommentControllerTest {
         return new UserPrincipal(user);
     }
 
+    //コメント一覧取得に関するテスト
     @Test
     void findAll_returnsCommentList() {
         CommentResponse comment =
@@ -73,6 +74,7 @@ class CommentControllerTest {
         mockMvc.get().uri("/api/notes/1/comments").assertThat().hasStatus(401);
     }
 
+    //コメント登録に関するテスト
     @Test
     void create_returnsCreatedComment() {
         CommentResponse comment =
@@ -126,6 +128,7 @@ class CommentControllerTest {
                 .hasStatus(401);
     }
 
+    //コメント削除に関するテスト
     @Test
     void delete_returnsNoContent_whenSuccessful() {
         doNothing().when(commentService).delete(eq(1), eq(100), eq(1));

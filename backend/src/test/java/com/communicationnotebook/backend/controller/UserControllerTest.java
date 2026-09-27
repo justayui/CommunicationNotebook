@@ -40,6 +40,7 @@ class UserControllerTest {
         return new UserPrincipal(user);
     }
 
+    //ユーザー情報一覧取得に関するテスト
     @Test
     void findAll_returnsUserList() {
         when(userService.findAll(1)).thenReturn(java.util.List.of(new UserResponse(1, "E001", "テスト太郎", false)));
@@ -63,6 +64,12 @@ class UserControllerTest {
                 .hasStatus(403);
     }
 
+    @Test
+    void findAll_returnsUnauthorized_whenNotAuthenticated() {
+        mockMvc.get().uri("/api/users").assertThat().hasStatus(401);
+    }
+
+    //ユーザー情報のID検索に関するテスト
     @Test
     void findById_returnsUser() {
         when(userService.findById(1, 2)).thenReturn(new UserResponse(2, "E002", "テスト花子", false));
@@ -96,11 +103,7 @@ class UserControllerTest {
                 .hasStatus(HttpStatus.NOT_FOUND);
     }
 
-    @Test
-    void findAll_returnsUnauthorized_whenNotAuthenticated() {
-        mockMvc.get().uri("/api/users").assertThat().hasStatus(401);
-    }
-
+    //ユーザー名の更新に関するテスト
     @Test
     void update_returnsUpdatedUser_whenValid() {
         when(userService.updateName(
@@ -149,6 +152,7 @@ class UserControllerTest {
                 .hasStatus(400);
     }
 
+    //ユーザー情報の削除に関するテスト
     @Test
     void delete_returnsNoContent_whenValid() {
         mockMvc.delete()
@@ -171,6 +175,7 @@ class UserControllerTest {
                 .hasStatus(403);
     }
 
+    //パスワードリセットに関するテスト
     @Test
     void resetPassword_returnsTemporaryPassword_whenValid() {
         when(userService.resetPassword(1, 2)).thenReturn(new PasswordResetResponse("テスト花子", "TempPass1234"));

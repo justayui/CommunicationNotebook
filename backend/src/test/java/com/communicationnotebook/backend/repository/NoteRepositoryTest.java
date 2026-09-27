@@ -17,7 +17,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
-// 開発用PostgreSQLに接続して実行する。各テストはロールバックされるため、登録したデータはDBに残らない。
+//開発用PostgreSQLに接続して実行します。各テストはロールバックされるため、登録したデータはDBに残りません。
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class NoteRepositoryTest {
@@ -56,7 +56,7 @@ class NoteRepositoryTest {
         lowerCaseNote = persistNote("meeting資料を共有します");
         unrelatedNote = persistNote("本日の連絡事項です", "申し送り", false);
 
-        // お気に入り絞込の検証用: userはlowerCaseNote、otherUserはupperCaseNoteをお気に入り登録する
+        //お気に入り絞り込みの検証用: userはlowerCaseNote、otherUserはupperCaseNoteをお気に入り登録します
         persistFavorite(user, lowerCaseNote);
         persistFavorite(otherUser, upperCaseNote);
         entityManager.flush();
@@ -87,7 +87,7 @@ class NoteRepositoryTest {
         entityManager.persist(favorite);
     }
 
-    // created_atは登録時に自動で設定されるため、並び順を検証できるよう明示的な値に更新する
+    //created_atは登録時に自動で設定されるため、並び順を検証できるよう明示的な値に更新します
     private void updateCreatedAt(Note note, LocalDateTime createdAt) {
         entityManager.flush();
         entityManager.getEntityManager()
@@ -97,7 +97,7 @@ class NoteRepositoryTest {
                 .executeUpdate();
     }
 
-    // 開発用DBの既存データを除外し、このテストで登録した投稿のIDだけを返す
+    //開発用DBの既存データを除外し、このテストで登録した投稿のIDだけを返します
     private List<Integer> searchTestNoteIds(String keyword) {
         return searchTestNoteIds(keyword, null, false);
     }
@@ -110,6 +110,7 @@ class NoteRepositoryTest {
                 .toList();
     }
 
+    //削除されていない投稿一覧取得に関するテスト
     @Test
     void findByDeletedFalseOrderByCreatedAtDesc_excludesDeletedNotes_andSortsByCreatedAtDesc() {
         Note oldNote = persistNote("古い投稿です");
@@ -129,6 +130,7 @@ class NoteRepositoryTest {
         assertThat(actual).containsExactly(newNote.getId(), oldNote.getId());
     }
 
+    //投稿一覧取得時に、投稿者（User）も同じSQLでまとめて取得（JOIN FETCH）されることを検証します
     @Test
     void findByDeletedFalseOrderByCreatedAtDesc_fetchesUser() {
         Note actual = noteRepository.findByDeletedFalseOrderByCreatedAtDesc().stream()
@@ -140,6 +142,7 @@ class NoteRepositoryTest {
         assertThat(actual.getUser().getName()).isEqualTo("テスト太郎");
     }
 
+    //投稿のID検索に関するテスト
     @Test
     void findByIdWithUser_returnsNoteWithUser_whenNoteExists() {
         Optional<Note> actual = noteRepository.findByIdWithUser(upperCaseNote.getId());
@@ -152,10 +155,11 @@ class NoteRepositoryTest {
 
     @Test
     void findByIdWithUser_returnsEmpty_whenNoteDoesNotExist() {
-        // IDは1から自動採番されるため、負の値は存在しない
+        //IDは1から自動採番されるため、負の値は存在しません
         assertThat(noteRepository.findByIdWithUser(-1)).isEmpty();
     }
 
+    //投稿の絞り込み検索に関するテスト
     @Test
     void search_matchesUpperCaseContent_whenKeywordIsLowerCase() {
         assertThat(searchTestNoteIds("mtg")).containsExactly(upperCaseNote.getId());
@@ -194,13 +198,13 @@ class NoteRepositoryTest {
 
     @Test
     void search_returnsOnlyNotesFavoritedByUser_whenFavoriteOnlyIsTrue() {
-        // otherUserのお気に入り(upperCaseNote)は含まれない
+        //otherUserのお気に入り（upperCaseNote）は含まれません
         assertThat(searchTestNoteIds(null, null, true)).containsExactly(lowerCaseNote.getId());
     }
 
     @Test
     void search_appliesAllConditions_whenCategoryAndFavoriteOnlyAreSpecified() {
-        // upperCaseNoteはカテゴリが一致するがお気に入り未登録、unrelatedNoteはカテゴリが不一致
+        //upperCaseNoteはカテゴリが一致するがお気に入り未登録、unrelatedNoteはカテゴリが不一致です
         assertThat(searchTestNoteIds(null, "業務連絡", true)).containsExactly(lowerCaseNote.getId());
     }
 }

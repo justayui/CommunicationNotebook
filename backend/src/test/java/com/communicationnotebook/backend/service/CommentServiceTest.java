@@ -66,6 +66,7 @@ class CommentServiceTest {
         return comment;
     }
 
+    //コメント一覧取得に関するテスト
     @Test
     void findAll_returnsActiveCommentsForNote() {
         User author = newUser(1, false, false);
@@ -98,6 +99,7 @@ class CommentServiceTest {
                 .hasMessageContaining("投稿が見つかりません");
     }
 
+    //コメント登録に関するテスト
     @Test
     void create_savesCommentAndReturnsResponse() {
         User user = newUser(1, false, false);
@@ -134,6 +136,7 @@ class CommentServiceTest {
         verify(commentRepository, never()).save(any(Comment.class));
     }
 
+    //コメント削除に関するテスト
     @Test
     void delete_marksCommentAsDeleted_whenRequesterIsAuthor() {
         User author = newUser(1, false, false);

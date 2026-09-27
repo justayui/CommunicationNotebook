@@ -39,6 +39,7 @@ class FavoriteControllerTest {
         return new UserPrincipal(user);
     }
 
+    //お気に入り登録に関するテスト
     @Test
     void register_returnsCreated_whenSuccessful() {
         doNothing().when(favoriteService).register(eq(1), eq(1));
@@ -69,6 +70,7 @@ class FavoriteControllerTest {
         mockMvc.post().uri("/api/notes/1/favorites").assertThat().hasStatus(401);
     }
 
+    //お気に入り登録解除に関するテスト
     @Test
     void unregister_returnsNoContent_whenSuccessful() {
         doNothing().when(favoriteService).unregister(eq(1), eq(1));

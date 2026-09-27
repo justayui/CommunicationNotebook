@@ -37,6 +37,7 @@ class CategoryControllerTest {
         return new UserPrincipal(user);
     }
 
+    //カテゴリ名の一覧取得に関するテスト
     @Test
     void findAll_returnsCategoryList() {
         when(categoryService.findAll())

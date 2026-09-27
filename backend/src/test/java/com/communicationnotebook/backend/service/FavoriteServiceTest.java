@@ -49,6 +49,7 @@ class FavoriteServiceTest {
         return user;
     }
 
+    //お気に入り登録に関するテスト
     @Test
     void register_savesFavorite_whenNoteAndUserExistAndNotAlreadyFavorited() {
         Note note = newNote(10, false);
@@ -117,6 +118,7 @@ class FavoriteServiceTest {
         verify(favoriteRepository, never()).save(any(Favorite.class));
     }
 
+    //お気に入り登録解除に関するテスト
     @Test
     void unregister_deletesFavorite_whenFavoriteExists() {
         Favorite favorite = new Favorite();

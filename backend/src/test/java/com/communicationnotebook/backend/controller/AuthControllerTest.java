@@ -46,6 +46,7 @@ class AuthControllerTest {
         return user;
     }
 
+    //ログインに関するテスト
     @Test
     void login_returnsUser_whenCredentialsAreValid() {
         User user = newUser(1, "E001", "テスト太郎", false);
@@ -87,6 +88,7 @@ class AuthControllerTest {
                 .hasStatus(400);
     }
 
+    //サインアップに関するテスト
     @Test
     void signup_returnsCreatedUser_whenValid() {
         User user = newUser(3, "E003", "テスト花子", false);
@@ -126,6 +128,7 @@ class AuthControllerTest {
                 .hasStatus(400);
     }
 
+    //ログイン中のユーザー情報取得に関するテスト
     @Test
     void me_returnsUnauthorized_whenNotAuthenticated() {
         mockMvc.get()
@@ -151,6 +154,7 @@ class AuthControllerTest {
                 .isEqualTo("テスト太郎");
     }
 
+    //パスワード変更に関するテスト
     @Test
     void changePassword_returnsNoContent_whenValid() {
         User user = newUser(1, "E001", "テスト太郎", false);
