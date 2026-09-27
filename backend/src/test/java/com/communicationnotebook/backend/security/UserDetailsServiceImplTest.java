@@ -24,6 +24,7 @@ class UserDetailsServiceImplTest {
     @InjectMocks
     private UserDetailsServiceImpl userDetailsService;
 
+    //ログイン時の認証ユーザー情報取得に関するテスト
     @Test
     void loadUserByUsername_returnsUserPrincipal_whenUserExists() {
         User user = new User();
