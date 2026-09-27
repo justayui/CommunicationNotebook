@@ -19,7 +19,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
-// 開発用PostgreSQLに接続して実行する。各テストはロールバックされるため、登録したデータはDBに残らない。
+//開発用PostgreSQLに接続して実行します。各テストはロールバックされるため、登録したデータはDBに残りません。
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class NoteReadRepositoryTest {
@@ -71,8 +71,8 @@ class NoteReadRepositoryTest {
         return entityManager.persist(noteRead);
     }
 
-    // created_atはDBの既定値(トランザクション開始時刻)で登録され、同一テスト内では全件同じ値になるため、
-    // 並び順を検証できるよう明示的な値に更新する
+    //created_atはDBの既定値（トランザクション開始時刻）で登録され、同一テスト内では全件同じ値になるため、
+    //並び順を検証できるよう明示的な値に更新します
     private void updateCreatedAt(NoteRead noteRead, LocalDateTime createdAt) {
         entityManager.flush();
         entityManager.getEntityManager()
@@ -82,6 +82,7 @@ class NoteReadRepositoryTest {
                 .executeUpdate();
     }
 
+    //投稿IDに紐づく既読者一覧取得に関するテスト
     @Test
     void findByNote_IdOrderByCreatedAtAsc_returnsReadsOfNote_sortedByCreatedAtAsc() {
         NoteRead laterRead = persistNoteRead(firstReader, note);
@@ -96,6 +97,7 @@ class NoteReadRepositoryTest {
         assertThat(actual).extracting(NoteRead::getId).containsExactly(earlierRead.getId(), laterRead.getId());
     }
 
+    //既読情報取得時に、既読者（User）も同じSQLでまとめて取得（JOIN FETCH）されることを検証します
     @Test
     void findByNote_IdOrderByCreatedAtAsc_fetchesUser() {
         persistNoteRead(secondReader, note);
@@ -109,6 +111,7 @@ class NoteReadRepositoryTest {
         assertThat(actual.get(0).getUser().getName()).isEqualTo("テスト花子");
     }
 
+    //ユーザーIDに紐づく既読済みの投稿ID一覧取得に関するテスト
     @Test
     void findNoteIdsByUserId_returnsNoteIdsReadByUser() {
         persistNoteRead(firstReader, note);
@@ -131,6 +134,7 @@ class NoteReadRepositoryTest {
         assertThat(noteReadRepository.findNoteIdsByUserId(nonReader.getId())).isEmpty();
     }
 
+    //投稿ごとの既読者数集計に関するテスト
     @Test
     void countByNoteIds_countsReadsPerNote_andOmitsNotesWithoutReads() {
         Note unreadNote = persistNote("誰も既読にしていない投稿です");
@@ -145,7 +149,7 @@ class NoteReadRepositoryTest {
                 .stream()
                 .collect(Collectors.toMap(NoteReadCount::getNoteId, NoteReadCount::getCount));
 
-        // 既読者がいない投稿は集計結果に含まれない
+        //既読者がいない投稿は集計結果に含まれません
         assertThat(actual).containsOnly(entry(note.getId(), 2L), entry(otherNote.getId(), 1L));
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
-// 開発用PostgreSQLに接続して実行する。各テストはロールバックされるため、登録したデータはDBに残らない。
+//開発用PostgreSQLに接続して実行します。各テストはロールバックされるため、登録したデータはDBに残りません。
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class FavoriteRepositoryTest {
@@ -72,6 +72,7 @@ class FavoriteRepositoryTest {
         entityManager.persist(favorite);
     }
 
+    //ユーザーIDに紐づくお気に入り登録済みの投稿ID一覧取得に関するテスト
     @Test
     void findNoteIdsByUserId_returnsOnlyNoteIdsFavoritedByUser() {
         assertThat(favoriteRepository.findNoteIdsByUserId(user.getId()))

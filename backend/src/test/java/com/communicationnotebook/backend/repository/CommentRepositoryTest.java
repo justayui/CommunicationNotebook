@@ -19,7 +19,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
-// 開発用PostgreSQLに接続して実行する。各テストはロールバックされるため、登録したデータはDBに残らない。
+//開発用PostgreSQLに接続して実行します。各テストはロールバックされるため、登録したデータはDBに残りません。
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CommentRepositoryTest {
@@ -66,7 +66,7 @@ class CommentRepositoryTest {
         return entityManager.persist(comment);
     }
 
-    // created_atは登録時に自動で設定されるため、並び順を検証できるよう明示的な値に更新する
+    //created_atは登録時に自動で設定されるため、並び順を検証できるよう明示的な値に更新します
     private void updateCreatedAt(Comment comment, LocalDateTime createdAt) {
         entityManager.flush();
         entityManager.getEntityManager()
@@ -76,6 +76,7 @@ class CommentRepositoryTest {
                 .executeUpdate();
     }
 
+    //投稿IDに紐づくコメント一覧取得に関するテスト
     @Test
     void findByNote_IdAndDeletedFalseOrderByCreatedAtAsc_excludesDeletedComments_andSortsByCreatedAtAsc() {
         Comment newComment = persistComment(note, "新しいコメントです", false);
@@ -92,6 +93,7 @@ class CommentRepositoryTest {
         assertThat(actual).extracting(Comment::getId).containsExactly(oldComment.getId(), newComment.getId());
     }
 
+    //コメント取得時に、投稿者（User）も同じSQLでまとめて取得（JOIN FETCH）されることを検証します
     @Test
     void findByNote_IdAndDeletedFalseOrderByCreatedAtAsc_fetchesUser() {
         persistComment(note, "コメントです", false);
@@ -105,6 +107,7 @@ class CommentRepositoryTest {
         assertThat(actual.get(0).getUser().getName()).isEqualTo("テスト太郎");
     }
 
+    //投稿IDに紐づくコメント数に関するテスト
     @Test
     void countActiveByNoteIds_countsOnlyActiveComments_andOmitsNotesWithoutActiveComments() {
         Note noCommentNote = persistNote("コメントがない投稿です");
@@ -123,7 +126,7 @@ class CommentRepositoryTest {
                 .stream()
                 .collect(Collectors.toMap(NoteCommentCount::getNoteId, NoteCommentCount::getCount));
 
-        // 有効なコメントがない投稿は集計結果に含まれない
+        //有効なコメントがない投稿は集計結果に含まれません
         assertThat(actual).containsOnly(entry(note.getId(), 2L), entry(otherNote.getId(), 1L));
     }
 }
