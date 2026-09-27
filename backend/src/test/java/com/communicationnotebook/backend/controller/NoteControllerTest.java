@@ -46,6 +46,7 @@ class NoteControllerTest {
         return new UserPrincipal(user);
     }
 
+    //投稿一覧取得に関するテスト
     @Test
     void findAll_returnsNoteListWithFavoritedField() {
         NoteResponse note = new NoteResponse(
@@ -73,10 +74,18 @@ class NoteControllerTest {
     }
 
     @Test
+    void findAll_returnsInternalServerError_whenServiceThrowsUnexpectedException() {
+        when(noteService.findAll(null, null, false, 1)).thenThrow(new RuntimeException("unexpected DB error"));
+
+        mockMvc.get().uri("/api/notes").with(user(principal(1))).assertThat().hasStatus(500);
+    }
+
+    @Test
     void findAll_returnsUnauthorized_whenNotAuthenticated() {
         mockMvc.get().uri("/api/notes").assertThat().hasStatus(401);
     }
 
+    //投稿の登録に関するテスト
     @Test
     void create_returnsCreatedNote() {
         NoteResponse note = new NoteResponse(
@@ -106,6 +115,7 @@ class NoteControllerTest {
                 .hasStatus(400);
     }
 
+    //投稿の更新に関するテスト
     @Test
     void update_returnsUpdatedNote() {
         NoteResponse note = new NoteResponse(
@@ -149,6 +159,7 @@ class NoteControllerTest {
                 .hasStatus(400);
     }
 
+    //投稿の削除に関するテスト
     @Test
     void delete_returnsNoContent_whenSuccessful() {
         mockMvc.delete().uri("/api/notes/1").with(user(principal(1))).assertThat().hasStatus(204);
@@ -166,12 +177,5 @@ class NoteControllerTest {
     @Test
     void delete_returnsUnauthorized_whenNotAuthenticated() {
         mockMvc.delete().uri("/api/notes/1").assertThat().hasStatus(401);
-    }
-
-    @Test
-    void findAll_returnsInternalServerError_whenServiceThrowsUnexpectedException() {
-        when(noteService.findAll(null, null, false, 1)).thenThrow(new RuntimeException("unexpected DB error"));
-
-        mockMvc.get().uri("/api/notes").with(user(principal(1))).assertThat().hasStatus(500);
     }
 }
