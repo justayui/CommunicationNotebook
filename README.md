@@ -50,6 +50,13 @@ cp .env.example .env   # 初回のみ
 docker compose up -d
 ```
 
+`.env` の `DB_PASSWORD` と `ADMIN_PASSWORD` には、任意のパスワードを設定してください(未設定の場合、DBとバックエンドは起動しません)。`.env` はGit管理外です。
+
+- `DB_PASSWORD`: DBのパスワード。Docker Composeとバックエンドの両方が参照します
+- `ADMIN_PASSWORD`: 初期管理者のパスワード。バックエンド起動時に管理者が存在しない場合、この値で管理者が作成されます
+
+DBのパスワードはDBの初回起動時にのみ設定されます。あとから `DB_PASSWORD` を変更する場合は、`docker compose down -v` でデータを削除してから再起動してください(DB内のデータはすべて消えます)。
+
 ### バックエンド(Spring Boot)
 
 前提: Java 21、上記PostgreSQLコンテナが起動済みであること
@@ -84,12 +91,12 @@ npm run dev
 
 http://localhost:5173
 
-開発用アカウント(職員ID / パスワード):
+初期管理者アカウントでログインできます。
 
-| 職員ID | パスワード | 権限 |
-|---|---|---|
-| E001 | password123 | 管理者 |
-| E002 | password123 | 一般ユーザー |
+- 職員ID: `.env` の `ADMIN_EMPLOYEE_ID`(既定値 `E001`)
+- パスワード: `.env` の `ADMIN_PASSWORD`
+
+一般ユーザーは、ログイン画面の新規登録から作成してください。
 
 ## テスト
 
