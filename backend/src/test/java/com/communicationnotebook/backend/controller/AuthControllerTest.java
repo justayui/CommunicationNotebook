@@ -160,6 +160,38 @@ class AuthControllerTest {
                 .isEqualTo("テスト太郎");
     }
 
+    @Test
+    void me_returnsLatestUser_whenNameWasUpdatedAfterLogin() {
+        User loggedInUser = newUser(1, "E001", "変更前の名前", false);
+        //ログイン後に名前が変更され、DBには最新の名前が保存されている状態
+        User updatedUser = newUser(1, "E001", "変更後の名前", false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(updatedUser));
+
+        mockMvc.get()
+                .uri("/api/auth/me")
+                .with(user(new UserPrincipal(loggedInUser)))
+                .assertThat()
+                .hasStatusOk()
+                .bodyJson()
+                .extractingPath("$.name")
+                .isEqualTo("変更後の名前");
+    }
+
+    @Test
+    void me_returnsUnauthorized_whenUserWasDeletedAfterLogin() {
+        User loggedInUser = newUser(1, "E001", "テスト太郎", false);
+        //ログイン後に管理者によって削除された状態
+        User deletedUser = newUser(1, "E001", "テスト太郎", false);
+        deletedUser.setDeleted(true);
+        when(userRepository.findById(1)).thenReturn(Optional.of(deletedUser));
+
+        mockMvc.get()
+                .uri("/api/auth/me")
+                .with(user(new UserPrincipal(loggedInUser)))
+                .assertThat()
+                .hasStatus(401);
+    }
+
     //パスワード変更に関するテスト
     @Test
     void changePassword_returnsNoContent_whenValid() {
