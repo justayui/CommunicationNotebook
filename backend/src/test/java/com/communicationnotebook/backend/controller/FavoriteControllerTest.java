@@ -3,12 +3,15 @@ package com.communicationnotebook.backend.controller;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import com.communicationnotebook.backend.config.SecurityConfig;
 import com.communicationnotebook.backend.entity.User;
+import com.communicationnotebook.backend.repository.UserRepository;
 import com.communicationnotebook.backend.security.UserPrincipal;
 import com.communicationnotebook.backend.service.FavoriteService;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -26,6 +29,9 @@ class FavoriteControllerTest {
     private MockMvcTester mockMvc;
 
     @MockitoBean
+    private UserRepository userRepository;
+
+    @MockitoBean
     private FavoriteService favoriteService;
 
     private UserPrincipal principal(Integer id) {
@@ -36,6 +42,7 @@ class FavoriteControllerTest {
         user.setPassword("hashed");
         user.setAdmin(false);
         user.setDeleted(false);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         return new UserPrincipal(user);
     }
 

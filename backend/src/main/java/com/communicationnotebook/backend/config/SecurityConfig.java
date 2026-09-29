@@ -1,5 +1,7 @@
 package com.communicationnotebook.backend.config;
 
+import com.communicationnotebook.backend.repository.UserRepository;
+import com.communicationnotebook.backend.security.CurrentUserRefreshFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 /**
@@ -62,12 +65,14 @@ public class SecurityConfig {
      *
      * @param http HTTPセキュリティ設定用のオブジェクト
      * @param securityContextRepository 認証情報保存・管理用のリポジトリ
+     * @param userRepository ログイン中のユーザー情報を最新化するために使用するリポジトリ
      * @return セキュリティ設定をすべて装備したオブジェクト
      * @throws Exception セキュリティ設定時にエラーが発生した場合
      */
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http, SecurityContextRepository securityContextRepository) throws Exception {
+            HttpSecurity http, SecurityContextRepository securityContextRepository, UserRepository userRepository)
+            throws Exception {
         //１．基本的なセキュリティ機能の設定
         //CSRF対策の設定を無効化
         http.csrf(AbstractHttpConfigurer::disable)
@@ -79,6 +84,10 @@ public class SecurityConfig {
                 .securityContext(sc -> sc.securityContextRepository(securityContextRepository))
                 //必要な場合のみセッションを作成する設定
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                //セッションから復元したユーザー情報をDBの最新の状態に更新（削除済みの場合は未認証として扱う）
+                .addFilterAfter(
+                        new CurrentUserRefreshFilter(userRepository, securityContextRepository),
+                        SecurityContextHolderFilter.class)
 
                 //３．URL毎のアクセス権限の設定
                 .authorizeHttpRequests(auth -> auth
