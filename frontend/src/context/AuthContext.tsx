@@ -13,6 +13,7 @@ interface AuthContextValue {
   login: (employeeId: string, password: string) => Promise<void>;
   signup: (employeeId: string, name: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -42,8 +43,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
+  // ログイン中のユーザー情報を再取得する(取得に失敗した場合は現在の表示を維持する)
+  async function refreshUser() {
+    try {
+      setUser(await fetchCurrentUser());
+    } catch {
+      // 表示の更新に失敗しても操作自体は完了しているため、エラーにはしない
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

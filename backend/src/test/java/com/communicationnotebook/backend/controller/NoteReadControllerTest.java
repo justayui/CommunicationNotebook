@@ -9,9 +9,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import com.communicationnotebook.backend.config.SecurityConfig;
 import com.communicationnotebook.backend.dto.NoteReaderResponse;
 import com.communicationnotebook.backend.entity.User;
+import com.communicationnotebook.backend.repository.UserRepository;
 import com.communicationnotebook.backend.security.UserPrincipal;
 import com.communicationnotebook.backend.service.NoteReadService;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -29,6 +31,9 @@ class NoteReadControllerTest {
     private MockMvcTester mockMvc;
 
     @MockitoBean
+    private UserRepository userRepository;
+
+    @MockitoBean
     private NoteReadService noteReadService;
 
     private UserPrincipal principal(Integer id) {
@@ -39,6 +44,7 @@ class NoteReadControllerTest {
         user.setPassword("hashed");
         user.setAdmin(false);
         user.setDeleted(false);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         return new UserPrincipal(user);
     }
 

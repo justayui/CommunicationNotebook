@@ -8,8 +8,10 @@ import {
   type UserListItem,
 } from "../api/users";
 import { Modal } from "./Modal";
+import { useAuth } from "../context/AuthContext";
 
 export function UserManagementPage() {
+  const { user: currentUser, refreshUser } = useAuth();
   const [users, setUsers] = useState<UserListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,6 +51,10 @@ export function UserManagementPage() {
       setUsers((prev) => prev && prev.map((u) => (u.id === userId ? updated : u)));
       setEditingId(null);
       setEditingName("");
+      // 自分の名前を変更した場合は、画面右上の表示も更新する
+      if (userId === currentUser?.id) {
+        void refreshUser();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "氏名の更新に失敗しました");
     } finally {

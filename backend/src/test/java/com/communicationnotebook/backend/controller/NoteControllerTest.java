@@ -11,10 +11,12 @@ import com.communicationnotebook.backend.dto.NoteCreateRequest;
 import com.communicationnotebook.backend.dto.NoteResponse;
 import com.communicationnotebook.backend.dto.NoteUpdateRequest;
 import com.communicationnotebook.backend.entity.User;
+import com.communicationnotebook.backend.repository.UserRepository;
 import com.communicationnotebook.backend.security.UserPrincipal;
 import com.communicationnotebook.backend.service.NoteService;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -33,6 +35,9 @@ class NoteControllerTest {
     private MockMvcTester mockMvc;
 
     @MockitoBean
+    private UserRepository userRepository;
+
+    @MockitoBean
     private NoteService noteService;
 
     private UserPrincipal principal(Integer id) {
@@ -43,6 +48,7 @@ class NoteControllerTest {
         user.setPassword("hashed");
         user.setAdmin(false);
         user.setDeleted(false);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         return new UserPrincipal(user);
     }
 
