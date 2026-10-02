@@ -14,15 +14,24 @@
 
 - Java 21
 - Spring Boot 4.1.1(Web MVC / Data JPA / Validation / Security)
-- PostgreSQL
+- Gradle(ビルドツール。Gradle Wrapper同梱のため個別インストール不要)
+- Lombok
+- PostgreSQL 16
 - Flyway(マイグレーション管理)
 - springdoc-openapi(API仕様書 / Swagger UI)
+
+認証はSpring Securityによるセッション方式(Cookie)です。無操作30分でセッションが切れます。
 
 ### フロントエンド
 
 - React 19
 - TypeScript
 - Vite
+- oxlint(Lint)
+
+### インフラ(開発環境)
+
+- Docker / Docker Compose(PostgreSQLのみコンテナで起動)
 
 ## ディレクトリ構成
 
@@ -78,7 +87,7 @@ http://localhost:8080/swagger-ui.html
 
 ### フロントエンド(React / Vite)
 
-前提: Node.js、上記バックエンドが起動済みであること
+前提: Node.js 20.19以上または22.12以上、上記バックエンドが起動済みであること
 
 ```bash
 cd frontend
