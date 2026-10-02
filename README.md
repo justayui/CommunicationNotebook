@@ -145,7 +145,39 @@ cd backend
 
 ### フロントエンド
 
-現時点ではテスト未整備。
+現時点では自動テスト未整備(主要ユースケースに基づく手動結合テストで確認)。
+
+Lint・ビルドは以下で実行できます。
+
+```bash
+cd frontend
+npm run lint    # oxlintによる静的解析
+npm run build   # 型チェック(tsc)+本番用ビルド(dist/に出力)
+```
+
+## ログ
+
+バックエンドのログは、コンソールに加えてファイルにも出力されます(設定: [backend/src/main/resources/logback-spring.xml](backend/src/main/resources/logback-spring.xml))。
+
+- 出力先: `${LOG_PATH}/app.log`(`LOG_PATH` の既定値は `logs` で、起動時のカレントディレクトリからの相対パス。`backend/` で `bootRun` した場合は `backend/logs/app.log`)
+- ローテーション: 日付ごと、または1ファイル50MBを超えた時点で `app.yyyy-MM-dd.N.log.gz` に圧縮して切り替え
+- 保持期間: 30日分(合計1GBを超えた場合は古いものから削除)
+- 出力先を変更する場合は、`.env` または環境変数で `LOG_PATH` を指定してください
+
+エラー発生時は、ステータス・リクエストパス・原因がWARN/ERRORレベルで出力されます。
+
+## 運用メモ
+
+### カテゴリの追加・変更
+
+カテゴリの選択肢は `categories` テーブルで管理しています。管理画面は未実装(将来の拡張候補)のため、追加・変更する場合はFlywayのマイグレーションファイルを新規作成してください。既存のマイグレーションファイルは変更しないでください。
+
+```sql
+-- 例: backend/src/main/resources/db/migration/V8__add_category_meeting.sql
+INSERT INTO categories (name) VALUES ('会議');
+```
+
+バックエンドの次回起動時に自動で適用されます。なお、既存の投稿の `category` は文字列で保持しているため、カテゴリ名を変更・削除しても既存の投稿の表示は変わりません。
 
 ## 開発フロー
 
