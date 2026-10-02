@@ -14,15 +14,24 @@
 
 - Java 21
 - Spring Boot 4.1.1(Web MVC / Data JPA / Validation / Security)
-- PostgreSQL
+- Gradle(ビルドツール。Gradle Wrapper同梱のため個別インストール不要)
+- Lombok
+- PostgreSQL 16
 - Flyway(マイグレーション管理)
 - springdoc-openapi(API仕様書 / Swagger UI)
+
+認証はSpring Securityによるセッション方式(Cookie)です。無操作30分でセッションが切れます。
 
 ### フロントエンド
 
 - React 19
 - TypeScript
 - Vite
+- oxlint(Lint)
+
+### インフラ(開発環境)
+
+- Docker / Docker Compose(PostgreSQLのみコンテナで起動)
 
 ## ディレクトリ構成
 
@@ -52,8 +61,27 @@ docker compose up -d
 
 `.env` の `DB_PASSWORD` と `ADMIN_PASSWORD` には、任意のパスワードを設定してください(未設定の場合、DBとバックエンドは起動しません)。`.env` はGit管理外です。
 
-- `DB_PASSWORD`: DBのパスワード。Docker Composeとバックエンドの両方が参照します
-- `ADMIN_PASSWORD`: 初期管理者のパスワード。バックエンド起動時に管理者が存在しない場合、この値で管理者が作成されます
+#### 環境変数一覧(リポジトリ直下の `.env`)
+
+`.env` はDocker Composeとバックエンドの両方が参照します。
+
+| 変数名 | 必須 | 既定値 | 用途 |
+|---|---|---|---|
+| `DB_NAME` | | `communication_notebook` | DB名 |
+| `DB_USER` | | `postgres` | DBのユーザー名 |
+| `DB_PASSWORD` | ○ | なし | DBのパスワード |
+| `ADMIN_EMPLOYEE_ID` | | `E001` | 初期管理者の職員ID |
+| `ADMIN_NAME` | | `Admin` | 初期管理者の氏名 |
+| `ADMIN_PASSWORD` | ○ | なし | 初期管理者のパスワード |
+| `LOG_PATH` | | `logs` | ログファイルの出力先ディレクトリ(「ログ」を参照) |
+
+#### 初期管理者の作成条件
+
+バックエンド起動時に、以下の条件で初期管理者が自動作成されます。
+
+- 有効な(削除されていない)管理者が1人も存在しない場合のみ、`ADMIN_EMPLOYEE_ID` / `ADMIN_NAME` / `ADMIN_PASSWORD` の値で作成されます。
+- 管理者が既に存在する場合は作成されません。そのため、`ADMIN_PASSWORD` を後から変更しても、既存の管理者のパスワードには反映されません。パスワードの変更は画面の「パスワード変更」から行ってください。
+- `ADMIN_EMPLOYEE_ID` と同じ職員IDのユーザーが既に存在する場合(一般ユーザー・削除済みユーザーを含む)は、安全のため作成も管理者への昇格も行わず、警告ログを出力します。
 
 DBのパスワードはDBの初回起動時にのみ設定されます。あとから `DB_PASSWORD` を変更する場合は、`docker compose down -v` でデータを削除してから再起動してください(DB内のデータはすべて消えます)。
 
@@ -78,7 +106,7 @@ http://localhost:8080/swagger-ui.html
 
 ### フロントエンド(React / Vite)
 
-前提: Node.js、上記バックエンドが起動済みであること
+前提: Node.js 20.19以上または22.12以上、上記バックエンドが起動済みであること
 
 ```bash
 cd frontend
@@ -86,6 +114,12 @@ npm install
 cp .env.example .env.local   # 任意、既定値で動作します
 npm run dev
 ```
+
+フロントエンドの環境変数(`frontend/.env.local`)は以下のとおりです。
+
+| 変数名 | 既定値 | 用途 |
+|---|---|---|
+| `VITE_API_BASE_URL` | `http://localhost:8080` | バックエンドAPIのURL |
 
 起動後、以下にアクセスするとログイン画面が表示されます。
 
@@ -111,7 +145,39 @@ cd backend
 
 ### フロントエンド
 
-現時点ではテスト未整備。
+現時点では自動テスト未整備(主要ユースケースに基づく手動結合テストで確認)。
+
+Lint・ビルドは以下で実行できます。
+
+```bash
+cd frontend
+npm run lint    # oxlintによる静的解析
+npm run build   # 型チェック(tsc)+本番用ビルド(dist/に出力)
+```
+
+## ログ
+
+バックエンドのログは、コンソールに加えてファイルにも出力されます(設定: [backend/src/main/resources/logback-spring.xml](backend/src/main/resources/logback-spring.xml))。
+
+- 出力先: `${LOG_PATH}/app.log`(`LOG_PATH` の既定値は `logs` で、起動時のカレントディレクトリからの相対パス。`backend/` で `bootRun` した場合は `backend/logs/app.log`)
+- ローテーション: 日付ごと、または1ファイル50MBを超えた時点で `app.yyyy-MM-dd.N.log.gz` に圧縮して切り替え
+- 保持期間: 30日分(合計1GBを超えた場合は古いものから削除)
+- 出力先を変更する場合は、`.env` または環境変数で `LOG_PATH` を指定してください
+
+エラー発生時は、ステータス・リクエストパス・原因がWARN/ERRORレベルで出力されます。
+
+## 運用メモ
+
+### カテゴリの追加・変更
+
+カテゴリの選択肢は `categories` テーブルで管理しています。管理画面は未実装(将来の拡張候補)のため、追加・変更する場合はFlywayのマイグレーションファイルを新規作成してください。既存のマイグレーションファイルは変更しないでください。
+
+```sql
+-- 例: backend/src/main/resources/db/migration/V8__add_category_meeting.sql
+INSERT INTO categories (name) VALUES ('会議');
+```
+
+バックエンドの次回起動時に自動で適用されます。なお、既存の投稿の `category` は文字列で保持しているため、カテゴリ名を変更・削除しても既存の投稿の表示は変わりません。
 
 ## 開発フロー
 

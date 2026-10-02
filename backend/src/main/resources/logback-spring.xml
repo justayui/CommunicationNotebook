@@ -3,7 +3,8 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
-    <property name="LOG_PATH" value="${LOG_PATH:-logs}" />
+    <!-- Springの設定値から読み込む(.env・OSの環境変数のどちらで指定しても反映される) -->
+    <springProperty scope="context" name="LOG_PATH" source="LOG_PATH" defaultValue="logs" />
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/app.log</file>
