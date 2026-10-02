@@ -61,8 +61,27 @@ docker compose up -d
 
 `.env` の `DB_PASSWORD` と `ADMIN_PASSWORD` には、任意のパスワードを設定してください(未設定の場合、DBとバックエンドは起動しません)。`.env` はGit管理外です。
 
-- `DB_PASSWORD`: DBのパスワード。Docker Composeとバックエンドの両方が参照します
-- `ADMIN_PASSWORD`: 初期管理者のパスワード。バックエンド起動時に管理者が存在しない場合、この値で管理者が作成されます
+#### 環境変数一覧(リポジトリ直下の `.env`)
+
+`.env` はDocker Composeとバックエンドの両方が参照します。
+
+| 変数名 | 必須 | 既定値 | 用途 |
+|---|---|---|---|
+| `DB_NAME` | | `communication_notebook` | DB名 |
+| `DB_USER` | | `postgres` | DBのユーザー名 |
+| `DB_PASSWORD` | ○ | なし | DBのパスワード |
+| `ADMIN_EMPLOYEE_ID` | | `E001` | 初期管理者の職員ID |
+| `ADMIN_NAME` | | `Admin` | 初期管理者の氏名 |
+| `ADMIN_PASSWORD` | ○ | なし | 初期管理者のパスワード |
+| `LOG_PATH` | | `logs` | ログファイルの出力先ディレクトリ(「ログ」を参照) |
+
+#### 初期管理者の作成条件
+
+バックエンド起動時に、以下の条件で初期管理者が自動作成されます。
+
+- 有効な(削除されていない)管理者が1人も存在しない場合のみ、`ADMIN_EMPLOYEE_ID` / `ADMIN_NAME` / `ADMIN_PASSWORD` の値で作成されます。
+- 管理者が既に存在する場合は作成されません。そのため、`ADMIN_PASSWORD` を後から変更しても、既存の管理者のパスワードには反映されません。パスワードの変更は画面の「パスワード変更」から行ってください。
+- `ADMIN_EMPLOYEE_ID` と同じ職員IDのユーザーが既に存在する場合(一般ユーザー・削除済みユーザーを含む)は、安全のため作成も管理者への昇格も行わず、警告ログを出力します。
 
 DBのパスワードはDBの初回起動時にのみ設定されます。あとから `DB_PASSWORD` を変更する場合は、`docker compose down -v` でデータを削除してから再起動してください(DB内のデータはすべて消えます)。
 
@@ -95,6 +114,12 @@ npm install
 cp .env.example .env.local   # 任意、既定値で動作します
 npm run dev
 ```
+
+フロントエンドの環境変数(`frontend/.env.local`)は以下のとおりです。
+
+| 変数名 | 既定値 | 用途 |
+|---|---|---|
+| `VITE_API_BASE_URL` | `http://localhost:8080` | バックエンドAPIのURL |
 
 起動後、以下にアクセスするとログイン画面が表示されます。
 
