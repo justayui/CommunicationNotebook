@@ -344,6 +344,7 @@ erDiagram
         int note_id FK
         int user_id FK
         text content
+        boolean is_deleted "論理削除用"
         timestamp created_at
     }
     FAVORITES {
