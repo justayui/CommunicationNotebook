@@ -295,8 +295,13 @@ flowchart LR
 | レイヤー | 技術 |
 |---|---|
 | バックエンド | Java 21 / Spring Boot / Gradle |
-| フロントエンド | React / Vite |
+| 認証・認可 | Spring Security(セッション方式) |
+| マイグレーション | Flyway |
+| API仕様書 | springdoc-openapi(Swagger UI) |
+| フロントエンド | React / TypeScript / Vite |
 | DB | PostgreSQL / Docker |
+
+使用バージョンなどの詳細は[README](../README.md)を参照。
 
 ---
 
