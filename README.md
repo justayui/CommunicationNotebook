@@ -1,5 +1,9 @@
 # CommunicationNotebook
 
+> 💡 **お知らせ**
+> 現在、本アプリケーションはAWSへのデプロイ作業を進めております。（10月12日頃公開予定）
+> 手元で動作を確認される場合は、下記のセットアップをご参照ください。
+
 ## 概要
 
 小規模の組織内で使用する、連絡ノートアプリ。
@@ -45,6 +49,32 @@
 └── prototype/  # UI/UX検証用の静的プロトタイプ(単体HTML)
 ```
 
+## 本プロダクトのこだわり・工夫点
+
+### 画面遷移を最小限にするためのAPI設計
+
+手軽さを追求し、閲覧・投稿・コメント・既読・お気に入りを1画面で完結させる設計としました。これをバックエンドで支えるため、以下のように実装しています。
+
+- 一覧API(`GET /api/notes`)は、投稿本文に加えて「お気に入り状態・コメント数・既読状態・既読数」を1つのレスポンスにまとめて返します。画面側が投稿ごとに追加でAPIを呼ぶ必要はありません。
+- 投稿件数が増えてもSQLの発行回数が増えない(N+1問題を起こさない)よう、投稿者は `JOIN FETCH` で同時に取得し、コメント数・既読数は `GROUP BY` で一括集計しています。1回の一覧取得で発行するクエリ数は、件数に関係なく一定です。
+- キーワード・カテゴリ・お気に入りの絞り込みは1本の検索クエリで処理するため、入力に応じた自動検索にも対応できます。
+
+### セキュリティとセッション管理
+
+組織内の連絡事項を扱うため、「許可された人が、許可された操作だけを行える」ことをバックエンド側で保証する設計としました。
+
+- Spring Securityによるセッション認証で、パスワードはBCryptでハッシュ化し、無操作30分でセッションが切れるようにしています。
+- リクエストごとにユーザー情報をDBから読み直すフィルターを追加し、ユーザーの削除や権限の変更が、セッションが切れるのを待たずにすぐ反映されるようにしています。
+- 投稿の編集・削除やユーザー管理の権限チェックはService層で行い、APIを直接呼ばれた場合も403を返します。また、最後の管理者は削除できないようにしています。
+
+### CI環境（GitHub Actions）の構築
+
+mainに壊れたコードが入らないよう、PRの作成・更新時にテストとビルドを自動で実行するようにしました。
+
+- バックエンドは `./gradlew test`、フロントエンドはLint・型チェック・ビルドを実行します。
+- テストはインメモリDBではなく本番と同じPostgreSQL 16で行い、CIでもサービスコンテナとして起動しています。
+- パスワードなどの環境変数はCI専用のダミー値を使用し、ローカルや本番の値とは切り離しています。
+
 ## セットアップ
 
 ```bash
@@ -69,18 +99,20 @@ docker compose up -d postgres
 
 `.env` はDocker Composeとバックエンドの両方が参照します。
 
-| 変数名 | 必須 | 既定値 | 用途 |
-|---|---|---|---|
-| `DB_HOST` | | `localhost` | DBのホスト名(全体起動時はDocker Composeが `postgres` を設定) |
-| `DB_PORT` | | `5432` | DBのポート番号 |
-| `DB_NAME` | | `communication_notebook` | DB名 |
-| `DB_USER` | | `postgres` | DBのユーザー名 |
-| `DB_PASSWORD` | ○ | なし | DBのパスワード |
-| `ADMIN_EMPLOYEE_ID` | | `E001` | 初期管理者の職員ID |
-| `ADMIN_NAME` | | `Admin` | 初期管理者の氏名 |
-| `ADMIN_PASSWORD` | ○ | なし | 初期管理者のパスワード |
-| `LOG_PATH` | | `logs` | ログファイルの出力先ディレクトリ(「ログ」を参照) |
-| `CORS_ALLOWED_ORIGINS` | | `http://localhost:5173` | CORSで許可するオリジン(カンマ区切りで複数指定可)。空にするとCORSの許可を登録しない(全体起動時はDocker Composeが空を設定) |
+
+| 変数名                    | 必須  | 既定値                      | 用途                                                                        |
+| ---------------------- | --- | ------------------------ | ------------------------------------------------------------------------- |
+| `DB_HOST`              |     | `localhost`              | DBのホスト名(全体起動時はDocker Composeが `postgres` を設定)                             |
+| `DB_PORT`              |     | `5432`                   | DBのポート番号                                                                  |
+| `DB_NAME`              |     | `communication_notebook` | DB名                                                                       |
+| `DB_USER`              |     | `postgres`               | DBのユーザー名                                                                  |
+| `DB_PASSWORD`          | ○   | なし                       | DBのパスワード                                                                  |
+| `ADMIN_EMPLOYEE_ID`    |     | `E001`                   | 初期管理者の職員ID                                                                |
+| `ADMIN_NAME`           |     | `Admin`                  | 初期管理者の氏名                                                                  |
+| `ADMIN_PASSWORD`       | ○   | なし                       | 初期管理者のパスワード                                                               |
+| `LOG_PATH`             |     | `logs`                   | ログファイルの出力先ディレクトリ(「ログ」を参照)                                                 |
+| `CORS_ALLOWED_ORIGINS` |     | `http://localhost:5173`  | CORSで許可するオリジン(カンマ区切りで複数指定可)。空にするとCORSの許可を登録しない(全体起動時はDocker Composeが空を設定) |
+
 
 `DB_HOST`・`DB_PORT`・`CORS_ALLOWED_ORIGINS` は通常のローカル開発では指定不要です(既定値で動作します)。
 
@@ -105,13 +137,13 @@ cd backend
 
 起動後、以下にアクセスして正常起動を確認できます。
 
-http://localhost:8080/actuator/health
+[http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
 
 `{"status":"UP"}` が返れば起動成功です。
 
 API仕様書(Swagger UI)は以下で確認できます。
 
-http://localhost:8080/swagger-ui.html
+[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 ### フロントエンド(React / Vite)
 
@@ -126,13 +158,15 @@ npm run dev
 
 フロントエンドの環境変数(`frontend/.env.local`)は以下のとおりです。
 
-| 変数名 | 既定値 | 用途 |
-|---|---|---|
+
+| 変数名                 | 既定値                     | 用途            |
+| ------------------- | ----------------------- | ------------- |
 | `VITE_API_BASE_URL` | `http://localhost:8080` | バックエンドAPIのURL |
+
 
 起動後、以下にアクセスするとログイン画面が表示されます。
 
-http://localhost:5173
+[http://localhost:5173](http://localhost:5173)
 
 初期管理者アカウントでログインできます。
 
@@ -162,10 +196,12 @@ docker compose up -d --build
 
 `--build` を付けると、ソースコードの変更を反映してイメージを作り直します。起動後、以下にアクセスします。
 
-| 用途 | URL |
-|---|---|
-| 画面 | http://localhost |
-| API仕様書(Swagger UI) | http://localhost/swagger-ui.html |
+
+| 用途                 | URL                                                                  |
+| ------------------ | -------------------------------------------------------------------- |
+| 画面                 | [http://localhost](http://localhost)                                 |
+| API仕様書(Swagger UI) | [http://localhost/swagger-ui.html](http://localhost/swagger-ui.html) |
+
 
 ログイン方法はローカル開発時と同じです(初期管理者アカウント、または新規登録)。DBは開発時と同じ `postgres` コンテナ(同じデータ)を使用します。
 
@@ -180,11 +216,13 @@ docker compose down              # 停止(DBのデータは残る)
 
 各コンテナのイメージ定義は以下のとおりです。
 
-| サービス | 定義ファイル | 内容 |
-|---|---|---|
+
+| サービス     | 定義ファイル                                                                                | 内容                                              |
+| -------- | ------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | frontend | [frontend/Dockerfile](frontend/Dockerfile)、[frontend/nginx.conf](frontend/nginx.conf) | Node.jsでビルドし、成果物をnginxで配信。`/api/` などをbackendへ中継 |
-| backend | [backend/Dockerfile](backend/Dockerfile) | JDKで実行可能jarをビルドし、JREのみのイメージで起動 |
-| postgres | (公式イメージ `postgres:16-alpine`) | DB |
+| backend  | [backend/Dockerfile](backend/Dockerfile)                                              | JDKで実行可能jarをビルドし、JREのみのイメージで起動                  |
+| postgres | (公式イメージ `postgres:16-alpine`)                                                         | DB                                              |
+
 
 ## テスト
 
@@ -192,10 +230,12 @@ docker compose down              # 停止(DBのデータは残る)
 
 Pull Requestの作成・更新時、およびmainへのpush時に、以下のワークフローが自動実行されます。結果はPull Requestの画面で確認できます。
 
-| ワークフロー | 定義ファイル | 実行内容 |
-|---|---|---|
-| Backend CI with Gradle | [.github/workflows/backend-ci.yml](.github/workflows/backend-ci.yml) | `./gradlew test` |
-| Frontend CI | [.github/workflows/frontend-ci.yml](.github/workflows/frontend-ci.yml) | `npm ci` → `npm run lint` → `npm run build` |
+
+| ワークフロー                 | 定義ファイル                                                                 | 実行内容                                        |
+| ---------------------- | ---------------------------------------------------------------------- | ------------------------------------------- |
+| Backend CI with Gradle | [.github/workflows/backend-ci.yml](.github/workflows/backend-ci.yml)   | `./gradlew test`                            |
+| Frontend CI            | [.github/workflows/frontend-ci.yml](.github/workflows/frontend-ci.yml) | `npm ci` → `npm run lint` → `npm run build` |
+
 
 - バックエンドのテストは実際のPostgreSQLに接続するため、ワークフロー内でPostgreSQL 16をサービスコンテナとして起動しています。`DB_PASSWORD`・`ADMIN_PASSWORD` はCI専用のダミー値をワークフロー内で設定しています(ローカルの `.env` や本番環境の値とは無関係です)。
 - 変更箇所に関わらず、両方のワークフローが毎回実行されます。
