@@ -84,15 +84,20 @@ public class UserService {
     /**
      * ユーザー情報の削除
      * IDに紐づくユーザー情報を論理削除（無効化）します。
+     * 管理者が不在にならないよう、削除対象が最後の管理者の場合は削除しません。
      *
      * @param requesterId 実行者のID
      * @param targetUserId 削除対象ユーザーのID
      * @throws ResponseStatusException 実行者が管理者権限を持たない場合（403 Forbidden）
      * @throws ResponseStatusException ユーザーが存在しない場合（404 Not Found）
+     * @throws ResponseStatusException 削除対象が管理者で、他に有効な管理者が存在しない場合（409 Conflict）
      */
     public void delete(Integer requesterId, Integer targetUserId) {
         requireAdmin(requesterId);
         User target = findActiveUserOrThrow(targetUserId);
+        if (target.isAdmin() && !userRepository.existsByAdminTrueAndDeletedFalseAndIdNot(targetUserId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "他に管理者がいないため、この管理者は削除できません");
+        }
         target.setDeleted(true);
         userRepository.save(target);
     }

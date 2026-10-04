@@ -39,4 +39,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
      * @return 存在する場合はtrue、存在しない場合はfalse
      */
     boolean existsByAdminTrueAndDeletedFalse();
+
+    /**
+     * 指定したユーザー以外に、管理者権限を持ち、かつ削除されていないユーザーが存在しているか確認します。
+     *
+     * @param id 確認対象から除外するユーザーのID
+     * @return 存在する場合はtrue、存在しない場合はfalse
+     */
+    boolean existsByAdminTrueAndDeletedFalseAndIdNot(Integer id);
 }
