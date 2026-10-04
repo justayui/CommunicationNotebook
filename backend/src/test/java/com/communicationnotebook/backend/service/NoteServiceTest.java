@@ -244,6 +244,33 @@ class NoteServiceTest {
     }
 
     @Test
+    void update_returnsFavoritedTrue_whenRequesterFavoritedNote() {
+        User user = new User();
+        user.setId(1);
+        user.setName("テスト太郎");
+
+        Note note = new Note();
+        note.setId(10);
+        note.setUser(user);
+        note.setCategory("雑談");
+        note.setContent("元の内容");
+        note.setDeleted(false);
+
+        NoteUpdateRequest request = new NoteUpdateRequest("業務連絡", "更新後の内容");
+
+        when(noteRepository.findByIdWithUser(10)).thenReturn(Optional.of(note));
+        when(noteRepository.save(any(Note.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(favoriteRepository.existsByUser_IdAndNote_Id(1, 10)).thenReturn(true);
+        when(commentRepository.countActiveByNoteIds(any())).thenReturn(List.of());
+        when(noteReadRepository.existsByUser_IdAndNote_Id(1, 10)).thenReturn(false);
+        when(noteReadRepository.countByNoteIds(any())).thenReturn(List.of());
+
+        NoteResponse result = noteService.update(10, request, 1);
+
+        assertThat(result.favorited()).isTrue();
+    }
+
+    @Test
     void update_throwsNotFound_whenNoteDoesNotExist() {
         NoteUpdateRequest request = new NoteUpdateRequest("雑談", "更新後の内容");
         when(noteRepository.findByIdWithUser(99)).thenReturn(Optional.empty());
