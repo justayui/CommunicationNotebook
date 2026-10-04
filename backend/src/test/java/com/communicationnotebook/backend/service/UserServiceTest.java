@@ -196,6 +196,47 @@ class UserServiceTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    @Test
+    void delete_marksAdminAsDeleted_whenOtherAdminExists() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        User targetAdmin = newUser(2, "E002", "管理花子", false);
+        targetAdmin.setAdmin(true);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.findById(2)).thenReturn(Optional.of(targetAdmin));
+        when(userRepository.existsByAdminTrueAndDeletedFalseAndIdNot(2)).thenReturn(true);
+
+        userService.delete(1, 2);
+
+        assertThat(targetAdmin.isDeleted()).isTrue();
+    }
+
+    @Test
+    void delete_marksRequesterAsDeleted_whenRequesterDeletesSelfAndOtherAdminExists() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.existsByAdminTrueAndDeletedFalseAndIdNot(1)).thenReturn(true);
+
+        userService.delete(1, 1);
+
+        assertThat(admin.isDeleted()).isTrue();
+    }
+
+    @Test
+    void delete_throwsConflict_whenTargetIsLastAdmin() {
+        User admin = newUser(1, "E001", "管理太郎", false);
+        admin.setAdmin(true);
+        when(userRepository.findById(1)).thenReturn(Optional.of(admin));
+        when(userRepository.existsByAdminTrueAndDeletedFalseAndIdNot(1)).thenReturn(false);
+
+        assertThatThrownBy(() -> userService.delete(1, 1))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("他に管理者がいないため");
+        assertThat(admin.isDeleted()).isFalse();
+        verify(userRepository, never()).save(any(User.class));
+    }
+
     //セルフサインアップに関するテスト
     @Test
     void signup_savesHashedPasswordAndReturnsUser_whenEmployeeIdIsNew() {
