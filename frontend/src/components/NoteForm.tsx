@@ -18,10 +18,7 @@ export function NoteForm({ initial, submitLabel, onSubmit, onCancel }: NoteFormP
 
   useEffect(() => {
     fetchCategories()
-      .then((result) => {
-        setCategories(result);
-        setCategory((prev) => prev || result[0]?.name || "");
-      })
+      .then(setCategories)
       .catch(() => {
         setCategories([]);
       });
@@ -33,7 +30,9 @@ export function NoteForm({ initial, submitLabel, onSubmit, onCancel }: NoteFormP
     setSubmitting(true);
     try {
       await onSubmit({ category, content });
+      // 新規投稿の場合は、次の投稿でもカテゴリを選び直すよう未選択の状態に戻す
       if (!initial) {
+        setCategory("");
         setContent("");
       }
     } catch (err) {
@@ -47,6 +46,10 @@ export function NoteForm({ initial, submitLabel, onSubmit, onCancel }: NoteFormP
     <form className="note-form" onSubmit={handleSubmit}>
       <div className="note-form-row">
         <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+          {/* 未選択時の表示。valueが空のためrequiredにより未選択のままでは投稿できない */}
+          <option value="" disabled>
+            カテゴリを選択
+          </option>
           {categories.map((c) => (
             <option key={c.name} value={c.name}>
               {c.name}
