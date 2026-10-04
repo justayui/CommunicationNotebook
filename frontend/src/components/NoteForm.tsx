@@ -30,7 +30,9 @@ export function NoteForm({ initial, submitLabel, onSubmit, onCancel }: NoteFormP
     setSubmitting(true);
     try {
       await onSubmit({ category, content });
+      // 新規投稿の場合は、次の投稿でもカテゴリを選び直すよう未選択の状態に戻す
       if (!initial) {
+        setCategory("");
         setContent("");
       }
     } catch (err) {
