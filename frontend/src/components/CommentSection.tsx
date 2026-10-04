@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { createComment, deleteComment, type Comment } from "../api/comments";
+import { SessionExpiredError } from "../api/client";
 import { formatDateTime } from "../utils/datetime";
 
 interface CommentSectionProps {
@@ -50,6 +51,10 @@ export function CommentSection({
       await deleteComment(noteId, commentId);
       onCommentDeleted(commentId);
     } catch (err) {
+      // セッション切れの場合はログイン画面へ遷移するため、エラーは表示しない
+      if (err instanceof SessionExpiredError) {
+        return;
+      }
       window.alert(err instanceof Error ? err.message : "削除に失敗しました");
     }
   }
