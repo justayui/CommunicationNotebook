@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useAuth } from "../context/AuthContext";
 
 export function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
-  const { login } = useAuth();
+  const { login, sessionExpired } = useAuth();
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +24,9 @@ export function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }
   return (
     <form className="login-form" onSubmit={handleSubmit}>
       <h2>ログイン</h2>
+      {sessionExpired && (
+        <p className="state-message">一定時間操作がなかったため、ログアウトしました。再度ログインしてください。</p>
+      )}
       <label>
         職員ID
         <input

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { fetchComments, type Comment } from "../api/comments";
 import { deleteNote, updateNote, type Note, type NoteInput } from "../api/notes";
+import { SessionExpiredError } from "../api/client";
 import { formatDateTime } from "../utils/datetime";
 import { getTagColorClass } from "../utils/tagColor";
 import { CommentSection } from "./CommentSection";
@@ -56,6 +57,10 @@ export function NoteCard({
       await deleteNote(note.id);
       onDeleted(note.id);
     } catch (err) {
+      // セッション切れの場合はログイン画面へ遷移するため、エラーは表示しない
+      if (err instanceof SessionExpiredError) {
+        return;
+      }
       window.alert(err instanceof Error ? err.message : "削除に失敗しました");
     } finally {
       setDeleting(false);

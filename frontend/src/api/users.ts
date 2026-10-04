@@ -1,3 +1,5 @@
+import { apiFetch } from "./client";
+
 export interface UserListItem {
   id: number;
   employeeId: string;
@@ -10,8 +12,6 @@ export interface PasswordResetResult {
   temporaryPassword: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-
 function forbiddenOrGenericError(status: number): Error {
   if (status === 403) {
     return new Error("管理者のみ実行できます");
@@ -20,9 +20,7 @@ function forbiddenOrGenericError(status: number): Error {
 }
 
 export async function fetchUsers(): Promise<UserListItem[]> {
-  const res = await fetch(`${API_BASE_URL}/api/users`, {
-    credentials: "include",
-  });
+  const res = await apiFetch("/api/users");
   if (!res.ok) {
     throw new Error(`ユーザー一覧の取得に失敗しました (status: ${res.status})`);
   }
@@ -30,9 +28,8 @@ export async function fetchUsers(): Promise<UserListItem[]> {
 }
 
 export async function updateUserName(userId: number, name: string): Promise<UserListItem> {
-  const res = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
+  const res = await apiFetch(`/api/users/${userId}`, {
     method: "PUT",
-    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name }),
   });
@@ -43,9 +40,8 @@ export async function updateUserName(userId: number, name: string): Promise<User
 }
 
 export async function deleteUser(userId: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
+  const res = await apiFetch(`/api/users/${userId}`, {
     method: "DELETE",
-    credentials: "include",
   });
   if (!res.ok) {
     throw forbiddenOrGenericError(res.status);
@@ -53,9 +49,8 @@ export async function deleteUser(userId: number): Promise<void> {
 }
 
 export async function resetPassword(userId: number): Promise<PasswordResetResult> {
-  const res = await fetch(`${API_BASE_URL}/api/users/${userId}/password-reset`, {
+  const res = await apiFetch(`/api/users/${userId}/password-reset`, {
     method: "POST",
-    credentials: "include",
   });
   if (!res.ok) {
     throw forbiddenOrGenericError(res.status);

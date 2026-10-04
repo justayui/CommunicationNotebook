@@ -1,11 +1,13 @@
+import { API_BASE_URL, notifySessionExpired, SessionExpiredError } from "./client";
+
+// 認証APIは401を「認証失敗」として個別に扱うため、セッション切れの共通処理(apiFetch)は使用しない
+
 export interface User {
   id: number;
   employeeId: string;
   name: string;
   admin: boolean;
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
 export async function login(employeeId: string, password: string): Promise<User> {
   const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -45,6 +47,11 @@ export async function changePassword(currentPassword: string, newPassword: strin
   });
   if (!res.ok) {
     if (res.status === 401) {
+      // 現在のパスワード不一致とセッション切れはどちらも401のため、ログイン状態を確認して区別する
+      if ((await fetchCurrentUser()) === null) {
+        notifySessionExpired();
+        throw new SessionExpiredError();
+      }
       throw new Error("現在のパスワードが正しくありません");
     }
     throw new Error("入力内容を確認してください");

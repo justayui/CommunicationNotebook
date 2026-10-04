@@ -1,3 +1,5 @@
+import { apiFetch } from "./client";
+
 export interface Note {
   id: number;
   userId: number;
@@ -22,8 +24,6 @@ export interface NoteInput {
   content: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-
 export async function fetchNotes(params: FetchNotesParams = {}): Promise<Note[]> {
   const query = new URLSearchParams();
   if (params.keyword) query.set("keyword", params.keyword);
@@ -31,7 +31,7 @@ export async function fetchNotes(params: FetchNotesParams = {}): Promise<Note[]>
   if (params.favoriteOnly) query.set("favoriteOnly", "true");
   const qs = query.toString();
 
-  const res = await fetch(`${API_BASE_URL}/api/notes${qs ? `?${qs}` : ""}`, { credentials: "include" });
+  const res = await apiFetch(`/api/notes${qs ? `?${qs}` : ""}`);
   if (!res.ok) {
     throw new Error(`投稿一覧の取得に失敗しました (status: ${res.status})`);
   }
@@ -39,9 +39,8 @@ export async function fetchNotes(params: FetchNotesParams = {}): Promise<Note[]>
 }
 
 export async function createNote(input: NoteInput): Promise<Note> {
-  const res = await fetch(`${API_BASE_URL}/api/notes`, {
+  const res = await apiFetch("/api/notes", {
     method: "POST",
-    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
@@ -52,9 +51,8 @@ export async function createNote(input: NoteInput): Promise<Note> {
 }
 
 export async function updateNote(id: number, input: NoteInput): Promise<Note> {
-  const res = await fetch(`${API_BASE_URL}/api/notes/${id}`, {
+  const res = await apiFetch(`/api/notes/${id}`, {
     method: "PUT",
-    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
@@ -65,9 +63,8 @@ export async function updateNote(id: number, input: NoteInput): Promise<Note> {
 }
 
 export async function deleteNote(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/api/notes/${id}`, {
+  const res = await apiFetch(`/api/notes/${id}`, {
     method: "DELETE",
-    credentials: "include",
   });
   if (!res.ok) {
     throw new Error(`削除に失敗しました (status: ${res.status})`);
