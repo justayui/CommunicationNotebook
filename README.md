@@ -134,6 +134,18 @@ http://localhost:5173
 
 ## テスト
 
+### CI(GitHub Actions)
+
+Pull Requestの作成・更新時、およびmainへのpush時に、以下のワークフローが自動実行されます。結果はPull Requestの画面で確認できます。
+
+| ワークフロー | 定義ファイル | 実行内容 |
+|---|---|---|
+| Backend CI with Gradle | [.github/workflows/backend-ci.yml](.github/workflows/backend-ci.yml) | `./gradlew test` |
+| Frontend CI | [.github/workflows/frontend-ci.yml](.github/workflows/frontend-ci.yml) | `npm ci` → `npm run lint` → `npm run build` |
+
+- バックエンドのテストは実際のPostgreSQLに接続するため、ワークフロー内でPostgreSQL 16をサービスコンテナとして起動しています。`DB_PASSWORD`・`ADMIN_PASSWORD` はCI専用のダミー値をワークフロー内で設定しています(ローカルの `.env` や本番環境の値とは無関係です)。
+- 変更箇所に関わらず、両方のワークフローが毎回実行されます。
+
 ### バックエンド
 
 ```bash
@@ -141,13 +153,13 @@ cd backend
 ./gradlew test   # Windowsの場合は gradlew.bat test
 ```
 
-現時点では手動実行のみ。CIによる自動テスト導入は今後の対応予定。
+ローカルで実行する場合は、上記PostgreSQLコンテナが起動済みである必要があります。
 
 ### フロントエンド
 
 現時点では自動テスト未整備(主要ユースケースに基づく手動結合テストで確認)。
 
-Lint・ビルドは以下で実行できます。
+Lint・ビルドはCIで自動実行されます。ローカルで実行する場合は以下のとおりです。
 
 ```bash
 cd frontend
