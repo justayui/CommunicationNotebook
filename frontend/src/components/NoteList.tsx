@@ -23,15 +23,22 @@ export function NoteList() {
   }, [rawKeyword]);
 
   useEffect(() => {
+    // 取得中に絞り込み条件が変わった場合、古い条件の結果で一覧を上書きしないようにする
+    let ignore = false;
     fetchNotes({
       keyword: keyword || undefined,
       category: activeTab === "category" ? (selectedCategory ?? undefined) : undefined,
       favoriteOnly: activeTab === "favorite",
     })
-      .then(setNotes)
+      .then((result) => {
+        if (!ignore) setNotes(result);
+      })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "不明なエラーが発生しました");
+        if (!ignore) setError(err instanceof Error ? err.message : "不明なエラーが発生しました");
       });
+    return () => {
+      ignore = true;
+    };
   }, [keyword, activeTab, selectedCategory]);
 
   function handleFavoriteToggled(noteId: number, favorited: boolean) {
