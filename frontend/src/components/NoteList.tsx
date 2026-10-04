@@ -23,15 +23,22 @@ export function NoteList() {
   }, [rawKeyword]);
 
   useEffect(() => {
+    // 取得中に絞り込み条件が変わった場合、古い条件の結果で一覧を上書きしないようにする
+    let ignore = false;
     fetchNotes({
       keyword: keyword || undefined,
       category: activeTab === "category" ? (selectedCategory ?? undefined) : undefined,
       favoriteOnly: activeTab === "favorite",
     })
-      .then(setNotes)
+      .then((result) => {
+        if (!ignore) setNotes(result);
+      })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "不明なエラーが発生しました");
+        if (!ignore) setError(err instanceof Error ? err.message : "不明なエラーが発生しました");
       });
+    return () => {
+      ignore = true;
+    };
   }, [keyword, activeTab, selectedCategory]);
 
   function handleFavoriteToggled(noteId: number, favorited: boolean) {
@@ -50,6 +57,15 @@ export function NoteList() {
 
   async function handleCreate(input: NoteInput) {
     const created = await createNote(input);
+    // 絞り込み中に投稿した場合も投稿結果が見えるよう、「全体」タブ・検索なしの表示に戻す
+    const filtered = activeTab !== "all" || keyword !== "";
+    setActiveTab("all");
+    setRawKeyword("");
+    setKeyword("");
+    if (filtered) {
+      // 絞り込み条件の変更により一覧が再取得されるため、投稿した伝達事項も先頭に含まれる
+      return;
+    }
     setNotes((prev) => (prev ? [created, ...prev] : [created]));
   }
 
