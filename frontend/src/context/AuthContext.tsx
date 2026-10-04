@@ -6,10 +6,13 @@ import {
   signup as signupApi,
   type User,
 } from "../api/auth";
+import { setSessionExpiredHandler } from "../api/client";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  // 無操作によるセッション切れでログアウトした直後かどうか(ログイン画面での案内表示に使用)
+  sessionExpired: boolean;
   login: (employeeId: string, password: string) => Promise<void>;
   signup: (employeeId: string, name: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -21,6 +24,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   useEffect(() => {
     fetchCurrentUser()
@@ -28,14 +32,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
+  // API呼び出しでセッション切れ(401)を検知した場合は、ログイン状態を解除してログイン画面へ戻す
+  useEffect(() => {
+    setSessionExpiredHandler(() => {
+      setUser(null);
+      setSessionExpired(true);
+    });
+    return () => setSessionExpiredHandler(null);
+  }, []);
+
   async function login(employeeId: string, password: string) {
     const loggedInUser = await loginApi(employeeId, password);
     setUser(loggedInUser);
+    setSessionExpired(false);
   }
 
   async function signup(employeeId: string, name: string, password: string) {
     const signedUpUser = await signupApi(employeeId, name, password);
     setUser(signedUpUser);
+    setSessionExpired(false);
   }
 
   async function logout() {
@@ -53,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, sessionExpired, login, signup, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
