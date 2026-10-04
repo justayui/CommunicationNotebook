@@ -201,6 +201,15 @@ public class UserController {
             )
         ),
         @ApiResponse(
+            responseCode = "409",
+            description = "削除失敗。削除対象が管理者で、他に有効な管理者が存在しないときに返却されます(管理者の不在を防ぐため)。messageは\"他に管理者がいないため、この管理者は削除できません\"が返ります。",
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                        {"timestamp":"2026-09-10T06:00:00Z","status":409,"error":"Conflict","message":"他に管理者がいないため、この管理者は削除できません","path":"/api/users/1"}""")
+            )
+        ),
+        @ApiResponse(
             responseCode = "500",
             description = "削除失敗。サーバー内部エラー。データベースへの接続失敗など、予期せぬシステム異常が発生した場合に返却されます。messageは\"サーバーエラーが発生しました\"が返ります。",
             content = @Content(

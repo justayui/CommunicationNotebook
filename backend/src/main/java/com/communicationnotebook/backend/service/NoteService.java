@@ -122,10 +122,11 @@ public class NoteService {
         note.setContent(request.content());
 
         Note saved = noteRepository.save(note);
+        boolean favorited = favoriteRepository.existsByUser_IdAndNote_Id(userId, id);
         long commentCount = countCommentsByNoteId(List.of(id)).getOrDefault(id, 0L);
         boolean read = noteReadRepository.existsByUser_IdAndNote_Id(userId, id);
         long readCount = countReadsByNoteId(List.of(id)).getOrDefault(id, 0L);
-        return NoteResponse.from(saved, false, commentCount, read, readCount);
+        return NoteResponse.from(saved, favorited, commentCount, read, readCount);
     }
 
     /**

@@ -181,6 +181,23 @@ class UserControllerTest {
                 .hasStatus(403);
     }
 
+    @Test
+    void delete_returnsConflict_whenTargetIsLastAdmin() {
+        org.mockito.Mockito.doThrow(
+                        new ResponseStatusException(HttpStatus.CONFLICT, "他に管理者がいないため、この管理者は削除できません"))
+                .when(userService)
+                .delete(1, 1);
+
+        mockMvc.delete()
+                .uri("/api/users/{id}", 1)
+                .with(user(principal()))
+                .assertThat()
+                .hasStatus(409)
+                .bodyJson()
+                .extractingPath("$.message")
+                .isEqualTo("他に管理者がいないため、この管理者は削除できません");
+    }
+
     //パスワードリセットに関するテスト
     @Test
     void resetPassword_returnsTemporaryPassword_whenValid() {

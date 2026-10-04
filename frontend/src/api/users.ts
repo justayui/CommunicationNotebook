@@ -44,6 +44,9 @@ export async function deleteUser(userId: number): Promise<void> {
     method: "DELETE",
   });
   if (!res.ok) {
+    if (res.status === 409) {
+      throw new Error("他に管理者がいないため、この管理者は削除できません");
+    }
     throw forbiddenOrGenericError(res.status);
   }
 }
