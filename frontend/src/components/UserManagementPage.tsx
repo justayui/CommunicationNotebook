@@ -11,7 +11,7 @@ import { Modal } from "./Modal";
 import { useAuth } from "../context/AuthContext";
 
 export function UserManagementPage() {
-  const { user: currentUser, refreshUser } = useAuth();
+  const { user: currentUser, refreshUser, logout } = useAuth();
   const [users, setUsers] = useState<UserListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,10 +71,17 @@ export function UserManagementPage() {
     setError(null);
     try {
       await deleteUser(user.id);
+      // 自分自身を削除した場合はログインできなくなるため、そのままログアウトする
+      if (user.id === currentUser?.id) {
+        await logout();
+        return;
+      }
       setUsers((prev) => prev && prev.filter((u) => u.id !== user.id));
       setDeleteTarget(null);
       setDeletedUserName(user.name);
     } catch (err) {
+      // 確認モーダルを閉じ、画面上部のエラーメッセージが見えるようにする
+      setDeleteTarget(null);
       setError(err instanceof Error ? err.message : "削除に失敗しました");
     } finally {
       setBusyId(null);
