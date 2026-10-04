@@ -29,9 +29,11 @@
 - Vite
 - oxlint(Lint)
 
-### インフラ(開発環境)
+### インフラ
 
-- Docker / Docker Compose(PostgreSQLのみコンテナで起動)
+- Docker / Docker Compose
+  - 開発時: PostgreSQLのみコンテナで起動
+  - 全体起動時: フロントエンド(nginx)・バックエンド・PostgreSQLの3コンテナで起動(「コンテナでの起動(全体)」を参照)
 
 ## ディレクトリ構成
 
@@ -56,8 +58,10 @@ cd CommunicationNotebook
 
 ```bash
 cp .env.example .env   # 初回のみ
-docker compose up -d
+docker compose up -d postgres
 ```
+
+開発時はサービス名 `postgres` を指定してDBのみ起動します。サービス名を省略して `docker compose up -d` とすると、バックエンド・フロントエンドのコンテナも起動します(「コンテナでの起動(全体)」を参照)。
 
 `.env` の `DB_PASSWORD` と `ADMIN_PASSWORD` には、任意のパスワードを設定してください(未設定の場合、DBとバックエンドは起動しません)。`.env` はGit管理外です。
 
@@ -67,6 +71,8 @@ docker compose up -d
 
 | 変数名 | 必須 | 既定値 | 用途 |
 |---|---|---|---|
+| `DB_HOST` | | `localhost` | DBのホスト名(全体起動時はDocker Composeが `postgres` を設定) |
+| `DB_PORT` | | `5432` | DBのポート番号 |
 | `DB_NAME` | | `communication_notebook` | DB名 |
 | `DB_USER` | | `postgres` | DBのユーザー名 |
 | `DB_PASSWORD` | ○ | なし | DBのパスワード |
@@ -74,6 +80,9 @@ docker compose up -d
 | `ADMIN_NAME` | | `Admin` | 初期管理者の氏名 |
 | `ADMIN_PASSWORD` | ○ | なし | 初期管理者のパスワード |
 | `LOG_PATH` | | `logs` | ログファイルの出力先ディレクトリ(「ログ」を参照) |
+| `CORS_ALLOWED_ORIGINS` | | `http://localhost:5173` | CORSで許可するオリジン(カンマ区切りで複数指定可)。空にするとCORSの許可を登録しない(全体起動時はDocker Composeが空を設定) |
+
+`DB_HOST`・`DB_PORT`・`CORS_ALLOWED_ORIGINS` は通常のローカル開発では指定不要です(既定値で動作します)。
 
 #### 初期管理者の作成条件
 
@@ -131,6 +140,51 @@ http://localhost:5173
 - パスワード: `.env` の `ADMIN_PASSWORD`
 
 一般ユーザーは、ログイン画面の新規登録から作成してください。
+
+### コンテナでの起動(全体)
+
+デプロイと同じ構成(3コンテナ)で、アプリ全体をDocker Composeで起動できます。Java・Node.jsのインストールは不要です。
+
+```
+ブラウザ ──→ frontend(nginx :80) ──/api/・/swagger-ui・/v3/api-docs──→ backend(Spring Boot :8080) ──→ postgres(:5432)
+                  └─ それ以外: 画面(ビルド成果物)を返す
+```
+
+- 外部に公開するのはfrontend(nginx)の80番ポートのみです。backendはnginx経由でのみアクセスできます。
+- 画面とAPIが同じオリジンから配信されるため、CORSは使用しません(`CORS_ALLOWED_ORIGINS` は空が設定されます)。
+- 開発時の利便性のため、postgresの5432番ポートは引き続き公開しています。
+
+前提: Docker / Docker Compose、`.env` を作成済みであること(「DB(PostgreSQL / Docker)」を参照)
+
+```bash
+docker compose up -d --build
+```
+
+`--build` を付けると、ソースコードの変更を反映してイメージを作り直します。起動後、以下にアクセスします。
+
+| 用途 | URL |
+|---|---|
+| 画面 | http://localhost |
+| API仕様書(Swagger UI) | http://localhost/swagger-ui.html |
+
+ログイン方法はローカル開発時と同じです(初期管理者アカウント、または新規登録)。DBは開発時と同じ `postgres` コンテナ(同じデータ)を使用します。
+
+```bash
+docker compose logs -f backend   # バックエンドのログを表示(Ctrl + Cで終了)
+docker compose down              # 停止(DBのデータは残る)
+```
+
+- PC側の80番ポートが他のアプリで使用中の場合は、`docker-compose.yml` の `frontend` の `ports` を `"8080:80"` のように変更し、`http://localhost:8080` でアクセスしてください。
+- コンテナ内のログファイル(`/app/logs/app.log`)はコンテナを削除すると消えます。確認には `docker compose logs` を使用してください。
+- 開発時(DBのみコンテナ)に戻す場合は、`docker compose down` で停止してから `docker compose up -d postgres` で起動してください。
+
+各コンテナのイメージ定義は以下のとおりです。
+
+| サービス | 定義ファイル | 内容 |
+|---|---|---|
+| frontend | [frontend/Dockerfile](frontend/Dockerfile)、[frontend/nginx.conf](frontend/nginx.conf) | Node.jsでビルドし、成果物をnginxで配信。`/api/` などをbackendへ中継 |
+| backend | [backend/Dockerfile](backend/Dockerfile) | JDKで実行可能jarをビルドし、JREのみのイメージで起動 |
+| postgres | (公式イメージ `postgres:16-alpine`) | DB |
 
 ## テスト
 
