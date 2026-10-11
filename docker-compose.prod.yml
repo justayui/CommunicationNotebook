@@ -1,0 +1,32 @@
+# 本番用の設定(docker-compose.yml に重ねて使う)
+# docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+# Dockerのログ(標準出力)が無制限に増えてディスクを圧迫しないよう、1ファイル10MB×3世代までに制限する
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  postgres:
+    # 手動で停止したとき以外は、EC2の再起動時や異常終了時に自動で起動し直す
+    restart: unless-stopped
+    logging: *default-logging
+
+  backend:
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      # メモリ1GBのインスタンスで他のコンテナと共存させるため、JVMのヒープ上限を絞る
+      JAVA_TOOL_OPTIONS: "-Xmx256m"
+    volumes:
+      # app.log をコンテナの再作成後も残す(LOG_PATHの既定値 logs = /app/logs)
+      - backend_logs:/app/logs
+
+  frontend:
+    restart: unless-stopped
+    logging: *default-logging
+
+volumes:
+  backend_logs:
