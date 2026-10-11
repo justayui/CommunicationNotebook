@@ -187,6 +187,7 @@ npm run dev
 - 外部に公開するのはfrontend(nginx)の80番ポートのみです。backendはnginx経由でのみアクセスできます。
 - 画面とAPIが同じオリジンから配信されるため、CORSは使用しません(`CORS_ALLOWED_ORIGINS` は空が設定されます)。
 - 開発時の利便性のため、postgresの5432番ポートは引き続き公開しています。
+- 投稿日時などはタイムゾーン情報を持たない形式で保存しているため、コンテナの既定(UTC)のままだと時刻が9時間ずれます。そのため、backendのコンテナを日本時間(`TZ=Asia/Tokyo`)で動作するようDockerfileに設定を追加しています。ログの時刻も日本時間になります。
 
 前提: Docker / Docker Compose、`.env` を作成済みであること(「DB(PostgreSQL / Docker)」を参照)
 
