@@ -186,7 +186,7 @@ npm run dev
 
 - 外部に公開するのはfrontend(nginx)の80番ポートのみです。backendはnginx経由でのみアクセスできます。
 - 画面とAPIが同じオリジンから配信されるため、CORSは使用しません(`CORS_ALLOWED_ORIGINS` は空が設定されます)。
-- 開発時の利便性のため、postgresの5432番ポートは引き続き公開しています。
+- 開発時の利便性のため、postgresの5432番ポートは引き続き公開しています(`docker-compose.override.yml` で設定。本番では公開しません。「本番環境での起動」を参照)。
 - 投稿日時などはタイムゾーン情報を持たない形式で保存しているため、コンテナの既定(UTC)のままだと時刻が9時間ずれます。そのため、backendのコンテナを日本時間(`TZ=Asia/Tokyo`)で動作するようDockerfileに設定を追加しています。ログの時刻も日本時間になります。
 
 前提: Docker / Docker Compose、`.env` を作成済みであること(「DB(PostgreSQL / Docker)」を参照)
@@ -212,7 +212,7 @@ docker compose down              # 停止(DBのデータは残る)
 ```
 
 - PC側の80番ポートが他のアプリで使用中の場合は、`docker-compose.yml` の `frontend` の `ports` を `"8080:80"` のように変更し、`http://localhost:8080` でアクセスしてください。
-- コンテナ内のログファイル(`/app/logs/app.log`)はコンテナを削除すると消えます。確認には `docker compose logs` を使用してください。
+- コンテナ内のログファイル(`/app/logs/app.log`)はコンテナを削除すると消えます。確認には `docker compose logs` を使用してください(本番用の設定ではボリュームに保存され、残ります)。
 - 開発時(DBのみコンテナ)に戻す場合は、`docker compose down` で停止してから `docker compose up -d postgres` で起動してください。
 
 各コンテナのイメージ定義は以下のとおりです。
@@ -223,6 +223,39 @@ docker compose down              # 停止(DBのデータは残る)
 | frontend | [frontend/Dockerfile](frontend/Dockerfile)、[frontend/nginx.conf](frontend/nginx.conf) | Node.jsでビルドし、成果物をnginxで配信。`/api/` などをbackendへ中継 |
 | backend  | [backend/Dockerfile](backend/Dockerfile)                                              | JDKで実行可能jarをビルドし、JREのみのイメージで起動                  |
 | postgres | (公式イメージ `postgres:16-alpine`)                                                         | DB                                              |
+
+### 本番環境での起動
+
+本番環境(EC2)では、本番用の設定ファイルを重ねて起動します。
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+Composeの設定は以下の3ファイルに分かれています。`docker compose` をファイル指定なしで実行すると `docker-compose.override.yml` が自動で読み込まれ、`-f` でファイルを指定した場合は読み込まれません。
+
+| ファイル | 用途 | 読み込まれるとき |
+| --- | --- | --- |
+| [docker-compose.yml](docker-compose.yml) | 共通の設定(3コンテナの定義) | 常に |
+| [docker-compose.override.yml](docker-compose.override.yml) | 開発用。postgresの5432番ポートを公開 | ファイル指定なしで実行したとき(自動) |
+| [docker-compose.prod.yml](docker-compose.prod.yml) | 本番用。下記の設定を追加 | `-f` で指定したとき |
+
+本番用の設定で、開発時から変わる点は以下のとおりです。
+
+- postgresの5432番ポートを公開しません(外部に公開するのはfrontendの80番ポートのみ)。
+- 全コンテナに `restart: unless-stopped` を設定しています。手動で停止した場合を除き、サーバーの再起動時や異常終了時に自動で起動し直します。
+- Dockerのログ(`docker compose logs` で見られるもの)は、コンテナごとに10MB×3ファイルまでに制限しています。
+- backendのログファイル(`/app/logs/app.log`)を名前付きボリューム `backend_logs` に保存し、コンテナを作り直しても残るようにしています。
+- メモリ1GBのインスタンス(t3.micro)で動かすため、backendのJVMのヒープ上限を256MB(`JAVA_TOOL_OPTIONS=-Xmx256m`)に制限しています。
+
+停止・ログの確認なども、同じく `-f` を付けて実行します。
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f backend
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+```
+
+`.env` は本番環境のサーバー上で作成し、`DB_PASSWORD`・`ADMIN_PASSWORD` には開発時とは別の推測されにくい値を設定してください。
 
 
 ## テスト
