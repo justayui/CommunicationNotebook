@@ -1,0 +1,7 @@
+# 開発用の設定(docker compose 実行時に docker-compose.yml へ自動で重ねて読み込まれる)
+# 本番では -f で docker-compose.prod.yml を指定するため、このファイルは読み込まれない
+services:
+  postgres:
+    # ローカルで起動したバックエンド(bootRun)やDBクライアントから接続するために公開する
+    ports:
+      - "5432:5432"
