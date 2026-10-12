@@ -257,6 +257,22 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml down
 
 `.env` は本番環境のサーバー上で作成し、`DB_PASSWORD`・`ADMIN_PASSWORD` には開発時とは別の推測されにくい値を設定してください。
 
+#### HTTPS化(CloudFront)
+
+本番環境では、EC2の前段にCloudFrontを置き、HTTPSで公開しています(独自ドメインは使用せず、CloudFrontのドメイン `*.cloudfront.net` の証明書を使用)。
+
+```
+ブラウザ ─HTTPS→ CloudFront ─HTTP→ frontend(nginx :80) ─HTTP→ backend(Spring Boot :8080)
+```
+
+- EC2のセキュリティグループでは、80番ポートへの接続をCloudFrontからのみに制限しています(AWS管理のプレフィックスリスト `com.amazonaws.global.cloudfront.origin-facing`)。
+- CloudFrontからnginxへはHTTPで接続するため、元の通信がHTTPSであることは、CloudFrontが付与する `CloudFront-Forwarded-Proto` ヘッダーで受け取ります。nginxはこれを `X-Forwarded-Proto` としてバックエンドへ渡し([frontend/nginx.conf](frontend/nginx.conf))、バックエンドは `server.forward-headers-strategy=native` で解釈します。これにより、HTTPS経由の通信では以下のようになります。
+  - Swagger UIの送信先URLが `https://` になる
+  - セッションCookieに `Secure` 属性が付く
+- ヘッダーがない場合(ローカルでのコンテナ起動など)は、従来どおりHTTPとして扱います。
+- セッションCookieには、環境によらず `SameSite=Lax` を付けています。CSRFトークンを使用しないため、他のサイトから送られる変更リクエスト(POST・PUT・DELETEなど)にCookieが付かないようにしています。
+- CloudFrontの主な設定: キャッシュポリシー `CachingDisabled`、オリジンリクエストポリシー `AllViewerAndCloudFrontHeaders-2022-06`、レスポンスヘッダーポリシー `SecurityHeadersPolicy`、HTTPからHTTPSへのリダイレクト。
+
 
 ## テスト
 
