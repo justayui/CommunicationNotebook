@@ -10,6 +10,7 @@ import com.communicationnotebook.backend.repository.UserRepository;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -38,6 +39,7 @@ public class NoteReadService {
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
      * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
      */
+    @Transactional
     public void register(Integer noteId, Integer userId) {
         Note note = noteRepository
                 .findById(noteId)
