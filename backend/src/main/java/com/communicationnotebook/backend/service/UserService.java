@@ -12,6 +12,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -74,6 +75,7 @@ public class UserService {
      * @throws ResponseStatusException 実行者が管理者権限を持たない場合（403 Forbidden）
      * @throws ResponseStatusException ユーザーが存在しない場合（404 Not Found）
      */
+    @Transactional
     public UserResponse updateName(Integer requesterId, Integer targetUserId, UserUpdateRequest request) {
         requireAdmin(requesterId);
         User target = findActiveUserOrThrow(targetUserId);
@@ -92,6 +94,7 @@ public class UserService {
      * @throws ResponseStatusException ユーザーが存在しない場合（404 Not Found）
      * @throws ResponseStatusException 削除対象が管理者で、他に有効な管理者が存在しない場合（409 Conflict）
      */
+    @Transactional
     public void delete(Integer requesterId, Integer targetUserId) {
         requireAdmin(requesterId);
         User target = findActiveUserOrThrow(targetUserId);
@@ -110,6 +113,7 @@ public class UserService {
      * @return 登録されたユーザー情報
      * @throws ResponseStatusException 職員IDが既に使用されている場合（409 Conflict）
      */
+    @Transactional
     public User signup(SignupRequest request) {
         if (userRepository.existsByEmployeeId(request.employeeId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "職員IDは既に使用されています");
@@ -134,6 +138,7 @@ public class UserService {
      * @throws ResponseStatusException ユーザーが存在しない場合（404 Not Found）
      * @throws ResponseStatusException 現在のパスワードと入力されたパスワードが一致しない場合（401 Unauthorized）
      */
+    @Transactional
     public void changePassword(Integer userId, PasswordChangeRequest request) {
         User user = findActiveUserOrThrow(userId);
 
@@ -156,6 +161,7 @@ public class UserService {
      * @throws ResponseStatusException 実行者が管理者権限を持たない場合（403 Forbidden）
      * @throws ResponseStatusException ユーザーが存在しない場合（404 Not Found）
      */
+    @Transactional
     public PasswordResetResponse resetPassword(Integer requesterId, Integer targetUserId) {
         requireAdmin(requesterId);
         User target = findActiveUserOrThrow(targetUserId);

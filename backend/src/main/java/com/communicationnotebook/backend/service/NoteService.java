@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -82,6 +83,7 @@ public class NoteService {
      * @return 登録済みの投稿情報
      * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
      */
+    @Transactional
     public NoteResponse create(NoteCreateRequest request, Integer userId) {
         User user = userRepository
                 .findById(userId)
@@ -108,6 +110,7 @@ public class NoteService {
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
      * @throws ResponseStatusException 実行者がユーザーIDと異なる場合（403 Forbidden）
      */
+    @Transactional
     public NoteResponse update(Integer id, NoteUpdateRequest request, Integer userId) {
         Note note = noteRepository
                 .findByIdWithUser(id)
@@ -138,6 +141,7 @@ public class NoteService {
      * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
      * @throws ResponseStatusException 実行者が投稿者または管理者以外の場合（403 Forbidden）
      */
+    @Transactional
     public void delete(Integer id, Integer userId) {
         Note note = noteRepository
                 .findByIdWithUser(id)
