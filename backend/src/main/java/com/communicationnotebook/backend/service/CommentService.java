@@ -11,6 +11,7 @@ import com.communicationnotebook.backend.repository.UserRepository;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -55,6 +56,7 @@ public class CommentService {
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
      * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
      */
+    @Transactional
     public CommentResponse create(Integer noteId, CommentCreateRequest request, Integer userId) {
         Note note = findActiveNote(noteId);
         User user = findActiveUser(userId);
@@ -80,6 +82,7 @@ public class CommentService {
      * @throws ResponseStatusException 投稿が存在しない、または削除済みの場合（404 Not Found）
      * @throws ResponseStatusException ユーザーが存在しない、または削除済みの場合（404 Not Found）
      */
+    @Transactional
     public void delete(Integer noteId, Integer commentId, Integer userId) {
         findActiveNote(noteId);
         User requester = findActiveUser(userId);
