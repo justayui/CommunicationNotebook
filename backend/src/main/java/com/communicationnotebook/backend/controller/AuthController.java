@@ -26,6 +26,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,14 +44,17 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
+    private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
     private final UserService userService;
 
     public AuthController(
             AuthenticationManager authenticationManager,
             SecurityContextRepository securityContextRepository,
+            SessionAuthenticationStrategy sessionAuthenticationStrategy,
             UserService userService) {
         this.authenticationManager = authenticationManager;
         this.securityContextRepository = securityContextRepository;
+        this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
         this.userService = userService;
     }
 
@@ -225,6 +229,8 @@ public class AuthController {
 
     private void establishSession(
             Authentication authResult, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        //既存のセッションがあればIDを変更する(セッション固定攻撃の対策)
+        sessionAuthenticationStrategy.onAuthentication(authResult, httpRequest, httpResponse);
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authResult);
         SecurityContextHolder.setContext(context);

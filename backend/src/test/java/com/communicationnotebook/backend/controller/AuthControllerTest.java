@@ -1,5 +1,6 @@
 package com.communicationnotebook.backend.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
@@ -17,9 +18,11 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.web.server.ResponseStatusException;
@@ -72,6 +75,28 @@ class AuthControllerTest {
     }
 
     @Test
+    void login_changesSessionId_whenSessionAlreadyExists() {
+        User user = newUser(1, "E001", "テスト太郎", false);
+        UserPrincipal principal = new UserPrincipal(user);
+        when(authenticationManager.authenticate(org.mockito.ArgumentMatchers.any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
+        //攻撃者が用意したセッションIDを持った状態でログインする想定
+        MockHttpSession session = new MockHttpSession();
+        String sessionIdBeforeLogin = session.getId();
+
+        mockMvc.post()
+                .uri("/api/auth/login")
+                .session(session)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"employeeId\":\"E001\",\"password\":\"password123\"}")
+                .assertThat()
+                .hasStatusOk();
+
+        assertThat(session.getId()).isNotEqualTo(sessionIdBeforeLogin);
+        assertThat(session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)).isNotNull();
+    }
+
+    @Test
     void login_returnsUnauthorized_whenCredentialsAreInvalid() {
         when(authenticationManager.authenticate(org.mockito.ArgumentMatchers.any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
@@ -109,6 +134,26 @@ class AuthControllerTest {
                 .bodyJson()
                 .extractingPath("$.employeeId")
                 .isEqualTo("E003");
+    }
+
+    @Test
+    void signup_changesSessionId_whenSessionAlreadyExists() {
+        User user = newUser(3, "E003", "テスト花子", false);
+        when(userService.signup(org.mockito.ArgumentMatchers.any(SignupRequest.class))).thenReturn(user);
+        //攻撃者が用意したセッションIDを持った状態でサインアップする想定
+        MockHttpSession session = new MockHttpSession();
+        String sessionIdBeforeSignup = session.getId();
+
+        mockMvc.post()
+                .uri("/api/auth/signup")
+                .session(session)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"employeeId\":\"E003\",\"name\":\"テスト花子\",\"password\":\"password123\"}")
+                .assertThat()
+                .hasStatus(201);
+
+        assertThat(session.getId()).isNotEqualTo(sessionIdBeforeSignup);
+        assertThat(session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY)).isNotNull();
     }
 
     @Test
